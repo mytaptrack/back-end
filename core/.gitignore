@@ -1,0 +1,14 @@
+.serverless
+.aws-sam
+.build
+node_modules
+/dist
+/cdk.out
+
+.DS_Store
+
+params/params_prod*
+params/params_test*
+
+
+cdk.context.json

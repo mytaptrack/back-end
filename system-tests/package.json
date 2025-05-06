@@ -1,0 +1,34 @@
+{
+    "name": "mytaptrack-tests-integration",
+    "version": "1.0.1",
+    "scripts": {
+        "start": "npm test",
+        "test": "jest",
+        "clean": "npx ts-node ./src/clean.ts",
+        "presetDebug": "npm uninstall @mytaptrack/types",
+        "setDebug": "npm i ../types",
+        "unsetDebug": "npm uninstall @mytaptrack/types && npm i @mytaptrack/types --save",
+        "set-env-vars": "node set-env-vars.js",
+        "test:env": "npm run set-env-vars && npm test",
+        "envSetup": "npx ts-node src/env-setup.ts"
+    },
+    "dependencies": {
+        "@aws-sdk/client-cognito-identity-provider": "^3.799.0",
+        "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+        "@mytaptrack/cdk": "file:../cdk",
+        "@mytaptrack/lib": "file:../lib",
+        "@mytaptrack/types": "^2.0.45",
+        "aws-sdk": "^2.1692.0",
+        "graphql": "^16.11.0",
+        "graphql-request": "^6.1.0",
+        "short-uuid": "^5.2.0"
+    },
+    "devDependencies": {
+        "@aws-sdk/client-ssm": "^3.799.0",
+        "@types/jest": "^29.5.14",
+        "@types/node": "^16.10.3",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.3.2",
+        "typescript": "^5.0.4"
+    }
+}

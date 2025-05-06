@@ -1,0 +1,109 @@
+env:
+  gsa:
+    stage: '4'
+  app:
+    pushSnsArns:
+      android: '' # The arn of the android sns topic used to send push notifications
+      ios: '' # The arn of the ios sns topic used to send push notifications
+    secrets:
+      detailsKey:
+        arn: '' # The arn of the secrets manager which stores the encryption key used for details validation
+        name: /test/app/detailsKey
+      tokenKey:
+        arn: '' # The arn of the secrets manager which stores the encryption key used for tokenizing the student id and validation of origin
+        name: /test/app/tokenKey
+  auto:
+    data:
+      dsn:
+        - M200000000000000
+  chatbot:
+    arn: '' # The arn used for the slack chatbot configuration for development alerting
+  debug: true
+  domain:
+    cert:
+      arn: '' # The ARN of the certificate used with the cloudfront distribution for the website
+    cloudfront:
+      id: '' # The cloudfront id to use for the website
+    hostedzone:
+      id: '' # The route 53 hosted zone id to use for the website, api, etc
+    name: '' # The name of the domain to use as the root for the website, api, etc
+    sub:
+      device:
+        appid: mytaptrack
+        cert: '' # The arn of the certificate from certificate manager to use for the devices api
+        name: '' # The full dns name of the subdomain to use for the devices api
+        subdomain: '' # The subdomain only, excluding the parent domain
+        apikey: '' # The API key to use for access to this api
+      api:
+        cert: '' # The arn of the certificate from certificate manager to use for the api
+        name: '' # The full dns name of the subdomain to use for the api
+        subdomain: '' # The subdomain only, excluding the parent domain
+      website:
+        name: '' # The full dns name of the subdomain to use for the website
+        subdomain: '' # The subdomain only, excluding the parent domain
+
+  #
+  # This section is used for canaries in order to validate the system is working, as well
+  # as provide a consistent data input to validate everything is functioning properly.
+  #
+  device:
+    key: '' # The app id to use for the canary as defined by mytaptrack's backend
+    canary:
+      app:
+        token: '' # The student token to use
+        deviceId: '' # The device id of the mobile app to use
+        name: '' # The name of the mobile app
+        targetStudent: '' # The name of the student
+      
+      # This student is used for ABC testing
+      abc:
+        studentId: '' # The id of the student being tracked
+        app:
+          token: '' # The token of the student being tracked
+          deviceId: '' # The id of the mobile app tracking the student
+          name: '' # The name of the mobile app
+          targetStudent: '' # The name of the student
+  kms:
+    s3: '' # The arn of the kms key used to encrypt the s3 bucket contents
+    pii:
+      origin:
+        arn: '' # The arn of the kms key used to encrypt pii information
+  region:
+    primary: '' # The AWS primary region to deploy to
+    regions:
+      - '' # The primary region to deploy to
+      - '' # A secondary region to deploy to, which will be used for disaster recovery
+  sms:
+    origin: '' # The origin phone number to use for sending sms messages
+  stacks:
+    core: '' # The name of the mytaptrack core stack which will be referenced by other stacks
+  student:
+    remove:
+      timeout: 90 # The number of milliseconds after a student has no more team members at which the student and their information is removed
+  system:
+    email: '' # The email address to use to send system emails
+  regional:
+    replication: "true" # if replication should be used across regions
+
+slack:
+  workspace:
+    id: '' # The workspace id in slack to use for messages
+
+hipaa:
+  AWSConfigARN: '' # The arn of the config role to use for configuration verification
+  AdminRoleArn: '' # The admin account role which is used for making global changes
+  PrimaryRegion: '' # The primary region to used
+  ForceS3Locks: 'false'
+  VpcEnabled: 'false' # Whether or not to enable the VPC, which will be used by lambda functions and can increase costs
+  QSS3KeyPrefix: /hipaa
+
+Lumigo: 
+  AttributeMasking: '[]'
+  DomainScrubbing: '[]'
+  # AttributeMasking: '["body","Body","Message","Item","Items","ExpressionAttributeValues",".*pass.*",".*key.*",".*secret.*",".*credential.*",".*passphrase.*","SessionToken","x-amz-security-token","Signature","Credential"]'
+  # DomainScrubbing: '[".*lambda.*","".*step.*""]'
+  Token: '' # The lumigo token to use if leveraging lumigo for tracing
+
+twilio:
+  secret:
+    arn: '' # The twilio secret arn to use if leveraging text messaging for notifications

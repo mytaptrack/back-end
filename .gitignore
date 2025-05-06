@@ -1,0 +1,4 @@
+# Ignore AI Agent Directories
+requirements
+requirements/ai/*
+

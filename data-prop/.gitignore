@@ -1,0 +1,14 @@
+node_modules
+/output/*.zip
+.serverless
+/coverage
+/.vscode
+/.nyc_output
+/.build
+dist
+/.aws-sam
+/cdk.out
+
+.DS_Store
+
+cdk.context.json
