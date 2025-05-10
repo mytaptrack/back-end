@@ -521,7 +521,6 @@ export class AppSyncStack extends Stack {
       }
     });
 
-    const encToken = config.env.app.secrets.tokenKey.name;
     this.appsync.addLambdaResolver('GetAppToken', {
       id: 'GetAppToken',
       typeName: 'Query',
@@ -626,7 +625,7 @@ export class AppSyncStack extends Stack {
     });
 
 
-    const https_key = `/${props.environment}/regional/calc/domain/sub/device/name`;
+    const https_key = `/${props.environment}/regional/calc/endpoints/device/url`;
     this.appsync.addLambdaResolver('GetServerSettings', {
       id: 'GetServerSettings',
       typeName: 'Query',

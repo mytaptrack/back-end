@@ -442,23 +442,21 @@ export class AwsStack extends cdk.Stack {
 
     const cognito = new MttCognito(context, {
       id: 'CognitoUserPool',
-      userPool: new cdk.aws_cognito.UserPool(this, 'CognitoUserPool', {
-        userPoolName: `${this.stackName}-user-pool`,
-        signInAliases: {
-          email: true,
-          username: false
-        },
-        passwordPolicy: {
-          minLength: 8,
-          requireLowercase: true,
-          requireUppercase: true,
-          requireDigits: true,
-          requireSymbols: true,
-          tempPasswordValidity: cdk.Duration.days(7)
-        },
-        signInCaseSensitive: false,
-        removalPolicy: cdk.RemovalPolicy.DESTROY
-      }),
+      userPoolName: `${this.stackName}-user-pool`,
+      signInAliases: {
+        email: true,
+        username: false
+      },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: true,
+        tempPasswordValidity: cdk.Duration.days(7)
+      },
+      signInCaseSensitive: false,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
       envVariable: 'cognito'
     });
     const websites = [];
@@ -493,13 +491,10 @@ export class AwsStack extends cdk.Stack {
       refreshTokenValidity: cdk.Duration.days(30)
     });
 
-    cognito.userPool.addDomain('UserPoolDomain', {
-      cognitoDomain: {
-        domainPrefix: `${this.stackName}-login`
-      }
-    });
+    const identityPool = cognito.addIdPool(client);
 
     context.setParameter(true, 'cognito/userpoolid', cognito.userPoolId);
+    context.setParameter(true, 'cognito/idpoolid', identityPool.identityPoolId);
     context.setParameter(true, 'cognito/clientid', client.userPoolClientId);
   }
 
