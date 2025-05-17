@@ -125,7 +125,6 @@ export class ApiV2StudentApi extends NestedStack {
             id: 'notificationsDeleteQueue',
             name: `${EnvironmentTagName}-student-notifications-delete-queue.fifo`,
             fifo: true,
-            kmsKey: context.kmsKey,
             retentionPeriod: Duration.seconds(900),
             visibilityTimeout: Duration.seconds(30),
             envVariable: 'NOTIFICATION_DELETE_QUEUE',

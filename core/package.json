@@ -19,7 +19,9 @@
         "@mytaptrack/cdk": "file:../cdk",
         "@types/aws-lambda": "^8.10.113",
         "@types/node": "^14.14.28",
+        "aws-cdk-lib": "^2.192.0",
         "aws-lambda": "^1.0.7",
+        "constructs": "^10.4.2",
         "readline": "^1.3.0"
     },
     "dependencies": {
@@ -30,7 +32,6 @@
         "@lumigo/tracer": "^1.80.2",
         "@mytaptrack/lib": "file:../lib",
         "@mytaptrack/types": "^2.0.29",
-        "aws-cdk-lib": "^2.192.0",
         "cfn-response": "^1.0.1",
         "cfn-response-promise": "^1.1.0",
         "lodash": "^4.17.21",

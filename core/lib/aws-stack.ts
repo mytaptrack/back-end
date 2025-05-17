@@ -40,46 +40,7 @@ export class AwsStack extends cdk.Stack {
     const config = conf.config;
     const regionPrimary = config.env.region.primary;
     const regions = config.env.region.regions;
-
-    // const logsEncryptionKey = new MttKmsKey(context, {
-    //   id: 'logsEncryptionKey',
-    //   description: 'Key used in cloudwatch logs',
-    //   statements: [
-    //     {
-    //       sid: 'Allow use of the key',
-    //       effect: Effect.ALLOW,
-    //       principals: [
-    //         new ServicePrincipal('logs.amazonaws.com'),
-    //         new ServicePrincipal('s3.amazonaws.com'),
-    //       ],
-    //       actions: [
-    //         "kms:Encrypt*",
-    //         "kms:Decrypt*",
-    //         "kms:ReEncrypt*",
-    //         "kms:GenerateDataKey*",
-    //         "kms:Describe*"
-    //       ],
-    //       resources: ['*'],
-    //       conditions: {
-    //         "ArnLike": {
-    //           "kms:EncryptionContext:aws:logs:arn": `arn:aws:logs:${this.region}:${this.account}:log-group:SSM`
-    //         }
-    //       }
-    //     },
-    //     {
-    //       sid: 'Allow modification of the key',
-    //       effect: Effect.ALLOW,
-    //       principals: [
-    //         new AccountPrincipal(this.account)
-    //       ],
-    //       actions: ['kms:*'],
-    //       resources: ['*']
-    //     }
-    //   ]
-    // });
-    // logsEncryptionKey.createAlias('logsEncryptionKeyAlias', 'mytaptrack/logs');
-    // context.logKmsKey = logsEncryptionKey.key
-
+    
     const apiGatewayCert = new CfnClientCertificate(this, 'apiGatewayCert', { description: `${this.stackName} certificate for api gateway`});
       
     const replicationRole = new Role(this, 'S3ReplicationRole', {
@@ -151,10 +112,10 @@ export class AwsStack extends cdk.Stack {
 
       const templateBucket = new MttS3(context, {
         id: 'TemplateBucket',
-        name: `${context.stackName}-${context.accountId}-templates`,
+        name: `templates`,
         phi: false
       });
-      context.setParameter(true, 'templates/bucket', templateBucket.bucket.bucketName);
+      context.setParameter(true, 'buckets/templates/name', templateBucket.bucket.bucketName);
 
       primaryTable = new MttDynamoDB(context, {
         id: 'DynamoTablePrimary',
@@ -268,25 +229,6 @@ export class AwsStack extends cdk.Stack {
       value: dataTable.dynamodb.tableName,
       exportName: `${this.stackName}-DynamoTableData`
     });
-
-    // const alias = piiEncryptionKey.createAlias('PiiEncryptionAlias', 'mytaptrack/pii');
-    // context.setParameter(true, 'encryption/pii', piiEncryptionKey.key.keyId, 'PiiEncryptionArnParam');
-    // new CfnOutput(this, 'PiiEncryptionKey', {
-    //   value: piiEncryptionKey.key.keyId,
-    //   exportName: `${this.stackName}-PiiEncryptionKey`
-    // });
-    // new CfnOutput(this, 'PiiEncryptionKeyArn', {
-    //   value: piiEncryptionKey.arn,
-    //   exportName: `${this.stackName}-PiiEncryptionKeyArn`
-    // });
-    // new CfnOutput(this, 'PiiEncryptionAliasName', {
-    //   value: alias.aliasName,
-    //   exportName: `${this.stackName}-PiiEncryptionAlias`
-    // });
-    // new CfnOutput(this, 'PiiEncryptionAliasArn', {
-    //   value: alias.aliasArn,
-    //   exportName: `${this.stackName}-PiiEncryptionAliasArn`
-    // });
 
     const nested = new SecurityStack(this, 'SecurityStack', {
       coreStack: props.stackName!,
@@ -508,6 +450,8 @@ export class AwsStack extends cdk.Stack {
         { name: 'DataType', value: 'PatientPHI'}
       ]
     });
+    context.setParameter(true, 'buckets/data/name', dataBucket.bucket.bucketName);
+
     const complianceBucket = new MttS3(context, {
       id: 'ComplianceBucket',
       name: `compliance-v2`,

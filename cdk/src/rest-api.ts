@@ -1,7 +1,7 @@
 import { 
     RestApi, EndpointType, LambdaIntegration, IResource, 
     AuthorizationType, Authorizer, Cors, CognitoUserPoolsAuthorizer, 
-    Period
+    Period, MethodLoggingLevel, AccessLogFormat, LogGroupLogDestination
 } from 'aws-cdk-lib/aws-apigateway';
 import { IUserPool } from 'aws-cdk-lib/aws-cognito';
 import { IMttContext, MttFunction, MttFunctionProps } from '.';
@@ -9,7 +9,8 @@ import { CfnResource } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
-import * as shortUUID from 'short-uuid'
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Policy, PolicyDocument, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface MttRestApiPropsAuthentication {
     cognito?: IUserPool;
@@ -74,6 +75,14 @@ export class MttRestApi {
                 });
                 this.authorizer = auth;
             }
+            // Create CloudWatch log group for API Gateway access logs without KMS encryption
+            const logGroup = new logs.LogGroup(context.scope, `${props.id}-logs`, {
+                logGroupName: `/mtt/${context.environment}/apis/${props.name ?? props.id}`,
+                retention: logs.RetentionDays.ONE_WEEK,
+                encryptionKey: context.logKmsKey,
+                removalPolicy: context.removalPolicy
+            });
+
             const api = new RestApi(context.scope, props.id, {
                 restApiName: props.name ?? props.id,
                 domainName: props.subdomain? {
@@ -90,8 +99,19 @@ export class MttRestApi {
                     authorizationType,
                     authorizer: this.authorizer,
                     apiKeyRequired: props.authentication.apiKey? true : false,
+                },
+                // Configure API Gateway to use CloudWatch logs without KMS encryption
+                deployOptions: {
+                    accessLogDestination: new LogGroupLogDestination(logGroup),
+                    accessLogFormat: AccessLogFormat.jsonWithStandardFields(),
+                    methodOptions: {
+                        '/*/*': {
+                            loggingLevel: MethodLoggingLevel.INFO
+                        }
+                    }
                 }
             });
+
             if(props.subdomain) {
                 new ARecord(context.scope, `${props.id}-alias`, {
                     zone: context.getHostedZone(),

@@ -50,15 +50,16 @@ export class MttS3 implements EnvironmentEnabled {
     setEnvironment() {}
 
     constructor(private context: IMttContext, private props: MttS3Props ) {
+        const alpha = btoa(context.accountId).replace(/[\Da-zA-Z]+/g, '').toLocaleLowerCase();
         if(props.existing) {
-            const bucketName = props.stack? `${props.stack}-${context.region}-${props.name}` : props.name;
+            const bucketName = props.stack? `${props.stack}-${alpha}-${context.region}-${props.name}` : props.name;
             console.log(`Referencing notes bucket ${bucketName}`);
             this.bucket = Bucket.fromBucketName(context.scope, props.id, bucketName);
             return;
         }
 
-        const bucketName = props.name? `${this.context.stackName}-${this.context.region}-${props.name}` : `${this.context.stackName}-${this.context.region}`;
-        let replicationBucketName: string | undefined = !props.replicationOn? undefined : props.name? `${context.stackName}-${context.replicationRegion}-${props.name}` :`${context.stackName}-${context.replicationRegion}`;
+        const bucketName = props.name? `${this.context.stackName}-${alpha}-${this.context.region}-${props.name}` : `${this.context.stackName}-${alpha}-${this.context.region}`;
+        let replicationBucketName: string | undefined = !props.replicationOn? undefined : props.name? `${context.stackName}-${alpha}-${context.replicationRegion}-${props.name}` :`${context.stackName}-${alpha}-${context.replicationRegion}`;
 
         if(context.replicationRegion && !context.s3ReplicationRole) {
             const replicationRole = new Role(context.scope, `${props.id}ReplicationRole`, {
@@ -107,7 +108,7 @@ export class MttS3 implements EnvironmentEnabled {
             },
             bucketEncryption: {
                 serverSideEncryptionConfiguration: [{
-                    serverSideEncryptionByDefault: props.defaultEncryption? {
+                    serverSideEncryptionByDefault: props.defaultEncryption || !context.kmsKey? {
                         sseAlgorithm: 'AES256'
                     } : {
                         sseAlgorithm: 'aws:kms',
@@ -158,9 +159,9 @@ export class MttS3 implements EnvironmentEnabled {
                     },
                     destination: {
                         bucket: `arn:aws:s3:::${replicationBucketName}`,
-                        encryptionConfiguration: {
-                            replicaKmsKeyId: Fn.sub('arn:aws:kms:${SecondRegion}:${AWS::AccountId}:alias/mytaptrack/pii', { SecondRegion: context.replicationRegion! })
-                        }
+                        encryptionConfiguration: (context.config.env.encryption?.piiAlias)? {
+                            replicaKmsKeyId: Fn.sub('arn:aws:kms:${SecondRegion}:${AWS::AccountId}:alias/' + context.config.env.encryption?.piiAlias, { SecondRegion: context.replicationRegion! })
+                        } : undefined
                     }
                 }]
             } : undefined,

@@ -43,10 +43,14 @@ export class ApiV2Stack extends Stack {
     const primaryTableArn = Fn.importValue(`${CoreStack}-DynamoTablePrimaryArn`);
     const dataTable = MttDynamoDB.fromTableArn(context, { id: 'DynamoDataTable', name: 'DataTable', phi: true, identifiable: false }, dataTableArn);
     const primaryTable = MttDynamoDB.fromTableArn(context, { id: 'DynamoPrimaryTable', name: 'PrimaryTable', phi: true, identifiable: true }, primaryTableArn);
-    const dataBucket = new MttS3(context, { id: 'DataBucket', stack: CoreStack, name: 'data', envName: 'dataBucket', existing: true, phi: true })
+    const dataBucket = MttS3.getExisting(
+        context, 
+        context.getParameter(`/${this.EnvironmentTagName}/regional/calc/buckets/data/name`).stringValue,
+        true,
+        'dataBucket');
     const binBucket = MttS3.getExisting(
         context, 
-        context.getParameter(`/${this.EnvironmentTagName}/regional/calc/templates/bucket`).stringValue, 
+        context.getParameter(`/${this.EnvironmentTagName}/regional/calc/buckets/templates/name`).stringValue, 
         false, 
         'TemplateBucket');
         

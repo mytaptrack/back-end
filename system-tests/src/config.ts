@@ -57,6 +57,7 @@ export async function getApiEndpoint() {
     }));
     const url = new URL(result.Parameter.Value);
     apiEndpoint = url.hostname;
+    console.log("WebAPI Endpoint", apiEndpoint);
     return apiEndpoint;
 }
 

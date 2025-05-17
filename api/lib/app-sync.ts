@@ -39,13 +39,11 @@ export class AppSyncStack extends Stack {
       envVariable: 'UserPoolId' 
     });
 
-    const dataTableArn = Fn.importValue(`${CoreStack}-DynamoTableDataArn`);
-    const primaryTableArn = Fn.importValue(`${CoreStack}-DynamoTablePrimaryArn`);
-    const dataTable = MttDynamoDB.fromTableArn(context, { id: 'DynamoDataTable', name: 'DataTable', phi: true, identifiable: false }, dataTableArn);
-    const primaryTable = MttDynamoDB.fromTableArn(context, { id: 'DynamoPrimaryTable', name: 'PrimaryTable', phi: true, identifiable: true }, primaryTableArn);
-    const dataBucket = new MttS3(context, { id: 'DataBucket', stack: CoreStack, name: 'data', envName: 'dataBucket', existing: true, phi: true });
-    const timestreamArn = Fn.importValue(`${CoreStack}-timestream-data-arn`);
-    const timestreamName = Fn.importValue(`${CoreStack}-timestream-name`);
+    const dataStores = context.getDataStores();
+    const dataTable = dataStores.dataTable;
+    const primaryTable = dataStores.primaryTable;
+    const dataBucket = dataStores.dataBucket;
+    const timestream = dataStores.timestream;
 
     // AppSync CloudWatch Role
     const appsyncCloudwatchRole = new Role(this, 'AppsyncCloudwatchRole', {
@@ -139,7 +137,7 @@ export class AppSyncStack extends Stack {
       fieldName: 'getLicenseStats',
       codePath: 'src/graphql/resolver/query/getLicenses/stats.ts',
       environmentVariables: {
-        timestreamDatabase: timestreamName
+        timestreamDatabase: timestream.tableName
       },
       tables: [
         { table: dataTable, access: DynamoDBAccess.read, indexes: ['', MttIndexes.license ] }
@@ -156,7 +154,7 @@ export class AppSyncStack extends Stack {
             'timestream:Select'
           ],
           resources: [
-            `${timestreamArn}`
+            `${timestream.tableArn}`
           ]
         }
       ]

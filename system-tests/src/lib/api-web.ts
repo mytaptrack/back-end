@@ -23,7 +23,12 @@ class WebApiClass {
     private prefix: string;
 
     constructor() {
-        this.prefix = config.env.domain.sub.api.path ?? '';
+        this.prefix = config.env.domain?.sub?.api?.path ?? '/prod';
+    }
+
+    private async cognitoRequest(method: string, path: string, params: any) {
+        console.log('Calling WebApi', method, path);
+        return await httpRequest(await getApiEndpoint(), this.cognitoAuth, method, path, params);
     }
 
     async login(user?: TestUserConfig) {
@@ -43,7 +48,7 @@ class WebApiClass {
             studentId,
             license
         };
-        const result = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/devices/track/register`, params);
+        return await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/devices/track/register`, params);
     }
     async deleteButton(studentId: string, serialNumber: string) {
         let now = moment();
@@ -53,19 +58,18 @@ class WebApiClass {
             dsn: serialNumber,
             studentId
         };
-        const result = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/devices/track`, params);
+        return await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/devices/track`, params);
     }
 
     async putTrackConfig(data: DevicePutRequest) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `/api/v2/student/devices/track`, data);
+        return await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/devices/track`, data);
     }
 
     async getStudent(studentId: string) {
         let now = moment();
         now = now.tz('America/Los_Angeles')
 
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/student?studentId=${studentId}`, {});
-
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student?studentId=${studentId}`, {});
         return JSON.parse(response) as Student;
     }
 
@@ -73,8 +77,7 @@ class WebApiClass {
         let now = moment();
         now = now.tz('America/Los_Angeles')
 
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/student/devices?studentId=${studentId}`, {});
-
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/devices?studentId=${studentId}`, {});
         return JSON.parse(response) as IoTDevice[];
     }
 
@@ -82,161 +85,161 @@ class WebApiClass {
         let now = moment();
         now = now.tz('America/Los_Angeles');
 
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/reports/data?studentId=${studentId}&startDate=${weekStart.format('yyyy-MM-DD')}&endDate=${weekEnd.format('yyyy-MM-DD')}`, undefined);
+        const path = `${this.prefix}/api/v2/reports/data?studentId=${studentId}&startDate=${weekStart.format('yyyy-MM-DD')}&endDate=${weekEnd.format('yyyy-MM-DD')}`;
+        console.log('Calling WebApi GET', path);
+        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', path, undefined);
 
         return JSON.parse(response) as ReportDetails;
     }
 
     async putStudentAppV2(request: AppPutRequest): Promise<IoTAppDevice> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/devices/app`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/devices/app`, request)
         return JSON.parse(response) as IoTAppDevice;
     }
     
     async getStudentAppTokenV2(studentId: string, dsn: string): Promise<{ id: string; token: string; }> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/student/devices/app/token?studentId=${studentId}&appId=${dsn}`, undefined);
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/devices/app/token?studentId=${studentId}&appId=${dsn}`, undefined);
         return JSON.parse(response) as { id: string; token: string; };
     }
     async deleteStudentAppV2(studentId: string, dsn: string) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/devices/app`, { studentId, dsn, isApp: true } as DeleteDeviceRequest);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/devices/app`, { studentId, dsn, isApp: true } as DeleteDeviceRequest);
     }
 
     async getManageAppV2(license: string) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/manage/apps?license=${license}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/manage/apps?license=${license}`, {});
         return JSON.parse(response) as MobileDevice[];
     }
     async putManageAppV2(request: ManageAppRenamePostRequest): Promise<void> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/manage/app`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/manage/app`, request);
     }
     async deleteManageAppV2(request: DeleteDeviceRequest): Promise<void> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/manage/app`, request);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/manage/app`, request);
     }
 
     async manageAbcPut(request: AbcCollection[]): Promise<void> {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/manage/abc`, request);
+        await this.cognitoRequest('PUT', `${this.prefix}/api/v2/manage/abc`, request);
     }
 
     async manageLicenseGet(license: string): Promise<LicenseDetails> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/license?license=${license}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/license?license=${license}`, {});
         return JSON.parse(response);
     }
 
     async manageStudentsGet(license: string): Promise<ManageStudentGetResponse> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/manage/students?license=${license}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/manage/students?license=${license}`, {});
         return JSON.parse(response);
     }
 
     async manageStatsGet(license: string): Promise<LicenseStats> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/manage/stats?license=${license}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/manage/stats?license=${license}`, {});
         return JSON.parse(response);
     }
 
     async getStudentTeam(studentId: string) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/student/team?studentId=${studentId}`, { studentId } as TeamPostRequest);
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/team?studentId=${studentId}`, { studentId } as TeamPostRequest);
         return JSON.parse(response) as UserSummary[];
     }
 
     async deleteStudentTeam(studentId: string, userId: string) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/team?studentId=${studentId}`, { studentId, userId } as TeamDeleteRequest);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/team?studentId=${studentId}`, { studentId, userId } as TeamDeleteRequest);
     }
 
     async putStudentTeamMember(request: TeamPutRequest) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/team`, request)
+        await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/team`, request)
     }
 
     async getUser() {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/user`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/user`, {});
         return JSON.parse(response) as User;
     }
 
     async putUser(request: UserPutRequest) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/user`, request);
+        await this.cognitoRequest('PUT', `${this.prefix}/api/v2/user`, request);
     }
 
     async getStudentNotifications(studentId: string): Promise<Notification<NotificationDetailsBehavior>[]> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/student/notification?studentId=${studentId}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/notification?studentId=${studentId}`, {});
         return JSON.parse(response);
     }
 
     async putStudentSubscriptions(request: StudentSubscriptions) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/subscriptions`, request);
+        await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/subscriptions`, request);
     }
 
     async deleteStudentNotifications(request: Notification<NotificationDetailsBehavior>) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/notification`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/notification`, request);
     }
 
     async createStudent(request: StudentCreateRequest): Promise<Student> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student`, request);
         return JSON.parse(response) as Student;
     }
 
     async putLicenseStudent(request: ApplyLicenseRequest): Promise<Student> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/license/student`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/license/student`, request);
         return JSON.parse(response) as Student;
       }
 
     async putStudentBehavior(request: StudentBehaviorPutRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/behavior`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/behavior`, request);
         return JSON.parse(response) as StudentBehavior;
     }
 
     async deleteStudentBehavior(request: StudentBehaviorDeleteRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/behavior`, request);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/behavior`, request);
         return JSON.parse(response) as StudentBehavior;
     }
 
     async putStudentAbc(request: StudentAbcPut) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/abc`, request);
+        await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/abc`, request);
     }
 
     async deleteStudentAbc(request: StudentAbcDelete) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/abc`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/abc`, request);
     }
 
     async getSchedule(studentId: string): Promise<ScheduleCategory[]> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/student/schedules?studentId=${studentId}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/schedules?studentId=${studentId}`, {});
         return JSON.parse(response);
     }
 
     async putSchedule(request: SchedulePutRequest) {
-        const result = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/schedule`, request);
+        const result = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/schedule`, request);
         return JSON.parse(result) as ActivityGroupDetails;
     }
 
     async deleteSchedule(request: ScheduleDeleteRequest) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/schedule`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/schedule`, request);
     }
 
     async putStudentResponse(request: StudentResponsePutRequest): Promise<StudentResponse> {
-        const result = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/response`, request);
+        const result = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/response`, request);
         return JSON.parse(result);
     }
 
     async deleteStudentResponse(request: StudentBehaviorDeleteRequest) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/response`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/response`, request);
     }
 
     async getStudentDocuments(studentId: string): Promise<StudentDocument[]> {
-        let path = `${this.prefix}/api/v2/student/document?studentId=${studentId}`;
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', path, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/document?studentId=${studentId}`, {});
         return JSON.parse(response);
     }
     async getStudentDocument(studentId: string, documentId: string): Promise<string> {
-        let path = `${this.prefix}/api/v2/student/document?studentId=${studentId}&documentId=${documentId}`;
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', path, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/student/document?studentId=${studentId}&documentId=${documentId}`, {});
         return response;
     }
     async putStudentDocumentStart(request: PutDocumentRequest): Promise<string> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/document`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/document`, request);
 
         return response;
     }
     async putStudentDocument(request: PutDocumentRequest): Promise<StudentDocument> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/student/document`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/student/document`, request);
         return JSON.parse(response);
     }
     async deleteStudentDocument(request: DeleteDocumentRequest) {
-        await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/student/document`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/document`, request);
     }
 
     async putSignedUrl(urlString: string, body: string) {
@@ -249,56 +252,56 @@ class WebApiClass {
     }
 
     async putNotes(request: StudentNotesPut) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/reports/notes`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/reports/notes`, request);
         return JSON.parse(response);
     }
     async postNotes(request: StudentNotesPost): Promise<DailyNote> {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'POST', `${this.prefix}/api/v2/reports/notes`, request);
+        const response = await this.cognitoRequest('POST', `${this.prefix}/api/v2/reports/notes`, request);
         return JSON.parse(response);
     }
 
     async deleteReportsData(data: StudentTrackPut) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/reports/data`, data);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/reports/data`, data);
         return JSON.parse(response);
     }
 
     async putReportsData(data: StudentDataPut) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/reports/data`, data);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/reports/data`, data);
         return JSON.parse(response);
     }
 
     async putExcludeDate(data: StudentDataExcludeRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/reports/data/date`, data);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/reports/data/date`, data);
         return JSON.parse(response);
     }
 
     async putReportSchedule(data: OverwriteSchedulePutRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/reports/schedule`, data);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/reports/schedule`, data);
         return JSON.parse(response);
     }
     async deleteReportSchedule(data: OverwriteScheduleDeleteRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'DELETE', `${this.prefix}/api/v2/reports/schedule`, data);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/reports/schedule`, data);
         return JSON.parse(response);
     }
     async getStudentSettings(studentId: string) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/reports/settings?studentId=${studentId}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/reports/settings?studentId=${studentId}`, {});
         return JSON.parse(response) as StudentDashboardSettings;
     }
     async putStudentSettings(request: PutSettingsRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/reports/settings`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/reports/settings`, request);
         return JSON.parse(response);
     }
 
     async getSnapshot(studentId: string) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', `${this.prefix}/api/v2/reports/snapshot?studentId=${studentId}`, {});
+        const response = await this.cognitoRequest('GET', `${this.prefix}/api/v2/reports/snapshot?studentId=${studentId}`, {});
         return JSON.parse(response) as string[];
     }
     async postSnapshot(request: StudentReportPostRequest) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'POST', `${this.prefix}/api/v2/reports/snapshot`, request);
+        const response = await this.cognitoRequest('POST', `${this.prefix}/api/v2/reports/snapshot`, request);
         return JSON.parse(response) as StudentSummaryReport;
     }
     async putSnapshot(request: StudentSummaryReport) {
-        const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'PUT', `${this.prefix}/api/v2/reports/snapshot`, request);
+        const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/reports/snapshot`, request);
         return JSON.parse(response) as StudentSummaryReport;
     }
 }
