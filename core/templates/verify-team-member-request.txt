@@ -1,0 +1,16 @@
+${inviter.name} invited ${invitee.email} to join ${student.name}'s mytaptrack® team as a ${invitee.role}!
+
+mytaptrack® wants to make sure your child's invormation is protected, but accessible to those in your support team.  
+
+To approve this individual's access:
+
+• Go to mytaptrack.com
+• Sign in and look for the notification icon next to your name
+• Click the icon, and accept or decline the request
+
+If you have any questions we encourage you to contact ${inviter.name} or reply to this email.  We look
+forward to helping you count the moments that shape your special needs child.
+
+Sincerely,
+Nikody Keating
+Founder & CEO

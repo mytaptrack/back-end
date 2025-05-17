@@ -1,0 +1,18 @@
+A new team member has joined your team at mytaptrack®.
+
+${inviter.name} has joined ${student.name}'s team!
+
+Remember, mytaptrack allows you to share your charts and graphs with ${inviter.name}.  
+
+To share your charts:
+• Find the chart you want to share
+• Click the gear icon
+• Click "Share"
+• Type in "${inviter.email}"
+• Click "OK"
+
+If you have questions or need support, reply to this email. 
+
+Sincerely,
+Customer Care
+mytaptrack

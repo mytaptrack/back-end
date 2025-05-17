@@ -1,0 +1,15 @@
+${student.name}'s mytaptrack® team has a new alert.
+
+mytaptrack® alerts reveal changes in ${student.name}'s special needs, behaviors and symptoms. 
+
+View your new alert:
+
+• Go to mytaptrack.com
+• Log in top right
+• After logging in, click the bell icon top right
+
+If you have questions or need support, reply to this email. 
+
+Sincerely,
+Nikody Keating
+Founder & CEO

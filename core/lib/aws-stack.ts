@@ -116,6 +116,7 @@ export class AwsStack extends cdk.Stack {
         phi: false
       });
       context.setParameter(true, 'buckets/templates/name', templateBucket.bucket.bucketName);
+      templateBucket.addContent('TemplateBucketContent', ['./templates'], { keyPrefix:'templates/' });
 
       primaryTable = new MttDynamoDB(context, {
         id: 'DynamoTablePrimary',
