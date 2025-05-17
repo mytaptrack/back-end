@@ -1,0 +1,11 @@
+You’ve been tagged!
+
+An educator in mytaptrack® has tagged you on a note for ${student.name}.
+
+Click the following link to login into your mytaptrack® account and view the tagged note:
+https://portal.mytaptrack.com/dashboard?studentId=${student.id}&date=${date}
+
+If you do not have a mytaptrack account, have other questions, or need support, please reply to this email.
+
+Sincerely,
+mytaptrack® customer support

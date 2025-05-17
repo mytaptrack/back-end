@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <style>
+body {
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+}
+
+.brand {
+    font-weight: 450;
+}
+
+ol {
+  margin: 0 0 1.5em;
+  padding: 0;
+  counter-reset: item;
+}
+
+ol > li {
+  margin: 0;
+  padding: 0 0 0 2em;
+  text-indent: -2em;
+  list-style-type: none;
+  counter-increment: item;
+}
+
+ol > li:before {
+  display: inline-block;
+  width: 1em;
+  padding-right: 0.5em;
+  font-weight: bold;
+  text-align: right;
+  content: counter(item) ".";
+}
+        </style>
+    </head>
+    <body>
+<p>
+<h2>You’ve been tagged!</h2>
+</p>
+<p>
+  An educator in mytaptrack® has tagged you on a note for ${student.name}.
+</p>
+<p>
+  Click the following link to login into your mytaptrack® account and view the tagged note:
+</p>
+<p>
+  https://${domain}/dashboard?studentId=${student.id}&date=${date}&dailyTab=notes
+</p>
+<p>
+  If you do not have a mytaptrack account, have other questions, or need support, please reply to this email.
+</p>
+<div>Sincerely,</div>
+<div>mytaptrack® Customer Support</div>
+<div>
+  <br/>
+  <p>
+    If you do not wish to receive these emails in the future, click <a href="{{amazonSESUnsubscribeUrl}}">here</a> to unsubscribe.
+  </p>
+</div>
+    </body>
+</html>
