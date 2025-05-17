@@ -1,12 +1,15 @@
 .PHONY: install install-graphql install-deps build deploy test update-env clean unit_tests deploy-core deploy-graphql deploy-api deploy-device deploy-data-prop
 
 # Full installation and deployment
-install: install-deps build set-env deploy
+install: install-deps build configure-env set-env deploy
 
 env-setup: install-deps set-env
 
 set-env:
-	cdk core && npm run setenv
+	cd utils && npm run set-env
+
+del-env:
+	cd utils && npm run del-env
 
 # Install dependencies for all services
 install-deps:
@@ -20,47 +23,48 @@ install-deps:
 # Build all services
 build:
 	cd lib && npm run build && cd ..
-	cd core && npm run setenv ${STAGE} && cd ..
+	cd utils && npm run set-env ${STAGE} && cd ..
 
 # Deploy all services
 deploy: deploy-core deploy-data-prop deploy-graphql deploy-api deploy-device
 
 # Individual deployment targets
 deploy-core:
-	# cd core && cdk deploy && cd ..
+	cd core && cdk deploy --require-approval never && cd ..
 
 deploy-graphql:
-	# cd api && cdk deploy graphql && cd ..
+	cd api && cdk deploy --require-approval never graphql && cd ..
 
 deploy-api:
-	# cd api && cdk deploy api && cd ..
+	cd api && cdk deploy --require-approval never api && cd ..
 
 deploy-device:
-	# cd api && cdk deploy device && cd ..
+	cd api && cdk deploy --require-approval never device && cd ..
 
 deploy-data-prop:
-	# cd data-prop && cdk deploy && cd ..
+	cd data-prop && cdk deploy --require-approval never && cd ..
 
 # Install only GraphQL service
 install-graphql: 
 	cd api && npm i && cd ..
 	cd api && cdk deploy graphql && cd ..
 
+configure-license:
+	cd utils && npm i && npm run setup-env
+
+uninstall:
+	cd data-prop && cdk destroy
+	cd api && cdk destroy --all
+	cd core && cdk destroy
+
 # Update environment configurations
 update-env:
-	cd core && npm i && npm run setenv && cd ..
+	cd utils && npm i && npm run setenv && cd ..
 
 configure: install-deps configure-env
 
 configure-env:
-	cd core && npm run setup-env
-
-# Run unit tests
-unit_tests:
-	cd lib && npm test && cd ..
-	cd core && npm test && cd ..
-	cd api && npm test && cd ..
-	cd data-prop && npm test && cd ..
+	cd utils && npm run setup-env
 
 test:
 	cd system-tests && npm run envSetup && npm test
@@ -71,6 +75,7 @@ clean:
 	cd lib && rm -rf node_modules && cd ..
 	cd core && rm -rf node_modules && cd ..
 	cd api && rm -rf node_modules && cd ..
+	cd utils && rm -rf node_modules && cd ..
 	cd data-prop && rm -rf node_modules && cd ..
 	find . -name "*.js.map" -type f -delete
 	find . -name "*.d.ts" -type f -delete

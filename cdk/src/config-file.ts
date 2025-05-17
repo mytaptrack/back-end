@@ -89,6 +89,10 @@ export interface Config {
         testing?: {
             admin: TestUserConfig;
             nonadmin: TestUserConfig;
+        },
+        encryption?: {
+            piiAlias?: string;
+            logAlias?: string;
         }
     },
     slack?: {

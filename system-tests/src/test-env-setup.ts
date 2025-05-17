@@ -56,13 +56,16 @@ async function createUser(userPoolId: string, user: TestUserConfig) {
     }));
 
     // Login to use the api to setup the user details
+    console.log("Logging user in");
     await webApi.login(user);
 
     // Get the existing user and default object
+    console.log("Getting user details");
     const userDetails = await webApi.getUser();
     const parts = user.name.split(' ');
 
     // Set the values of the user
+    console.log("Updating user details");
     userDetails.details.name = user.name;
     userDetails.details.firstName = parts[0];
     userDetails.details.lastName = parts.length > 1 ? parts[1] : parts[0];
@@ -70,6 +73,7 @@ async function createUser(userPoolId: string, user: TestUserConfig) {
     userDetails.details.zip = '99999';
 
     // Save the user
+    console.log("Saving user details");
     await webApi.putUser({
         ...userDetails.details,
         email: user.email,

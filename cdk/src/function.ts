@@ -99,11 +99,10 @@ export class MttFunction {
                 signingProfiles: [signingProfile],
             });
 
-            // const dlqEncryptionKey = Alias.fromAliasName(context.scope, props.id + 'dataKey', 'alias/mytaptrack/pii');
-            // const dlqKmsKey = dlqEncryptionKey;
+            let dlqKmsKey = context.kmsKey;
             const stackDeadLetterQueue = new MttSqs(context, {
                 id: 'stackDeadLetterQueue',
-                kmsKey: null
+                kmsKey: dlqKmsKey
             });
             const dlQueue = stackDeadLetterQueue.queue;
             context.lambdaComponents = {
@@ -295,7 +294,7 @@ export class MttFunction {
 
         const logGroup = new LogGroup(context.scope, `${context.stackName}-${context.region}-${props.name ?? props.id}-logs`, {
             encryptionKey: context.logKmsKey,
-            logGroupName: `/mtt/functions/${context.stackName}/${context.region}/${props.name ?? props.id}`,
+            logGroupName: `/mtt/${context.environment}/functions/${context.stackName}/${context.region}/${props.name ?? props.id}`,
             retention: context.environment == 'prod'? RetentionDays.TWO_YEARS : RetentionDays.ONE_MONTH,
             removalPolicy: RemovalPolicy.DESTROY
         });

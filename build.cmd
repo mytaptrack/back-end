@@ -24,6 +24,7 @@ if "%1"=="" (
     echo   deploy-api      - Deploy API service
     echo   deploy-device   - Deploy device service
     echo   deploy-data-prop - Deploy data propagation service
+    echo   uninstall       - Uninstalls all AWS components and data
     exit /b 0
 )
 
@@ -184,6 +185,21 @@ if "%1"=="clean" (
     
     :: Delete cdk.out directories
     for /d /r . %%d in (cdk.out) do if exist "%%d" rmdir /s /q "%%d"
+    exit /b 0
+)
+
+rem Uninstall stacks
+if "%1"=="clean" (
+    cd data-prop
+    cdk destroy
+    cd ..
+    cd api
+    cdk destroy --all
+    cd ..
+    cd core
+    cdk destroy
+    cd ..
+    
     exit /b 0
 )
 

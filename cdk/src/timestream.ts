@@ -28,7 +28,7 @@ export class MttTimestreamDB {
     constructor(private context: MttContext, private props: MttTimestreamDBProps) {
         this._db = new timestream.CfnDatabase(context.scope, props.id, {
             databaseName: props.name ?? props.id,
-            kmsKeyId: context.kmsKey.keyId
+            kmsKeyId: context.kmsKey?.keyId ?? undefined
         });
     }
 

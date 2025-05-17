@@ -11,9 +11,9 @@
         "package-cdk": "cdk deploy --no-execute --change-set-name pipeline-deployment --require-approval never",
         "start-cdk": "cdk deploy --watch --hotswap",
         "test": "jest --coverage",
-        "presetDebug": "npm uninstall @mytaptrack/types @mytaptrack/lib @mytaptrack/cdk",
+        "presetDebug": "npm uninstall @mytaptrack/types",
         "setDebug": "npm i ../../types ../../cdk",
-        "unsetDebug": "npm uninstall @mytaptrack/types @mytaptrack/cdk && npm i @mytaptrack/types @mytaptrack/cdk --save",
+        "unsetDebug": "npm uninstall @mytaptrack/types npm i @mytaptrack/types --save",
         "buildlibs": "cd ../types && tsc -d && cd ../lib && tsc -d",
         "stage-changeset": "cdk deploy --all --no-execute --change-set-name pipeline-deployment --require-approval never",
         "local-api": "npx ts-node src/start-api.ts"

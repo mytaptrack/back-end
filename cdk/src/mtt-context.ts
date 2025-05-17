@@ -6,7 +6,7 @@ import { SigningProfile } from 'aws-cdk-lib/aws-signer';
 import { CodeSigningConfig, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ISecurityGroup, IVpc, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { IStringParameter, StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { CfnResource, Fn } from 'aws-cdk-lib';
+import { CfnResource, Fn, RemovalPolicy } from 'aws-cdk-lib';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { execSync } from 'child_process';
@@ -63,6 +63,7 @@ export interface IMttContext {
 
     get accountId(): string;
     get logKmsKey(): IKey;
+    get removalPolicy(): RemovalPolicy;
 
     dns?: IMttContextDomain;
 
@@ -145,11 +146,6 @@ export class MttContext implements IMttContext {
 
     private _logKmsKey: IKey;
     get logKmsKey(): IKey {
-        // if(!this._logKmsKey) {
-        //     this._logKmsKey = Key.fromLookup(this.scope, 'LogKey', {
-        //         aliasName: 'alias/mytaptrack/logs'
-        //     });
-        // }
         return this._logKmsKey
     }
     set logKmsKey(val: IKey) {
@@ -162,6 +158,10 @@ export class MttContext implements IMttContext {
 
     get accountId() {
         return Fn.ref('AWS::AccountId');
+    }
+    
+    get removalPolicy() {
+        return this.environment === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY;
     }
 
     networking?: {
@@ -202,10 +202,14 @@ export class MttContext implements IMttContext {
             process.env.AWS_REGION = this.region;
         }
 
-        if(referenceKms) {
-            this.kmsKey = Alias.fromAliasName(scope, 'dataKey', 'alias/mytaptrack/pii');
+        if(referenceKms && this.config.env.encryption?.piiAlias) {
+            this.kmsKey = Alias.fromAliasName(scope, 'dataKey', `alias/${this.config.env.encryption?.piiAlias}`);
         } else {
             this.kmsKey = undefined;
+        }
+
+        if(referenceKms && this.config.env.encryption?.logAlias) {
+            this._logKmsKey = Alias.fromAliasName(scope, 'dataKey', `alias/${this.config.env.encryption?.logAlias}`);
         }
 
         this.primaryRegion = primaryRegion;
@@ -216,7 +220,6 @@ export class MttContext implements IMttContext {
         
         const loggingBucketNameParam = StringParameter.fromStringParameterName(scope, 'LoggingBucketName', '/regional/logging/bucket/name');
         this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', loggingBucketNameParam.stringValue);
-
 
         const lumigoToken = StringParameter.fromStringParameterName(scope, 'LumigoToken', '/Lumigo/Token');
         const lumigoDomainScrubbing = StringParameter.fromStringParameterName(scope, 'LumigoDomainScrubbing', '/Lumigo/DomainScrubbing');
@@ -430,7 +433,11 @@ export class MttContext implements IMttContext {
         const primaryTableArn = Fn.importValue(`${this.coreStack}-DynamoTablePrimaryArn`);
         const dataTable = MttDynamoDB.fromTableArn(this, { id: 'DynamoDataTable', name: 'DataTable', phi: true, identifiable: false }, dataTableArn);
         const primaryTable = MttDynamoDB.fromTableArn(this, { id: 'DynamoPrimaryTable', name: 'PrimaryTable', phi: true, identifiable: true }, primaryTableArn);
-        const dataBucket = new MttS3(this, { id: 'DataBucket', stack: this.coreStack, name: 'data', envName: 'dataBucket', existing: true, phi: true });
+        const dataBucket = MttS3.getExisting(
+            this, 
+            this.getParameter(`/${this.environment}/regional/calc/buckets/data/name`).stringValue,
+            true,
+            'dataBucket');
         const timestreamArn = Fn.importValue(`${this.coreStack}-timestream-data-arn`);
         const timestreamName = Fn.importValue(`${this.coreStack}-timestream-name`);
         const timestream = MttTimestream.fromTableArn(this, timestreamArn, { 

@@ -34,7 +34,10 @@ export class DevicesApiStack extends Stack {
     const config = context.config;
 
     const dataStores = context.getDataStores();
-    const templateBucket = MttS3.getExisting(context, context.getParameter(`/${environment}/regional/calc/templates/bucket`).stringValue, false, 'TemplateBucket');
+    const templateBucket = MttS3.getExisting(context, 
+      context.getParameter(`/${environment}/regional/calc/buckets/templates/name`).stringValue, 
+      false, 
+      'TemplateBucket');
 
     const eventBus = context.getEventBus();
 

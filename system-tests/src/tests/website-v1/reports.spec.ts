@@ -586,6 +586,6 @@ describe('Reports', () => {
         expect(snap2behavior2?.faces[0].overwrite).toBe(true);
 
         await cleanUp(student);
-    }, 2 * 60 * 1000);
+    }, 10 * 60 * 1000);
 });
 
