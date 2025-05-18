@@ -1,0 +1,21 @@
+Welcome to mytaptrack®.
+
+${inviter.name} has invited you to join ${student.name}'s team!
+
+We're excited to be using mytaptrack® to observe ${student.name}'s behaviors and symptoms. mytaptrack® allows parents, teachers and doctors of children with special needs to track, study and share behavior data in real time.
+
+Joining ${student.name}'s mytaptrack® team is free:
+
+If this is your first time accessing mytaptrack®, create your mytaptrack account using the same email address as the inbox for this invitation. If this email is Google Suite (gmail), you can use the "Continue with Google" option for single sign-on. If not, create an account using this email address and a new password.
+
+• Go to mytaptrack.com
+• Click "Login" top right and use this email address to create your account.
+• After logging in, accept the invitation to join the team
+
+Follow our remarkable journey @mytaptrack on all social media platforms.
+
+If you have questions or need support, reply to this email. 
+
+Sincerely,
+Nikody Keating
+Founder & CEO
