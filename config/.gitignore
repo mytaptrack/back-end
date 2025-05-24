@@ -1,3 +1,3 @@
-dev.yml
-test.yml
-prod.yml
+dev*.yml
+test*.yml
+prod*.yml

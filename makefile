@@ -66,6 +66,9 @@ configure: install-deps configure-env
 configure-env:
 	cd utils && npm run setup-env
 
+push-env:
+	cd utils && npm run set-env
+
 test:
 	cd system-tests && npm run envSetup && npm test
 

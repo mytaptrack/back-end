@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"path": "lib"
+		},
+		{
+			"path": "cdk"
+		},
+		{
+			"path": "core"
+		},
+		{
+			"path": "api"
+		},
+		{
+			"path": "data-prop"
+		},
+		{
+			"path": "system-tests"
+		},
+		{
+			"path": "templates"
+		},
+		{
+			"path": "."
+		},
+
+	],
+	"settings": {}
+}

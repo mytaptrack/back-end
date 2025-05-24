@@ -77,10 +77,18 @@ const config: Config = {
     }
 };
 
+function promptYN(text: string, emptyValue: string = 'n') {
+    let yn = prompt(`${text}  y/n: `, emptyValue);
+    if(yn == 'y') {
+        return true;
+    }
+    return false;
+}
+
 let environment = prompt("Enter your environment: ", 'dev');
 config.env.region.primary = prompt("Enter your primary AWS region (us-west-2):", 'us-west-2');
 config.env.stacks.core = `mytaptrack-${environment}`;
-if(prompt('Back up to a secondary region? y/n: ') != 'n') {
+if(promptYN('Back up to a secondary region?')) {
     const secondary = prompt("Enter your secondary AWS region (us-east-1):", 'us-east-1');
     config.env.region.regions = `${config.env.region.primary},${secondary}`;
     config.env.regional.replication = 'true';
@@ -89,8 +97,7 @@ if(prompt('Back up to a secondary region? y/n: ') != 'n') {
     config.env.regional.replication = 'false';
 }
 
-let route53 = prompt("Are you using route53 (y/n): ", 'n');
-if(route53 != 'n') {
+if(promptYN("Are you using route53? ")) {
     config.env.domain.name = prompt("Enter your route53 domain name: ");
     config.env.domain.hostedzone.id = prompt("Enter your route53 hosted zone id: ");
     config.env.domain.sub.api.subdomain = prompt("Enter your api subdomain: ");
@@ -123,7 +130,7 @@ if(route53 != 'n') {
 }
 
 // Check if push notifications should be used
-if(prompt('Do you want to enable push notifications? y/n: ') != 'n') {
+if(promptYN('Do you want to enable push notifications?')) {
     config.env.app.pushSnsArns.android = prompt("Enter your android push sns arn: ");
     config.env.app.pushSnsArns.ios = prompt("Enter your ios push sns arn: ");
 } else {
@@ -131,7 +138,7 @@ if(prompt('Do you want to enable push notifications? y/n: ') != 'n') {
 }
 
 // Check if twilio should be used for sending text messages and if so get the origination phone number
-if(prompt('Do you want to use twilio for sending text messages? y/n: ') != 'n') {
+if(promptYN('Do you want to use twilio for sending text messages?')) {
     config.env.sms.origin = prompt("Enter your twilio origination phone number: ");
 
     if(!config.env.sms.origin.startsWith("+")) {
@@ -140,14 +147,14 @@ if(prompt('Do you want to use twilio for sending text messages? y/n: ') != 'n') 
 }
 
 // Check if emails should be used and if so get the system email address to use
-if(prompt('Do you want to use emails? y/n: ') != 'n') {
+if(promptYN('Do you want to use emails?')) {
     config.env.system.email = prompt("Enter your system email address: ");
 } else {
     delete config.env.system
 }
 
 // Check if chatbot should be used and if so get the chatbot arn
-if(prompt('Do you want to use chatbot? y/n: ') != 'n') {
+if(promptYN('Do you want to use chatbot?')) {
     config.env.chatbot.arn = prompt("Enter your chatbot arn: ");
 } else {
     delete config.env.chatbot;
@@ -168,10 +175,10 @@ If you don't have an encryption key seed already created
 log into your AWS account and go to the Parameter Store (https://console.aws.amazon.com/systems-manager/parameters).
 Create a parameter with a unique name as a secure string parameter and copy its key and arn.
     `)
-config.env.app.secrets.tokenKey.name = prompt("Enter your app encryption key: ");
+config.env.app.secrets.tokenKey.name = prompt("Enter your app encryption key name: ");
 config.env.app.secrets.tokenKey.arn = prompt("Enter your app encryption key arn: ");
 
-if(prompt('Do you want to configure system tests? y/n: ') != 'n') {
+if(promptYN('Do you want to configure system tests?')) {
     const admin_username = prompt('Administrator email: ');
     const admin_password = prompt('Administrator password: ', undefined, { echo: '' });
     const admin_name = prompt('Administrator name (Testing Admin): ', 'Testing Admin');
@@ -194,7 +201,7 @@ if(prompt('Do you want to configure system tests? y/n: ') != 'n') {
     };
 }
 
-if(prompt('Do you want to configure encryption?') != 'n') {
+if(promptYN('Do you want to configure encryption?')) {
     console.log("You will need to encryption keys, one for PII and one for Logs. This is designed to allow support log access while not exposing PII information.");
     console.log('To create an encryption key log into the aws console and navigate to KMS. Create two keys and give them the alias "mytaptrack/pii" and "mytaptrack/logs"');
     config.env.encryption = {
@@ -204,7 +211,7 @@ if(prompt('Do you want to configure encryption?') != 'n') {
 }
 
 // Check if debug should be enabled
-if(prompt('Do you want to enable debug? y/n: ') != 'n') {
+if(promptYN('Do you want to enable debug?')) {
     config.env.debug = 'true';
 }
 

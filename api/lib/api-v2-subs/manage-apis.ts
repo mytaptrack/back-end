@@ -24,7 +24,7 @@ export class ApiV2ManageApi extends NestedStack {
         const api = new MttRestApi(context, apiSource);
 
         api.addLambdaHandler({
-            id: 'manageStatsGetV2',
+            id: 'lms-GetV2',
             codePath: 'src/v2/manage/license/statsGet.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/stats',
@@ -38,7 +38,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageLicenseGetV2',
+            id: 'ml-GetV2',
             codePath: 'src/v2/manage/license/get.ts',
             handler: 'handleEvent',
             path: '/api/v2/license',
@@ -50,7 +50,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageLicenseStudentPutV2',
+            id: 'mlsPutV2',
             codePath: 'src/v2/manage/license/studentPut.ts',
             handler: 'handleEvent',
             path: '/api/v2/license/student',
@@ -62,7 +62,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageAbcPutV2',
+            id: 'mabcPutV2',
             codePath: 'src/v2/manage/abc/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/abc',
@@ -75,7 +75,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageAppsGetV2',
+            id: 'ma-GetV2',
             codePath: 'src/v2/manage/app/appsGet.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/apps',
@@ -88,7 +88,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageAppDeleteV2',
+            id: 'ma-DeleteV2',
             codePath: 'src/v2/manage/app/delete.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/app',
@@ -110,7 +110,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageAppPutV2',
+            id: 'ma-PutV2',
             codePath: 'src/v2/manage/app/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/app',
@@ -131,7 +131,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageReportEfficacyPost',
+            id: 'mre-post',
             codePath: 'src/v2/manage/reports/efficacyPost.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/efficacy',
@@ -144,7 +144,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageReportTrackingOverTimeV2',
+            id: 'mrtotV2',
             codePath: 'src/v2/manage/reports/trackingOverTime.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/report/time',
@@ -157,7 +157,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageStudentsGetV2',
+            id: 'ms-GetV2',
             codePath: 'src/v2/manage/license/studentsGet.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/students',
@@ -169,7 +169,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageStudentsPutV2',
+            id: 'ms-PutV2',
             codePath: 'src/v2/manage/license/studentsBulkPut.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/students',
@@ -182,7 +182,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageTemplatePut',
+            id: 'mt-Put',
             codePath: 'src/v2/manage/templates/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/template',
@@ -194,7 +194,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageTemplateDeleteV2',
+            id: 'mt-DeleteV2',
             codePath: 'src/v2/manage/templates/delete.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/template',
@@ -206,7 +206,7 @@ export class ApiV2ManageApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'manageTemplatesGet',
+            id: 'mt-Get',
             codePath: 'src/v2/manage/templates/get.ts',
             handler: 'handleEvent',
             path: '/api/v2/manage/templates',

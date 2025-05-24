@@ -26,7 +26,7 @@ export class ApiV2ReportApi extends NestedStack {
         const api = new MttRestApi(context, apiSource);
 
         api.addLambdaHandler({
-            id: 'reportSnapshotGetV2',
+            id: 'rsn-GetV2',
             codePath: 'src/v2/reports/snapshot/get.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/snapshot',
@@ -41,7 +41,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportSnapshotPostV2',
+            id: 'rsn-PostV2',
             codePath: 'src/v2/reports/snapshot/post.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/snapshot',
@@ -57,7 +57,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportSnapshotPut',
+            id: 'rsn-Put',
             codePath: 'src/v2/reports/snapshot/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/snapshot',
@@ -71,7 +71,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportSettingsPut',
+            id: 'rs-Put',
             codePath: 'src/v2/reports/settings/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/settings',
@@ -81,7 +81,7 @@ export class ApiV2ReportApi extends NestedStack {
             ]
         });
         api.addLambdaHandler({
-            id: 'reportSettingsGet',
+            id: 'rs-Get',
             codePath: 'src/v2/reports/settings/get.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/settings',
@@ -93,7 +93,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportDataGetV2',
+            id: 'rd-GetV2',
             codePath: 'src/v2/reports/data/get.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/data',
@@ -108,7 +108,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportDataStateGetV2',
+            id: 'rds-GetV2',
             codePath: 'src/v2/reports/data/statusGet.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/data/status',
@@ -120,7 +120,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportDataPutV2',
+            id: 'rd-PutV2',
             codePath: 'src/v2/reports/data/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/data',
@@ -132,7 +132,7 @@ export class ApiV2ReportApi extends NestedStack {
             appsync: [ { api: props.appsync, access: { mutations: ['updateDataInReport'] }}]
         });
         api.addLambdaHandler({
-            id: 'reportDataDeleteV2',
+            id: 'rd-DeleteV2',
             codePath: 'src/v2/reports/data/delete.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/data',
@@ -145,7 +145,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportDataIntervalPutV2',
+            id: 'rdi-PutV2',
             codePath: 'src/v2/reports/data/intervalExclude.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/data/interval',
@@ -156,7 +156,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'reportDataDatePutV2',
+            id: 'rdd-PutV2',
             codePath: 'src/v2/reports/date/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/data/date',
@@ -199,7 +199,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'scheduleOverwritePutV2',
+            id: 'schO-PutV2',
             codePath: 'src/v2/reports/schedule/put.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/schedule',
@@ -214,7 +214,7 @@ export class ApiV2ReportApi extends NestedStack {
         });
     
         api.addLambdaHandler({
-            id: 'scheduleOverwriteDeleteV2',
+            id: 'scho-DeleteV2',
             codePath: 'src/v2/reports/schedule/delete.ts',
             handler: 'handleEvent',
             path: '/api/v2/reports/schedule',

@@ -32,6 +32,7 @@ if "%1"=="" (
 if "%1"=="install" (
     call :install-deps
     call :build
+    call :configure-env
     call :set-env
     call :deploy
     exit /b 0
