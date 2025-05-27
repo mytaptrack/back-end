@@ -39,15 +39,6 @@ export class AwsStack extends cdk.Stack {
     const config = context.config;
     const regionPrimary = config.env.region.primary;
     const regions = config.env.region.regions;
-
-    if(!config.env.regional.logging) {
-      const logBucket = new MttS3(context, {
-        id: 'S3Logging',
-        name: `logs`,
-        phi: false
-      });
-      context.loggingBucket = logBucket.bucket;
-    }
     
     const apiGatewayCert = new CfnClientCertificate(this, 'apiGatewayCert', { description: `${this.stackName} certificate for api gateway`});
       

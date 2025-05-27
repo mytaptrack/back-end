@@ -218,11 +218,20 @@ export class MttContext implements IMttContext {
         this.application = application;
         this.replicationRegion = regions.find(x => x != primaryRegion) ?? undefined;
         
-        if(this.config.env.regional.logging?.bucket) {
-            this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', this.config.env.regional.logging?.bucket);
+        if(application != 'core-stack') {
+            if(this.config.env.regional.logging?.bucket) {
+                this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', this.config.env.regional.logging?.bucket);
+            } else {
+                const alpha = btoa(this.accountId).replace(/[\Da-zA-Z]+/g, '').toLocaleLowerCase();
+                this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', `${this.stackName}-${alpha}-${this.region}-logs`);
+            }
         } else {
-            const alpha = btoa(this.accountId).replace(/[\Da-zA-Z]+/g, '').toLocaleLowerCase();
-            this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', `${this.stackName}-${alpha}-${this.region}-logs`);
+            const logBucket = new MttS3(this, {
+                id: 'S3Logging',
+                name: `logs`,
+                phi: false
+            });
+            this.loggingBucket = logBucket.bucket;
         }
 
         const debug = this.config.env.debug;
