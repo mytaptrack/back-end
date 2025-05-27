@@ -25,7 +25,7 @@ if "%1"=="" (
     echo   deploy-device   - Deploy device service
     echo   deploy-data-prop - Deploy data propagation service
     echo   uninstall       - Uninstalls all AWS components and data
-    exit /b 0
+    goto :exit
 )
 
 :: Process the target
@@ -33,175 +33,214 @@ if "%1"=="install" (
     call :install_deps
     call :build
     call :configure_env
-    call :set_env
+    call :SET_ENV
     call :deploy
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="env-setup" (
     call :install_deps
-    call :set_env
-    exit /b 0
+    call :SET_ENV
+    goto :exit
 )
 
 if "%1"=="set-env" (
-    call :set_env
-    exit /b 0
+    call :SET_ENV
+    goto :exit
 )
-
-:set_env
-    echo Setting environment...
-    cdk core && npm run setenv
-    exit /b 0
 
 if "%1"=="install-deps" (
     call :install_deps
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="build" (
     call :build
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="deploy" (
-    call :deploy-core
-    call :deploy-data-prop
-    call :deploy-graphql
-    call :deploy-api
-    call :deploy-device
-    exit /b 0
+    call :install_deps
+    call :DEPLOY_CORE
+    call :deploy_data_prop
+    call :DEPLOY_GRAPHQL
+    call :deploy_api
+    call :deploy_device_api
+    goto :exit
 )
 
 if "%1"=="deploy-core" (
-    call :deploy_core
-    exit /b 0
+    call :DEPLOY_CORE
+    goto :exit
 )
 
 if "%1"=="deploy-graphql" (
-    call :deploy_graphql
-    exit /b 0
+    call :DEPLOY_GRAPHQL
+    goto :exit
 )
 
 if "%1"=="deploy-api" (
-    call :deploy_api
-    exit /b 0
+    call :DEPLOY_API
+    goto :exit
 )
 
 if "%1"=="deploy-device" (
     call :deploy_device_api
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="deploy-data-prop" (
     call :deploy_data_prop
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="install-graphql" (
     call :install_graphql
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="update-env" (
     call :update_env
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="configure" (
     call :install_deps
     call :configure_env
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="configure-env" (
     call :configure_env
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="unit_tests" (
     goto :unit_tests
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="test" (
     goto :test
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="clean" (
     goto :clean
-    exit /b 0
+    goto :exit
 )
 
 rem Uninstall stacks
 if "%1"=="uninstall" (
     goto :uninstall
+    goto :exit
 )
+
+echo Unknown target: %1
+echo Run without arguments to see available targets
+goto :exit
+
+:SET_ENV
+    echo Setting environment...
+    cd utils
+    call npm ci
+    call npm run set-env %STAGE%
+    EXIT /B
 
 :install_deps
     echo Installing dependencies...
-    cd cdk && npm ci && npm run build
+    cd cdk
+    call npm ci
+    call npm run build
     cd ..
-    cd lib && npm ci && npm run build
+    cd lib
+    call npm ci
+    call npm run build
     cd ..
-    cd core && npm ci
+    cd core
+    call npm ci
     cd ..
-    cd api && npm ci
+    cd api
+    call npm ci
     cd ..
-    cd data-prop && npm ci
+    cd data-prop
+    call npm ci
     cd ..
-    cd system-tests && npm ci
+    cd system-tests
+    call npm ci
     cd ..
+    EXIT /B
 
 :build
     echo Building services...
-    cd lib && npm run build
+    cd lib
+    npm run build
     cd ..
-    cd core && npm run setenv %STAGE%
+    cd utils
+    call npm run set-env %STAGE%
     cd ..
+    EXIT /B
 
-:deploy_core
+:DEPLOY_CORE
     echo Deploying core service...
-    rem cd core && cdk deploy
-    rem cd ..
+    REM cd core
+    cd core
+    call cdk deploy
+    cd ..
+    EXIT /B
 
-:deploy_graphql
+:DEPLOY_GRAPHQL
     echo Deploying GraphQL service...
-    rem cd api && cdk deploy graphql
-    rem cd ..
+    cd api
+    call cdk deploy graphql
+    cd ..
+    EXIT /B
 
-:deploy_api
+:DEPLOY_API
     echo Deploying API...
-    rem cd api && cdk deploy api
-    rem cd ..
+    cd api
+    call cdk deploy api
+    cd ..
+    EXIT /B
 
 :deploy_device_api
     echo Deploying device api...
-    rem cd api && cdk deploy device
-    rem cd ..
+    cd api
+    call npm ci
+    call cdk deploy device
+    cd ..
+    EXIT /B
 
 :deploy_data_prop
     echo Deploying data propagation service...
-    rem cd data-prop && cdk deploy
-    rem cd ..
+    cd data-prop
+    call npm ci
+    call cdk deploy
+    cd ..
+    EXIT /B
 
 :install_graphql
     echo Installing GraphQL service...
-    cd api && npm i
+    cd api
+    call cdk deploy graphql
     cd ..
-    cd api && cdk deploy graphql
-    cd ..
+    EXIT /B
 
 :update_env
     echo Updating environment configurations...
-    cd core && npm i && npm run setenv
+    cd core
+    call npm ci
+    call npm run set-env %STAGE%
     cd ..
+    EXIT /B
 
 :configure_env
     echo Configuring environment...
-    cd core && npm run setup-env
+    cd utils
+    call npm ci
+    call npm run setup-env
     cd ..
+    EXIT /B
 
 :unit_tests
     echo Running unit tests...
@@ -213,11 +252,13 @@ if "%1"=="uninstall" (
     cd ..
     cd data-prop && npm test
     cd ..
+    EXIT /B
 
 :test
     echo Running system tests...
     cd system-tests && npm run envSetup && npm test
     cd ..
+    EXIT /B
 
 :clean
     echo Cleaning build artifacts...
@@ -230,25 +271,25 @@ if "%1"=="uninstall" (
     cd data-prop && rmdir /s /q node_modules
     cd ..
 
-:: Delete JS maps and declaration files
-for /r %%i in (*.js.map) do del "%%i"
-for /r %%i in (*.d.ts) do del "%%i"
+    :: Delete JS maps and declaration files
+    for /r %%i in (*.js.map) do del "%%i"
+    for /r %%i in (*.d.ts) do del "%%i"
 
-:: Delete cdk.out directories
-for /d /r . %%d in (cdk.out) do if exist "%%d" rmdir /s /q "%%d"
-exit /b 0
+    :: Delete cdk.out directories
+    for /d /r . %%d in (cdk.out) do if exist "%%d" rmdir /s /q "%%d"
+    EXIT /B
 
 :uninstall
     cd data-prop
-    cdk destroy
+    npx cdk destroy
     cd ..
     cd api
-    cdk destroy --all
+    npx cdk destroy --all
     cd ..
     cd core
-    cdk destroy
+    npx cdk destroy
     cd ..
+    EXIT /B
 
-echo Unknown target: %1
-echo Run without arguments to see available targets
-exit /b 1
+:exit
+   echo "Process complete"
