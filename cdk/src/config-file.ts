@@ -93,7 +93,13 @@ export interface Config {
         encryption?: {
             piiAlias?: string;
             logAlias?: string;
-        }
+        },
+        lumigo?: {
+            tokenParam: string;
+            domainScrubbing?: string;
+            attributeMasking?: string;
+        },
+        vpc: boolean;
     },
     slack?: {
         workspace: {

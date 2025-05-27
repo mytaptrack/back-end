@@ -221,9 +221,6 @@ export class MttContext implements IMttContext {
         const loggingBucketNameParam = StringParameter.fromStringParameterName(scope, 'LoggingBucketName', '/regional/logging/bucket/name');
         this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', loggingBucketNameParam.stringValue);
 
-        const lumigoToken = StringParameter.fromStringParameterName(scope, 'LumigoToken', '/Lumigo/Token');
-        const lumigoDomainScrubbing = StringParameter.fromStringParameterName(scope, 'LumigoDomainScrubbing', '/Lumigo/DomainScrubbing');
-        const lumigoAttributeMasking = StringParameter.fromStringParameterName(scope, 'LumigoAttributeMasking', '/Lumigo/AttributeMasking');
         const debug = StringParameter.fromStringParameterName(scope, 'Debug', `/${this.environment}/debug`)
 
         if(debug) {
@@ -233,27 +230,29 @@ export class MttContext implements IMttContext {
         this.function = {
             runtime: Runtime.NODEJS_LATEST,
             environmentVariables: {
-                LUMIGO_SECRET_MASKING_REGEX: lumigoAttributeMasking.stringValue,
-                LUMIGO_DOMAINS_SCRUBBER: lumigoDomainScrubbing.stringValue,
-                LUMIGO_TOKEN: lumigoToken.stringValue,
+                LUMIGO_SECRET_MASKING_REGEX: this.config.env.lumigo?.attributeMasking,
+                LUMIGO_DOMAINS_SCRUBBER: this.config.env.lumigo?.domainScrubbing,
+                LUMIGO_TOKEN: this.config.env.lumigo?.tokenParam? this.getParameter(this.config.env.lumigo.tokenParam).stringValue : undefined,
                 Debug: debug.stringValue,
                 LOGGING_LEVEL: this.loggingLevel
             }
         }
 
-        const vpcId = StringParameter.fromStringParameterName(scope, 'VpcId', '/regional/vpc/hipaa/id')
-        const subnetA = StringParameter.fromStringParameterName(scope, 'SubnetA', '/regional/vpc/hipaa/subnets/a');
-        const subnetB = StringParameter.fromStringParameterName(scope, 'SubnetB', '/regional/vpc/hipaa/subnets/b');
-        const useNetworking = StringParameter.fromStringParameterName(scope, 'UseNetworking', '/hipaa/VpcEnabled');
-        const availabilityZones = Fn.getAzs();
-        if(useNetworking.stringValue == 'true') {
-            this.networking = {
-                vpc: Vpc.fromVpcAttributes(scope, 'vpc', { 
-                    vpcId: vpcId.stringValue, 
-                    availabilityZones: [availabilityZones[0], availabilityZones[1]], 
-                    privateSubnetIds: [subnetA.stringValue, subnetB.stringValue]
-                })
-            };
+        if(this.config.env.vpc) {
+            const vpcId = StringParameter.fromStringParameterName(scope, 'VpcId', '/regional/vpc/hipaa/id')
+            const subnetA = StringParameter.fromStringParameterName(scope, 'SubnetA', '/regional/vpc/hipaa/subnets/a');
+            const subnetB = StringParameter.fromStringParameterName(scope, 'SubnetB', '/regional/vpc/hipaa/subnets/b');
+            const useNetworking = StringParameter.fromStringParameterName(scope, 'UseNetworking', '/hipaa/VpcEnabled');
+            const availabilityZones = Fn.getAzs();
+            if(useNetworking.stringValue == 'true') {
+                this.networking = {
+                    vpc: Vpc.fromVpcAttributes(scope, 'vpc', { 
+                        vpcId: vpcId.stringValue, 
+                        availabilityZones: [availabilityZones[0], availabilityZones[1]], 
+                        privateSubnetIds: [subnetA.stringValue, subnetB.stringValue]
+                    })
+                };
+            }
         }
 
         this.scope = scope;
