@@ -73,6 +73,9 @@ export interface Config {
             email: string;
         },
         regional: {
+            logging?: {
+                bucket: string;
+            }
             replication: string;
             templates: {
                 path: string;

@@ -218,10 +218,11 @@ export class MttContext implements IMttContext {
         this.application = application;
         this.replicationRegion = regions.find(x => x != primaryRegion) ?? undefined;
         
-        const loggingBucketNameParam = StringParameter.fromStringParameterName(scope, 'LoggingBucketName', '/regional/logging/bucket/name');
-        this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', loggingBucketNameParam.stringValue);
+        if(this.config.env.regional.logging?.bucket) {
+            this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', this.config.env.regional.logging?.bucket);
+        }
 
-        const debug = StringParameter.fromStringParameterName(scope, 'Debug', `/${this.environment}/debug`)
+        const debug = this.config.env.debug
 
         if(debug) {
             this.loggingLevel = LoggingLevel.debug;
