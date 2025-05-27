@@ -221,7 +221,8 @@ export class MttContext implements IMttContext {
         if(this.config.env.regional.logging?.bucket) {
             this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', this.config.env.regional.logging?.bucket);
         } else {
-            this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', `${this.stackName}-${this.accountId}-${this.region}-logging`);
+            const alpha = btoa(this.accountId).replace(/[\Da-zA-Z]+/g, '').toLocaleLowerCase();
+            this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', `${this.stackName}-${alpha}-${this.region}-logs`);
         }
 
         const debug = this.config.env.debug;
