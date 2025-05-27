@@ -1,7 +1,7 @@
 import { 
   Config,
   EventBusAccess, MttCognito, MttContext, MttDynamoDB, MttFunction, 
-  MttKmsKey, MttS3, MttTimestreamDB 
+  MttKmsKey, MttS3, MttTimestreamDB
 } from '@mytaptrack/cdk';
 import * as cdk from 'aws-cdk-lib';
 import { CfnClientCertificate } from 'aws-cdk-lib/aws-apigateway';
@@ -36,10 +36,17 @@ export class AwsStack extends cdk.Stack {
     context.primaryRegion = primaryRegion? region : this.region;
     context.isPrimaryRegion = primaryRegion;
 
-    const conf = new ConfigFile('../config', environment)
-    const config = conf.config;
+    const config = context.config;
     const regionPrimary = config.env.region.primary;
     const regions = config.env.region.regions;
+
+    if(!config.env.regional.logging) {
+      new MttS3(context, {
+        id: 'S3Logging',
+        name: `${this.stackName}-${this.account}-${this.region}-logging`,
+        phi: false
+      });
+    }
     
     const apiGatewayCert = new CfnClientCertificate(this, 'apiGatewayCert', { description: `${this.stackName} certificate for api gateway`});
       

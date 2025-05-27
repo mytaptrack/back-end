@@ -220,9 +220,11 @@ export class MttContext implements IMttContext {
         
         if(this.config.env.regional.logging?.bucket) {
             this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', this.config.env.regional.logging?.bucket);
+        } else {
+            this.loggingBucket = Bucket.fromBucketName(scope, 'loggingBucket', `${this.stackName}-${this.accountId}-${this.region}-logging`);
         }
 
-        const debug = this.config.env.debug
+        const debug = this.config.env.debug;
 
         if(debug) {
             this.loggingLevel = LoggingLevel.debug;
@@ -234,7 +236,7 @@ export class MttContext implements IMttContext {
                 LUMIGO_SECRET_MASKING_REGEX: this.config.env.lumigo?.attributeMasking,
                 LUMIGO_DOMAINS_SCRUBBER: this.config.env.lumigo?.domainScrubbing,
                 LUMIGO_TOKEN: this.config.env.lumigo?.tokenParam? this.getParameter(this.config.env.lumigo.tokenParam).stringValue : undefined,
-                Debug: debug.stringValue,
+                Debug: debug,
                 LOGGING_LEVEL: this.loggingLevel
             }
         }
