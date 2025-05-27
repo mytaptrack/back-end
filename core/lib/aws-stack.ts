@@ -43,7 +43,7 @@ export class AwsStack extends cdk.Stack {
     if(!config.env.regional.logging) {
       new MttS3(context, {
         id: 'S3Logging',
-        name: `${this.stackName}-${this.account}-${this.region}-logging`,
+        name: `mtt-${environment}-${this.account}-${this.region}-lg`,
         phi: false
       });
     }
