@@ -174,7 +174,7 @@ goto :exit
 :build
     echo Building services...
     cd lib
-    npm run build
+    call npm run build
     cd ..
     cd utils
     call npm run set-env %STAGE%
@@ -244,19 +244,25 @@ goto :exit
 
 :unit_tests
     echo Running unit tests...
-    cd lib && npm test
+    cd lib
+    call npm test
     cd ..
-    cd core && npm test
+    cd core
+    call npm test
     cd ..
-    cd api && npm test
+    cd api
+    call npm test
     cd ..
-    cd data-prop && npm test
+    cd data-prop
+    call npm test
     cd ..
     EXIT /B
 
 :test
     echo Running system tests...
-    cd system-tests && npm run envSetup && npm test
+    cd system-tests
+    call npm run envSetup
+    call npm test
     cd ..
     EXIT /B
 

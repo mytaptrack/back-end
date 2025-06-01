@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 16
+
+  pre_build:
+    commands:
+      - cp ${BUCKET}/${STAGE}.yml config/${STAGE}.yml
+  build:
+    commands:
+      - make deploy
+  post_build:
+    commands:
+      - echo "Build completed successfully."

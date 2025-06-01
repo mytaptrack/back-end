@@ -399,15 +399,15 @@ export class MttContext implements IMttContext {
     }
 
     getHostedZone() {
-        const hostedZoneId = this.getParameter(`/${this.environment}/domain/hostedzone/id`);
-        const domainRoot = this.getParameter(`/${this.environment}/domain/name`);
+        const hostedZoneId = this._config.env.domain.hostedzone.id
+        const domainRoot = this._config.env.domain.name;
     
         const retval = route53.HostedZone.fromHostedZoneAttributes(
             this.scope,
             `HostedZone-Zone`,
             {
-                zoneName: domainRoot.stringValue,
-                hostedZoneId: hostedZoneId.stringValue
+                zoneName: domainRoot,
+                hostedZoneId: hostedZoneId
             }
         );
 
