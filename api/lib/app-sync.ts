@@ -244,7 +244,7 @@ export class AppSyncStack extends Stack {
     });
     
     this.appsync.addLambdaResolver('UpdateDateInclusion', {
-      id: 'updateReportDateInclusion',
+      id: 'urdi',
       codePath: 'src/graphql/resolver/mutations/report/date-inclusion.ts',
       typeName: 'Mutation',
       fieldName: 'updateReportDateInclusion',
@@ -590,7 +590,7 @@ export class AppSyncStack extends Stack {
     });
 
     this.appsync.addLambdaResolver('GetSubscriptionsForStudent', {
-      id: 'GetSubscriptionsForStudent',
+      id: 'gsfs',
       typeName: 'Query',
       fieldName: 'getSubscriptionsForStudent',
       codePath: 'src/graphql/resolver/query/getStudent/subscriptions.ts',
@@ -837,7 +837,7 @@ export class AppSyncStack extends Stack {
     // Add more resolvers...
 
     new MttFunction(context, {
-      id: 'cr-team-upgrade-1',
+      id: 'crtu1',
       codePath: 'src/migration/migrateTeam.ts',
       timeout: Duration.minutes(15),
       customResourceHandlers: {
@@ -862,7 +862,7 @@ export class AppSyncStack extends Stack {
     });
 
     new MttFunction(context, {
-      id: 'cr-apps-migrate',
+      id: 'cram',
       codePath: 'src/migration/migrateApps.ts',
       timeout: Duration.minutes(15),
       customResourceHandlers: {
@@ -874,7 +874,7 @@ export class AppSyncStack extends Stack {
       ],
     });
     new MttFunction(context, {
-      id: 'cr-msources',
+      id: 'crms',
       codePath: 'src/migration/migrateSources.ts',
       timeout: Duration.minutes(15),
       customResourceHandlers: {
@@ -883,7 +883,7 @@ export class AppSyncStack extends Stack {
       tables: [{ table: dataTable, access: DynamoDBAccess.readWrite }],
     });
     new MttFunction(context, {
-      id: 'cr-reports-update',
+      id: 'crru',
       codePath: 'src/migration/migrateReports.ts',
       timeout: Duration.minutes(15),
       customResourceHandlers: {

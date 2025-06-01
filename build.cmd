@@ -25,150 +25,248 @@ if "%1"=="" (
     echo   deploy-device   - Deploy device service
     echo   deploy-data-prop - Deploy data propagation service
     echo   uninstall       - Uninstalls all AWS components and data
-    exit /b 0
+    goto :exit
 )
 
 :: Process the target
 if "%1"=="install" (
-    call :install-deps
+    call :install_deps
     call :build
-    call :set-env
+    call :configure_env
+    call :SET_ENV
     call :deploy
-    exit /b 0
+    goto :exit
 )
 
 if "%1"=="env-setup" (
-    call :install-deps
-    call :set-env
-    exit /b 0
+    call :install_deps
+    call :SET_ENV
+    goto :exit
 )
 
 if "%1"=="set-env" (
-    echo Setting environment...
-    cdk core && npm run setenv
-    exit /b 0
+    call :SET_ENV
+    goto :exit
 )
 
 if "%1"=="install-deps" (
-    echo Installing dependencies...
-    cd cdk && npm ci && npm run build
-    cd ..
-    cd lib && npm ci && npm run build
-    cd ..
-    cd core && npm ci
-    cd ..
-    cd api && npm ci
-    cd ..
-    cd data-prop && npm ci
-    cd ..
-    cd system-tests && npm ci
-    cd ..
-    exit /b 0
+    call :install_deps
+    goto :exit
 )
 
 if "%1"=="build" (
-    echo Building services...
-    cd lib && npm run build
-    cd ..
-    cd core && npm run setenv %STAGE%
-    cd ..
-    exit /b 0
+    call :build
+    goto :exit
 )
 
 if "%1"=="deploy" (
-    call :deploy-core
-    call :deploy-data-prop
-    call :deploy-graphql
-    call :deploy-api
-    call :deploy-device
-    exit /b 0
+    call :install_deps
+    call :DEPLOY_CORE
+    call :deploy_data_prop
+    call :DEPLOY_GRAPHQL
+    call :deploy_api
+    call :deploy_device_api
+    goto :exit
 )
 
 if "%1"=="deploy-core" (
-    echo Deploying core service...
-    rem cd core && cdk deploy
-    rem cd ..
-    exit /b 0
+    call :DEPLOY_CORE
+    goto :exit
 )
 
 if "%1"=="deploy-graphql" (
-    echo Deploying GraphQL service...
-    rem cd api && cdk deploy graphql
-    rem cd ..
-    exit /b 0
+    call :DEPLOY_GRAPHQL
+    goto :exit
 )
 
 if "%1"=="deploy-api" (
-    echo Deploying API service...
-    rem cd api && cdk deploy api
-    rem cd ..
-    exit /b 0
+    call :DEPLOY_API
+    goto :exit
 )
 
 if "%1"=="deploy-device" (
-    echo Deploying device service...
-    rem cd api && cdk deploy device
-    rem cd ..
-    exit /b 0
+    call :deploy_device_api
+    goto :exit
 )
 
 if "%1"=="deploy-data-prop" (
-    echo Deploying data propagation service...
-    rem cd data-prop && cdk deploy
-    rem cd ..
-    exit /b 0
+    call :deploy_data_prop
+    goto :exit
 )
 
 if "%1"=="install-graphql" (
-    echo Installing GraphQL service...
-    cd api && npm i
-    cd ..
-    cd api && cdk deploy graphql
-    cd ..
-    exit /b 0
+    call :install_graphql
+    goto :exit
 )
 
 if "%1"=="update-env" (
-    echo Updating environment configurations...
-    cd core && npm i && npm run setenv
-    cd ..
-    exit /b 0
+    call :update_env
+    goto :exit
 )
 
 if "%1"=="configure" (
-    call :install-deps
-    call :configure-env
-    exit /b 0
+    call :install_deps
+    call :configure_env
+    goto :exit
 )
 
 if "%1"=="configure-env" (
-    echo Configuring environment...
-    cd core && npm run setup-env
-    cd ..
-    exit /b 0
+    call :configure_env
+    goto :exit
 )
 
 if "%1"=="unit_tests" (
-    echo Running unit tests...
-    cd lib && npm test
-    cd ..
-    cd core && npm test
-    cd ..
-    cd api && npm test
-    cd ..
-    cd data-prop && npm test
-    cd ..
-    exit /b 0
+    goto :unit_tests
+    goto :exit
 )
 
 if "%1"=="test" (
-    echo Running system tests...
-    cd system-tests && npm run envSetup && npm test
-    cd ..
-    exit /b 0
+    goto :test
+    goto :exit
 )
 
 if "%1"=="clean" (
+    goto :clean
+    goto :exit
+)
+
+rem Uninstall stacks
+if "%1"=="uninstall" (
+    goto :uninstall
+    goto :exit
+)
+
+echo Unknown target: %1
+echo Run without arguments to see available targets
+goto :exit
+
+:SET_ENV
+    echo Setting environment...
+    cd utils
+    call npm ci
+    call npm run set-env %STAGE%
+    EXIT /B
+
+:install_deps
+    echo Installing dependencies...
+    cd cdk
+    call npm ci
+    call npm run build
+    cd ..
+    cd lib
+    call npm ci
+    call npm run build
+    cd ..
+    cd core
+    call npm ci
+    cd ..
+    cd api
+    call npm ci
+    cd ..
+    cd data-prop
+    call npm ci
+    cd ..
+    cd system-tests
+    call npm ci
+    cd ..
+    EXIT /B
+
+:build
+    echo Building services...
+    cd lib
+    call npm run build
+    cd ..
+    cd utils
+    call npm run set-env %STAGE%
+    cd ..
+    EXIT /B
+
+:DEPLOY_CORE
+    echo Deploying core service...
+    REM cd core
+    cd core
+    call cdk deploy
+    cd ..
+    EXIT /B
+
+:DEPLOY_GRAPHQL
+    echo Deploying GraphQL service...
+    cd api
+    call cdk deploy graphql
+    cd ..
+    EXIT /B
+
+:DEPLOY_API
+    echo Deploying API...
+    cd api
+    call cdk deploy api
+    cd ..
+    EXIT /B
+
+:deploy_device_api
+    echo Deploying device api...
+    cd api
+    call npm ci
+    call cdk deploy device
+    cd ..
+    EXIT /B
+
+:deploy_data_prop
+    echo Deploying data propagation service...
+    cd data-prop
+    call npm ci
+    call cdk deploy
+    cd ..
+    EXIT /B
+
+:install_graphql
+    echo Installing GraphQL service...
+    cd api
+    call cdk deploy graphql
+    cd ..
+    EXIT /B
+
+:update_env
+    echo Updating environment configurations...
+    cd core
+    call npm ci
+    call npm run set-env %STAGE%
+    cd ..
+    EXIT /B
+
+:configure_env
+    echo Configuring environment...
+    cd utils
+    call npm ci
+    call npm run setup-env
+    cd ..
+    EXIT /B
+
+:unit_tests
+    echo Running unit tests...
+    cd lib
+    call npm test
+    cd ..
+    cd core
+    call npm test
+    cd ..
+    cd api
+    call npm test
+    cd ..
+    cd data-prop
+    call npm test
+    cd ..
+    EXIT /B
+
+:test
+    echo Running system tests...
+    cd system-tests
+    call npm run envSetup
+    call npm test
+    cd ..
+    EXIT /B
+
+:clean
     echo Cleaning build artifacts...
     cd lib && rmdir /s /q node_modules
     cd ..
@@ -178,31 +276,26 @@ if "%1"=="clean" (
     cd ..
     cd data-prop && rmdir /s /q node_modules
     cd ..
-    
+
     :: Delete JS maps and declaration files
     for /r %%i in (*.js.map) do del "%%i"
     for /r %%i in (*.d.ts) do del "%%i"
-    
+
     :: Delete cdk.out directories
     for /d /r . %%d in (cdk.out) do if exist "%%d" rmdir /s /q "%%d"
-    exit /b 0
-)
+    EXIT /B
 
-rem Uninstall stacks
-if "%1"=="clean" (
+:uninstall
     cd data-prop
-    cdk destroy
+    npx cdk destroy
     cd ..
     cd api
-    cdk destroy --all
+    npx cdk destroy --all
     cd ..
     cd core
-    cdk destroy
+    npx cdk destroy
     cd ..
-    
-    exit /b 0
-)
+    EXIT /B
 
-echo Unknown target: %1
-echo Run without arguments to see available targets
-exit /b 1
+:exit
+   echo "Process complete"

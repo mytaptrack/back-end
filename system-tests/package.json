@@ -10,7 +10,8 @@
         "unsetDebug": "npm uninstall @mytaptrack/types && npm i @mytaptrack/types --save",
         "set-env-vars": "node set-env-vars.js",
         "test:env": "npm run set-env-vars && npm test",
-        "envSetup": "npx ts-node src/test-env-setup.ts"
+        "envSetup": "npx ts-node src/test-env-setup.ts",
+        "genConfigs": "npx ts-node src/gen-configs.ts"
     },
     "dependencies": {
         "@aws-sdk/client-cognito-identity-provider": "^3.799.0",
@@ -29,6 +30,7 @@
         "@types/node": "^16.10.3",
         "jest": "^29.7.0",
         "ts-jest": "^29.3.2",
-        "typescript": "^5.0.4"
+        "typescript": "^5.0.4",
+        "yaml": "^2.8.0"
     }
 }

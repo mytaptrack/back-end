@@ -73,6 +73,9 @@ export interface Config {
             email: string;
         },
         regional: {
+            logging?: {
+                bucket: string;
+            }
             replication: string;
             templates: {
                 path: string;
@@ -93,7 +96,13 @@ export interface Config {
         encryption?: {
             piiAlias?: string;
             logAlias?: string;
-        }
+        },
+        lumigo?: {
+            tokenParam: string;
+            domainScrubbing?: string;
+            attributeMasking?: string;
+        },
+        vpc: boolean;
     },
     slack?: {
         workspace: {

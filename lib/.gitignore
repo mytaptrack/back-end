@@ -1,5 +1,6 @@
 node_modules
-/output/*.zip
+/output/*
+output.json
 .serverless
 /coverage
 /.vscode

@@ -1,0 +1,47 @@
+env:
+  app:
+    secrets:
+      tokenKey:
+        name: /dev/app/tokenKey
+        arn: arn:aws:ssm:us-west-2:224542834349:parameter/dev/app/tokenKey
+  debug: "false"
+  domain:
+    hostedzone:
+      id: ''
+    name: mytaptrack-test.com
+    sub:
+      device:
+        appid: mytaptrack
+        cert: ''
+        name: ''
+        subdomain: device_dns
+        apikey: a6HLoJhUl3735crdRdIcKmbzYbaPNPU37xVnBfid
+      api:
+        cert: ''
+        name: ''
+        subdomain: api_dev_dns
+      website:
+        name: localhost:8000
+  region:
+    primary: us-west-2
+    regions: us-west-2
+  sms:
+    origin: ""
+  stacks:
+    core: mytaptrack-dev_dns
+  student:
+    remove:
+      timeout: 10
+  regional:
+    replication: "false"
+    templates:
+      path: templates/
+  testing:
+    admin:
+      email: teacher@mytaptrack.com
+      password: ''
+      name: Teacher User
+    nonadmin:
+      email: parent@mytaptrack.com
+      password: ''
+      name: Parent User

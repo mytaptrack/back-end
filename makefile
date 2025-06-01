@@ -23,10 +23,9 @@ install-deps:
 # Build all services
 build:
 	cd lib && npm run build && cd ..
-	cd utils && npm run set-env ${STAGE} && cd ..
 
 # Deploy all services
-deploy: deploy-core deploy-data-prop deploy-graphql deploy-api deploy-device
+deploy: set-env deploy-core deploy-data-prop deploy-graphql deploy-api deploy-device
 
 # Individual deployment targets
 deploy-core:
@@ -65,6 +64,9 @@ configure: install-deps configure-env
 
 configure-env:
 	cd utils && npm run setup-env
+
+push-env:
+	cd utils && npm run set-env
 
 test:
 	cd system-tests && npm run envSetup && npm test
