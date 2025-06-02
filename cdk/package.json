@@ -30,7 +30,8 @@
         "path": "^0.12.7",
         "short-uuid": "^5.2.0",
         "tslib": "^2.5.2",
-        "typescript-rtti": "^0.9.6"
+        "typescript-rtti": "^0.9.6",
+        "yaml": "^2.8.0"
     },
     "peerDependencies": {
         "aws-cdk-lib": "^2.192.0",
