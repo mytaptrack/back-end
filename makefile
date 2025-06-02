@@ -6,10 +6,10 @@ install: install-deps build configure-env set-env deploy
 env-setup: install-deps set-env
 
 set-env:
-	cd utils && npm run set-env ${STAGE}
+	cd utils && npm ci && npm run set-env ${STAGE}
 
 del-env:
-	cd utils && npm run del-env ${STAGE}
+	cd utils && npm ci && npm run del-env ${STAGE}
 
 # Install dependencies for all services
 install-deps:
