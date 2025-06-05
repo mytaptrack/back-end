@@ -563,7 +563,7 @@ export class DevicesApiStack extends Stack {
       environmentVariables: {
         TemplateKey: 'mytaptrack/templates/notification-email.html',
         SMSOriginationNumber: ssmOriginationNumber,
-        twilioSecret: 'twilio'
+        twilioSecret: context.config.env.sms.secret
       },
       tables: [
         { table: dataStores.dataTable, access: DynamoDBAccess.readWrite },
@@ -583,7 +583,7 @@ export class DevicesApiStack extends Stack {
       policyStatements: [
         {
           actions: ['secretsmanager:GetSecretValue'],
-          resources: [`*`]
+          resources: [context.config.env.sms.arn]
         }
       ]
     });

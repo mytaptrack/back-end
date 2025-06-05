@@ -59,7 +59,8 @@ export interface Config {
             regions: string;
         },
         sms: {
-            origin: string;
+            secret: string;
+            arn: string;
         },
         stacks: {
             core: string;
