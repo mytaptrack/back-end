@@ -48,9 +48,18 @@ export interface Config {
                     path?: string;
                 },
                 website?: {
-                    subdomain?: string;
+                    behavior?: {
+                        subdomain?: string;
+                        name: string;
+                        cert?: string;
+                    },
+                    manage?: {
+                        subdomain?: string;
+                        name: string;
+                        cert?: string;
+                    },
                     name: string;
-                    cert?: string;
+                    public?: boolean;
                 };
             }
         },

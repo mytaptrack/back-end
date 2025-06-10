@@ -50,7 +50,7 @@ export class MttS3 implements EnvironmentEnabled {
     setEnvironment() {}
 
     constructor(private context: IMttContext, private props: MttS3Props ) {
-        const alpha = context.accountId.toLocaleLowerCase();
+        const alpha = context.accountId;
         if(props.existing) {
             const bucketName = props.stack? `${props.stack}-${alpha}-${context.region}-${props.name}` : props.name;
             console.log(`Referencing notes bucket ${bucketName}`);

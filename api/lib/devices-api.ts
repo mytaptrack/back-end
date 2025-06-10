@@ -452,15 +452,12 @@ export class DevicesApiStack extends Stack {
       ]
     });
 
-    const ssmOriginationNumber = config.env.sms?.origin ?? '';
-
     new MttFunction(context, {
       id: 'deviceAlertsV2',
       codePath: 'src/device/functions/processing/device-alerts.ts',
       handler: 'handleEvent',
       environmentVariables: {
-        SMSOriginationNumber: ssmOriginationNumber,
-        twilioSecret: 'twilio',
+        twilioSecret: context.config.env.sms.secret,
         TemplateKey: 'mytaptrack/templates/'
       },
       sendEmail: true,
@@ -473,7 +470,13 @@ export class DevicesApiStack extends Stack {
       ],
       events: [
         { detailType: [MttEventType.trackLowPower], access: EventBusAccess.subscribe }
-      ]
+      ],
+      policyStatements: config.env.sms.secret? [
+        {
+          actions: [ 'secretsmanager:GetSecretValue' ],
+          resources: [ config.env.sms.arn ]
+        }
+      ] : undefined
     });
 
     new MttFunction(context, {
@@ -482,8 +485,7 @@ export class DevicesApiStack extends Stack {
       handler: 'notify',
       environmentVariables: {
         TemplateKey: 'mytaptrack/templates/',
-        SMSOriginationNumber: ssmOriginationNumber,
-        twilioSecret: 'twilio'
+        twilioSecret: context.config.env.sms.secret
       },
       sendEmail: true,
       buckets: [
@@ -491,7 +493,13 @@ export class DevicesApiStack extends Stack {
       ],
       events: [
         { detailType: [MttEventType.behaviorChange], access: EventBusAccess.subscribe }
-      ]
+      ],
+      policyStatements: config.env.sms.secret? [
+        {
+          actions: [ 'secretsmanager:GetSecretValue' ],
+          resources: [ config.env.sms.arn ]
+        }
+      ] : undefined
     });
 
     new MttFunction(context, {
@@ -502,8 +510,7 @@ export class DevicesApiStack extends Stack {
       sendEmail: true,
       environmentVariables: {
         TemplateKey: 'mytaptrack/templates/notification-email.html',
-        SMSOriginationNumber: ssmOriginationNumber,
-        twilioSecret: 'twilio'
+        twilioSecret: context.config.env.sms.secret
       },
       buckets: [
         { bucket: templateBucket, access: S3Access.read }
@@ -513,7 +520,13 @@ export class DevicesApiStack extends Stack {
       ],
       events: [
         { detailType: [MttEventType.ne], access: EventBusAccess.subscribe }
-      ]
+      ],
+      policyStatements: config.env.sms.secret? [
+        {
+          actions: [ 'secretsmanager:GetSecretValue' ],
+          resources: [ config.env.sms.arn ]
+        }
+      ] : undefined
     });
 
     const waitStep = MttStepFunction.wait(context, { stateName: 'WaitForSpan', seconds: 30 });
@@ -532,7 +545,6 @@ export class DevicesApiStack extends Stack {
           handler: 'handleProcessing',
           environmentVariables: {
             TemplateKey: 'mytaptrack/templates/notification-email.html',
-            SMSOriginationNumber: ssmOriginationNumber,
             twilioSecret: context.config.twilio?.secret.name
           },
           sendEmail: true,
@@ -543,10 +555,10 @@ export class DevicesApiStack extends Stack {
           buckets: [
             { bucket: templateBucket, access: S3Access.read }
           ],
-          policyStatements: context.config.twilio? [
+          policyStatements: context.config.env.sms.secret? [
             {
-              actions: ['sns:Publish', 'sns:SetSMSAttributes'],
-              resources: [context.config.twilio!.secret.arn]
+              actions: [ 'secretsmanager:GetSecretValue' ],
+              resources: [ config.env.sms.arn ]
             }
           ] : undefined
         }))
@@ -562,7 +574,6 @@ export class DevicesApiStack extends Stack {
       handler: 'notify',
       environmentVariables: {
         TemplateKey: 'mytaptrack/templates/notification-email.html',
-        SMSOriginationNumber: ssmOriginationNumber,
         twilioSecret: context.config.env.sms.secret
       },
       tables: [
@@ -580,12 +591,12 @@ export class DevicesApiStack extends Stack {
         { detailType: [MttEventType.trackEvent], access: EventBusAccess.subscribe }
       ],
       sendEmail: true,
-      policyStatements: [
+      policyStatements: context.config.env.sms.secret? [
         {
           actions: ['secretsmanager:GetSecretValue'],
           resources: [context.config.env.sms.arn]
         }
-      ]
+      ] : undefined
     });
   }
 
