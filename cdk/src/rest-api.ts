@@ -128,8 +128,8 @@ export class MttRestApi {
                     apiKeyName: `${props.name ?? props.id}-${context.environment}-api-key`,
                     value: apiKey
                 });
-                // Overwrite logical id as to not overwrite with the same api key
-                (apiKeyObj.node as any as CfnResource).overrideLogicalId(`${props.name ?? props.id}${context.environment}apikey`);
+                
+                // Add usage plan for api key
                 const usagePlan = api.addUsagePlan(`${props.id}-${context.environment}-usage-plan`, {
                     name: `${props.name ?? props.id}-${context.environment}-usage-plan`,
                     apiStages: [{ api, stage: api.deploymentStage }],
