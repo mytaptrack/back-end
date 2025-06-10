@@ -24,6 +24,7 @@ import {
 } from '.';
 import { EventBus, IEventBus } from 'aws-cdk-lib/aws-events';
 import * as timestream from 'aws-cdk-lib/aws-timestream';
+import * as _ from 'lodash';
 
 
 const hashRoot = '.build/hash';
@@ -156,8 +157,9 @@ export class MttContext implements IMttContext {
 
     scope: Construct;
 
+    private _accountId: string;
     get accountId() {
-        return Fn.ref('AWS::AccountId');
+        return this.accountId;
     }
     
     get removalPolicy() {
@@ -194,6 +196,7 @@ export class MttContext implements IMttContext {
         const regions = (process.env.REGIONS ?? 'us-west-2,us-east').split(',');
         this.regions = regions;
         this.region = process.env.AWS_REGION ?? 'us-west-2';
+        this._accountId = process.env.AWS_ACCOUNT_ID ?? process.env.CDK_DEFAULT_ACCOUNT;
         this.stackName = stackName;
         this.sourceDir = '.';
         this.isPrimaryRegion = primaryRegion == this.region;
