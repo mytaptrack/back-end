@@ -50,16 +50,15 @@ export class MttS3 implements EnvironmentEnabled {
     setEnvironment() {}
 
     constructor(private context: IMttContext, private props: MttS3Props ) {
-        const alpha = context.accountId;
         if(props.existing) {
-            const bucketName = props.stack? `${props.stack}-${alpha}-${context.region}-${props.name}` : props.name;
+            const bucketName = props.stack? `${props.stack}-${context.accountId}-${context.region}-${props.name}` : props.name;
             console.log(`Referencing notes bucket ${bucketName}`);
             this.bucket = Bucket.fromBucketName(context.scope, props.id, bucketName);
             return;
         }
 
-        const bucketName = props.name? `${this.context.stackName}-${alpha}-${this.context.region}-${props.name}` : `${this.context.stackName}-${alpha}-${this.context.region}`;
-        let replicationBucketName: string | undefined = !props.replicationOn? undefined : props.name? `${context.stackName}-${alpha}-${context.replicationRegion}-${props.name}` :`${context.stackName}-${alpha}-${context.replicationRegion}`;
+        const bucketName = props.name? `${this.context.stackName}-${this.context.accountId}-${this.context.region}-${props.name}` : `${this.context.stackName}-${this.context.accountId}-${this.context.region}`;
+        let replicationBucketName: string | undefined = !props.replicationOn? undefined : props.name? `${context.stackName}-${this.context.accountId}-${context.replicationRegion}-${props.name}` :`${context.stackName}-${this.context.accountId}-${context.replicationRegion}`;
 
         if(context.replicationRegion && !context.s3ReplicationRole) {
             const replicationRole = new Role(context.scope, `${props.id}ReplicationRole`, {
