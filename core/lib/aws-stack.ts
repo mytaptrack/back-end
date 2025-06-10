@@ -406,10 +406,10 @@ export class AwsStack extends cdk.Stack {
     if (config.env.domain.sub.website.name) {
       websites.push(`https://${config.env.domain.sub.website.name}`);
     }
-    if (config.env.domain.sub.website.behavior.name) {
+    if (config.env.domain.sub.website.behavior?.name) {
       websites.push(`https://${config.env.domain.sub.website.behavior.name}`);
     }
-    if (config.env.domain.sub.website.manage.name) {
+    if (config.env.domain.sub.website.manage?.name) {
       websites.push(`https://${config.env.domain.sub.website.manage.name}`);
     }
     const client = cognito.addClient('UserPoolClient', {
