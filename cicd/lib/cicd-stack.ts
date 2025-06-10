@@ -63,6 +63,12 @@ export class CicdStack extends cdk.Stack {
                 'AWS_REGION': {
                   value: this.region
                 },
+                'CDK_DEFAULT_ACCOUNT': {
+                  value: this.account
+                },
+                'CDK_DEFAULT_REGION': {
+                  value: this.region
+                },
                 'ENVIRONMENT': {
                   value: environmentParam.valueAsString
                 },

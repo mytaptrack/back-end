@@ -19,6 +19,7 @@ import { Alias } from 'aws-cdk-lib/aws-kms';
 import * as yaml from 'yaml';
 import * as fs from 'fs';
 import { ConfigFile } from '../../cdk/src/config-file';
+import { WebsiteStack } from './website-stack';
 
 interface AwsStackProps extends cdk.StackProps {
   environment: string;
@@ -405,6 +406,12 @@ export class AwsStack extends cdk.Stack {
     if (config.env.domain.sub.website.name) {
       websites.push(`https://${config.env.domain.sub.website.name}`);
     }
+    if (config.env.domain.sub.website.behavior.name) {
+      websites.push(`https://${config.env.domain.sub.website.behavior.name}`);
+    }
+    if (config.env.domain.sub.website.manage.name) {
+      websites.push(`https://${config.env.domain.sub.website.manage.name}`);
+    }
     const client = cognito.addClient('UserPoolClient', {
       userPoolClientName: `${this.stackName}-client`,
       authFlows: {
@@ -459,6 +466,13 @@ export class AwsStack extends cdk.Stack {
       defaultEncryption: true,
       replicationOn: false
     });
+
+    if(context.config.env.domain.sub.website?.public) {
+      new WebsiteStack(this, 'WebsiteStack', {
+        coreStack: context.stackName,
+        environment: context.environment
+      });
+    }
 
     new CfnOutput(this, 'DataBucketV2Name', {
       value: dataBucket.bucket.bucketName,
