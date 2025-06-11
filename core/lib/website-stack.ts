@@ -20,6 +20,9 @@ export interface WebsiteStackProps extends cdk.NestedStackProps {
 }
 
 export class WebsiteStack extends cdk.NestedStack {
+  managementDNS: string;
+  behaviorDNS: string;
+
   constructor(scope: Construct, id: string, props?: WebsiteStackProps) {
     super(scope, id, props);
     
@@ -32,13 +35,7 @@ export class WebsiteStack extends cdk.NestedStack {
       phi: false
     });
 
-    const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
-      hostedZoneId: context.config.env.domain.hostedzone.id,
-      zoneName: context.config.env.domain.name
-    });
-
-
-    const behaviorCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.behavior.cert);
+    // const behaviorCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.behavior.cert);
     const behaviorDistribution = new cloudfront.Distribution(this, 'BehaviorWebsite', {
       defaultBehavior: {
         origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/behavior' })
@@ -46,7 +43,7 @@ export class WebsiteStack extends cdk.NestedStack {
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      certificate: behaviorCert,
+      // certificate: behaviorCert,
       errorResponses: [
         {
           httpStatus: 404,
@@ -55,21 +52,17 @@ export class WebsiteStack extends cdk.NestedStack {
         },
       ]
     });
-    const behaviorDNS = new route53.ARecord(this, 'BehaviorDNS', {
-      zone: hostedZone,
-      recordName: context.config.env.domain.sub.website.behavior.name + ".",
-      target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(behaviorDistribution))
-    });
+    this.behaviorDNS = behaviorDistribution.domainName;
 
-    const manageCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.manage.cert);
-    new cloudfront.Distribution(this, 'ManagementWebsite', {
+    // const manageCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.manage.cert);
+    const manageDistribution = new cloudfront.Distribution(this, 'ManagementWebsite', {
       defaultBehavior: {
         origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/manage' })
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      certificate: manageCert,
+      // certificate: manageCert,
       errorResponses: [
         {
           httpStatus: 404,
@@ -78,14 +71,32 @@ export class WebsiteStack extends cdk.NestedStack {
         },
       ]
     });
+    this.managementDNS = manageDistribution.domainName;
 
-    const managementDNS = new route53.ARecord(this, 'ManagementDNS', {
-      zone: hostedZone,
-      recordName: context.config.env.domain.sub.website.manage.name + ".",
-      target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(behaviorDistribution))
-    });
+    if(context.config.env.domain.sub.website?.behavior?.subdomain ||
+      context.config.env.domain.sub.website?.manage?.subdomain) {
+      const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
+        hostedZoneId: context.config.env.domain.hostedzone.id,
+        zoneName: context.config.env.domain.name
+      });
 
-    new cdk.CfnOutput(this, 'BehaviorDNSName', { value: behaviorDNS.domainName });
-    new cdk.CfnOutput(this, 'ManageDNSName', { value: managementDNS.domainName });
+      if(context.config.env.domain.sub.website?.behavior?.subdomain) {
+        const dns = new route53.ARecord(this, 'BehaviorDNS', {
+          zone: hostedZone,
+          recordName: context.config.env.domain.sub.website.behavior.name + ".",
+          target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(behaviorDistribution))
+        });
+        this.behaviorDNS = context.config.env.domain.sub.website?.behavior?.name
+      }
+
+      if(context.config.env.domain.sub.website?.manage?.subdomain) {
+        new route53.ARecord(this, 'ManagementDNS', {
+          zone: hostedZone,
+          recordName: context.config.env.domain.sub.website.manage.name + ".",
+          target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(behaviorDistribution))
+        });
+        this.managementDNS = context.config.env.domain.sub.website?.manage?.name
+      }
+    }
   }
 }

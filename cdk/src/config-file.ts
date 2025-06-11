@@ -63,6 +63,9 @@ export interface Config {
                 };
             }
         },
+        deploy?: {
+            website?: boolean;
+        },
         region: {
             primary: string;
             regions: string;
@@ -123,6 +126,14 @@ export interface Config {
         secret: {
             name: string;
             arn: string;
+        }
+    },
+    website?: {
+        username: boolean;
+        google: {
+            client_id: string;
+            client_secret_name: string;
+            scopes: string;
         }
     }
 }
