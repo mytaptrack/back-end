@@ -38,7 +38,7 @@ export class WebsiteStack extends cdk.NestedStack {
     // const behaviorCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.behavior.cert);
     const behaviorDistribution = new cloudfront.Distribution(this, 'BehaviorWebsite', {
       defaultBehavior: {
-        origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/behavior' })
+        origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/behavior', protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY })
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
@@ -57,7 +57,7 @@ export class WebsiteStack extends cdk.NestedStack {
     // const manageCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.manage.cert);
     const manageDistribution = new cloudfront.Distribution(this, 'ManagementWebsite', {
       defaultBehavior: {
-        origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/manage' })
+        origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/manage', protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY })
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
@@ -98,6 +98,7 @@ export class WebsiteStack extends cdk.NestedStack {
         this.managementDNS = context.config.env.domain.sub.website?.manage?.name
       }
     }
+    context.setParameter(true, 'website/bucket', websiteBucket.bucket.bucketName);
     context.setParameter(true, 'website/domain/behavior', this.behaviorDNS);
     context.setParameter(true, 'website/domain/manage', this.managementDNS);
   }
