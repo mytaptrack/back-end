@@ -98,5 +98,7 @@ export class WebsiteStack extends cdk.NestedStack {
         this.managementDNS = context.config.env.domain.sub.website?.manage?.name
       }
     }
+    context.setParameter(true, 'website/domain/behavior', this.behaviorDNS);
+    context.setParameter(true, 'website/domain/manage', this.managementDNS);
   }
 }

@@ -402,6 +402,8 @@ export class AwsStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       envVariable: 'cognito'
     });
+    cognito.setDomain();
+
     const websites = [];
 
     if (config.env.domain.sub.website.name) {
