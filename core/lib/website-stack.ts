@@ -36,9 +36,11 @@ export class WebsiteStack extends cdk.NestedStack {
     });
 
     // const behaviorCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.behavior.cert);
+    const origin = origins.S3BucketOrigin.withOriginAccessControl(websiteBucket.bucket, { originPath: '/behavior' });
+
     const behaviorDistribution = new cloudfront.Distribution(this, 'BehaviorWebsite', {
       defaultBehavior: {
-        origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/behavior', protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY })
+        origin: origin
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
@@ -57,7 +59,7 @@ export class WebsiteStack extends cdk.NestedStack {
     // const manageCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.manage.cert);
     const manageDistribution = new cloudfront.Distribution(this, 'ManagementWebsite', {
       defaultBehavior: {
-        origin: new origins.S3StaticWebsiteOrigin(websiteBucket.bucket, { originPath: '/manage', protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY })
+        origin: origin
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
