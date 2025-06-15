@@ -88,6 +88,7 @@ export class MttCognito implements EnvironmentEnabled {
             userPool: this.userPool,
             userPoolClient: client
         }));
+        idPool.authenticatedRole.addManagedPolicy({ managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess'} )
         return idPool;
     }
 }
