@@ -57,9 +57,10 @@ export class WebsiteStack extends cdk.NestedStack {
     this.behaviorDNS = behaviorDistribution.domainName;
 
     // const manageCert = aws_certificatemanager.Certificate.fromCertificateArn(this, 'Certificate', context.config.env.domain.sub.website.manage.cert);
+    const manageOrigin = origins.S3BucketOrigin.withOriginAccessControl(websiteBucket.bucket, { originPath: '/manage' });
     const manageDistribution = new cloudfront.Distribution(this, 'ManagementWebsite', {
       defaultBehavior: {
-        origin: origin
+        origin: manageOrigin
       },
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
