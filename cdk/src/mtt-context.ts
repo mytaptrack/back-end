@@ -159,7 +159,7 @@ export class MttContext implements IMttContext {
 
     private _accountId: string;
     get accountId() {
-        return this.accountId;
+        return this._accountId;
     }
     
     get removalPolicy() {

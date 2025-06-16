@@ -128,6 +128,8 @@ export class MttRestApi {
                     apiKeyName: `${props.name ?? props.id}-${context.environment}-api-key`,
                     value: apiKey
                 });
+                
+                // Add usage plan for api key
                 const usagePlan = api.addUsagePlan(`${props.id}-${context.environment}-usage-plan`, {
                     name: `${props.name ?? props.id}-${context.environment}-usage-plan`,
                     apiStages: [{ api, stage: api.deploymentStage }],

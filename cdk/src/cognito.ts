@@ -58,6 +58,17 @@ export class MttCognito implements EnvironmentEnabled {
         }
     }
 
+    setDomain(namePrefix?: string) {
+        // Create a cognito domain
+        const domain = this.userPool.addDomain(`${this.props.id}-domain`, {
+            cognitoDomain: {
+                domainPrefix: namePrefix ?? `${this.context.stackName.toLowerCase()}-${this.context.accountId}`
+            }
+        });
+
+        this.context.setParameter(true, 'cognito/domain', domain.domainName);
+    }
+
     addClient(id: string, options: UserPoolClientOptions) {
         return this.userPool.addClient(id, options);
     }
@@ -77,6 +88,7 @@ export class MttCognito implements EnvironmentEnabled {
             userPool: this.userPool,
             userPoolClient: client
         }));
+        idPool.authenticatedRole.addManagedPolicy({ managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess'} )
         return idPool;
     }
 }

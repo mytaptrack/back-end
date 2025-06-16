@@ -72,7 +72,7 @@ export class AwsStack extends cdk.Stack {
     });
     (replicationRole.node.defaultChild as cdk.CfnResource).overrideLogicalId('S3ReplicationRole')
 
-    this.createS3Buckets(context);
+    const websiteStack = this.createS3Buckets(context);
     this.createTimestream(context);
 
     if(config.env.regional.ses) {
@@ -188,7 +188,7 @@ export class AwsStack extends cdk.Stack {
         tags: [ { name: 'DataType', value: 'PatientPHI' }]
       });
 
-      this.primaryRegionFunctions(context, apiGatewayCert, regionPrimary, regions, environment, null, config);
+      this.primaryRegionFunctions(context, apiGatewayCert, regionPrimary, regions, environment, null, config, websiteStack);
     } else {
       primaryTable = MttDynamoDB.fromTableArn(context, {
         id: 'ExistingTablePrimary',
@@ -276,7 +276,7 @@ export class AwsStack extends cdk.Stack {
    });
   }
 
-  primaryRegionFunctions(context: MttContext, apiGatewayCert: CfnClientCertificate, regionPrimary: string, regions: string, environment: string, logsEncryptionKey: MttKmsKey, config: Config) {
+  primaryRegionFunctions(context: MttContext, apiGatewayCert: CfnClientCertificate, regionPrimary: string, regions: string, environment: string, logsEncryptionKey: MttKmsKey, config: Config, websiteStack?: WebsiteStack) {
 
     if(logsEncryptionKey) {
       new MttFunction(context, {
@@ -402,16 +402,18 @@ export class AwsStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       envVariable: 'cognito'
     });
+    cognito.setDomain();
+
     const websites = [];
+
     if (config.env.domain.sub.website.name) {
       websites.push(`https://${config.env.domain.sub.website.name}`);
     }
-    if (config.env.domain.sub.website.behavior.name) {
-      websites.push(`https://${config.env.domain.sub.website.behavior.name}`);
+    if(websiteStack) {
+      websites.push(`https://${websiteStack.behaviorDNS}`);
+      websites.push(`https://${websiteStack.managementDNS}`);
     }
-    if (config.env.domain.sub.website.manage.name) {
-      websites.push(`https://${config.env.domain.sub.website.manage.name}`);
-    }
+
     const client = cognito.addClient('UserPoolClient', {
       userPoolClientName: `${this.stackName}-client`,
       authFlows: {
@@ -467,8 +469,9 @@ export class AwsStack extends cdk.Stack {
       replicationOn: false
     });
 
-    if(context.config.env.domain.sub.website?.public) {
-      new WebsiteStack(this, 'WebsiteStack', {
+    let websiteStack: WebsiteStack;
+    if(context.config.env.deploy?.website) {
+      websiteStack = new WebsiteStack(this, 'WebsiteStack', {
         coreStack: context.stackName,
         environment: context.environment
       });
@@ -482,6 +485,8 @@ export class AwsStack extends cdk.Stack {
       value: dataBucket.bucket.bucketArn,
       exportName: `${this.stackName}-DataBucketV2Arn`
     });
+
+    return websiteStack;
   }
 
   createSES() {
