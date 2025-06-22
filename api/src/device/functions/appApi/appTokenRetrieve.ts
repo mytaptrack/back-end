@@ -14,7 +14,6 @@ import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
 
 const dataDal = new Dal('data');
 
-
 export const put = WebUtils.lambdaWrapper(handler);
 
 const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);

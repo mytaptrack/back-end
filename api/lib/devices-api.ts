@@ -308,6 +308,30 @@ export class DevicesApiStack extends Stack {
       ]
     });
 
+    api.addLambdaHandler({
+      id: 'getAuthConfig',
+      codePath: 'src/device/functions/server/getAuthConfig.ts',
+      handler: 'get',
+      path: 'auth/config',
+      method: 'get',
+      environmentVariables: {
+        // AWS_REGION: this.region,
+        USER_POOL_ID: context.getParameter(`/${context.environment}/regional/calc/cognito/userpoolid`).stringValue,
+        IDENTITY_POOL_ID: context.getParameter(`/${context.environment}/regional/calc/cognito/idpoolid`).stringValue,
+        APP_CLIENT: context.getParameter(`/${context.environment}/regional/calc/cognito/clientid`).stringValue,
+        AUTH_DOMAIN: context.getParameter(`/${context.environment}/regional/calc/cognito/domain`).stringValue,
+        APP_NAME: context.config.env.domain.sub.device.appid
+      },
+      appsync: [
+        {
+          api: appsync,
+          access: {
+            queries: ['']
+          }
+        }
+      ],
+    });
+
     new MttFunction(context, {
       id: 'GetTokenData',
       codePath: 'src/device/functions/appApi/getTokenData.ts',
