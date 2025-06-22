@@ -242,18 +242,20 @@ export class MttContext implements IMttContext {
             }
         }
 
-        if(this.config.env.vpc) {
-            const vpcId = StringParameter.fromStringParameterName(scope, 'VpcId', `/${this.environment}/regional/vpc/hipaa/id`)
-            const subnetA = StringParameter.fromStringParameterName(scope, 'SubnetA', `/${this.environment}/regional/vpc/hipaa/subnets/a`);
-            const subnetB = StringParameter.fromStringParameterName(scope, 'SubnetB', `/${this.environment}/regional/vpc/hipaa/subnets/b`);
+        if(this.config.env.vpc && 
+            this.config.env.vpc.subnets.a && this.config.env.vpc.subnets.b && 
+            this.config.env.vpc.subnets.a != this.config.env.vpc.subnets.b) {
+            const vpcId = this.config.env.vpc.id
+            const subnetA = this.config.env.vpc.subnets.a;
+            const subnetB = this.config.env.vpc.subnets.b;
             // const useNetworking = StringParameter.fromStringParameterName(scope, 'UseNetworking', '/hipaa/VpcEnabled');
             const availabilityZones = Fn.getAzs();
             
             this.networking = {
                 vpc: Vpc.fromVpcAttributes(scope, 'vpc', { 
-                    vpcId: vpcId.stringValue, 
+                    vpcId: vpcId, 
                     availabilityZones: [availabilityZones[0], availabilityZones[1]], 
-                    privateSubnetIds: [subnetA.stringValue, subnetB.stringValue]
+                    privateSubnetIds: [subnetA, subnetB]
                 })
             };
         }

@@ -115,7 +115,13 @@ export interface Config {
             domainScrubbing?: string;
             attributeMasking?: string;
         },
-        vpc: boolean;
+        vpc?: {
+            id: string;
+            subnets: {
+                a: string;
+                b: string;
+            }
+        }
     },
     slack?: {
         workspace: {
