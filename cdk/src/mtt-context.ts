@@ -242,21 +242,22 @@ export class MttContext implements IMttContext {
             }
         }
 
-        if(this.config.env.vpc) {
-            const vpcId = StringParameter.fromStringParameterName(scope, 'VpcId', '/regional/vpc/hipaa/id')
-            const subnetA = StringParameter.fromStringParameterName(scope, 'SubnetA', '/regional/vpc/hipaa/subnets/a');
-            const subnetB = StringParameter.fromStringParameterName(scope, 'SubnetB', '/regional/vpc/hipaa/subnets/b');
-            const useNetworking = StringParameter.fromStringParameterName(scope, 'UseNetworking', '/hipaa/VpcEnabled');
+        if(this.config.env.vpc && 
+            this.config.env.vpc.subnets.a && this.config.env.vpc.subnets.b && 
+            this.config.env.vpc.subnets.a != this.config.env.vpc.subnets.b) {
+            const vpcId = this.config.env.vpc.id
+            const subnetA = this.config.env.vpc.subnets.a;
+            const subnetB = this.config.env.vpc.subnets.b;
+            // const useNetworking = StringParameter.fromStringParameterName(scope, 'UseNetworking', '/hipaa/VpcEnabled');
             const availabilityZones = Fn.getAzs();
-            if(useNetworking.stringValue == 'true') {
-                this.networking = {
-                    vpc: Vpc.fromVpcAttributes(scope, 'vpc', { 
-                        vpcId: vpcId.stringValue, 
-                        availabilityZones: [availabilityZones[0], availabilityZones[1]], 
-                        privateSubnetIds: [subnetA.stringValue, subnetB.stringValue]
-                    })
-                };
-            }
+            
+            this.networking = {
+                vpc: Vpc.fromVpcAttributes(scope, 'vpc', { 
+                    vpcId: vpcId, 
+                    availabilityZones: [availabilityZones[0], availabilityZones[1]], 
+                    privateSubnetIds: [subnetA, subnetB]
+                })
+            };
         }
 
         this.scope = scope;
