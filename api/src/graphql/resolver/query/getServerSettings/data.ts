@@ -22,7 +22,7 @@ export async function eventHandler(context: MttAppSyncContext<{}, any, any, {}>)
         https = result.Parameter?.Value || '';
     }
 
-    const token = `${process.env.appid}://settings?http=https://${https}&key=${process.env.apikey}&graphql=${process.env.graphql}`;
+    const token = `${process.env.appid}://settings?http=${https}&key=${process.env.apikey}&graphql=${process.env.graphql}`;
 
     return {
         token
