@@ -412,6 +412,14 @@ export class AwsStack extends cdk.Stack {
     if(websiteStack) {
       websites.push(`https://${websiteStack.behaviorDNS}`);
       websites.push(`https://${websiteStack.managementDNS}`);
+
+      // Add output which is the websites
+      new CfnOutput(context.scope, 'BehaviorWebsiteStackOutput', {
+        value: `https://${websiteStack.behaviorDNS}`
+      });
+      new CfnOutput(context.scope, 'ManagementWebsiteStackOutput', {
+        value: `https://${websiteStack.managementDNS}`       
+      });
     }
 
     const client = cognito.addClient('UserPoolClient', {
