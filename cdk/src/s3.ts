@@ -101,8 +101,8 @@ export class MttS3 implements EnvironmentEnabled {
         const bucket = new CfnBucket(context.scope, props.id, {
             bucketName,
             accessControl: BucketAccessControl.PRIVATE,
-            loggingConfiguration: context.loggingBucket? {
-                destinationBucketName: context.loggingBucket!.bucketName,
+            loggingConfiguration: context.loggingBucket?.bucketName? {
+                destinationBucketName: context.loggingBucket?.bucketName,
                 logFilePrefix: `s3/${bucketName}/`
             } : undefined,
             bucketEncryption: {
