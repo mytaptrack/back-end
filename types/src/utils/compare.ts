@@ -1,5 +1,11 @@
 
 export function valuesMatch<T>(a: T, b: T) {
+    if(!a && !b) {
+        return true;
+    }
+    if(!a || !b) {
+        return false;
+    }
     if(typeof a != typeof b) {
         return false;
     }
