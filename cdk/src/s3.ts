@@ -98,13 +98,17 @@ export class MttS3 implements EnvironmentEnabled {
             );
             context.s3ReplicationRole = replicationRole;
         }
+        let loggingConfiguration;
+        if (context.loggingBucket?.bucketName) {
+            loggingConfiguration = {
+                destinationBucket: context.loggingBucket.bucketName,
+                logFilePrefix: `s3/${bucketName}/`
+            }
+        }
         const bucket = new CfnBucket(context.scope, props.id, {
             bucketName,
             accessControl: BucketAccessControl.PRIVATE,
-            loggingConfiguration: context.loggingBucket?.bucketName? {
-                destinationBucketName: context.loggingBucket?.bucketName,
-                logFilePrefix: `s3/${bucketName}/`
-            } : undefined,
+            loggingConfiguration: loggingConfiguration,
             bucketEncryption: {
                 serverSideEncryptionConfiguration: [{
                     serverSideEncryptionByDefault: props.defaultEncryption || !context.kmsKey? {

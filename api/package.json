@@ -44,7 +44,7 @@
         "@mytaptrack/get-ssl-certificate": "^2.3.4",
         "@mytaptrack/lib": "file:../lib",
         "@mytaptrack/stack-lib": "file:src/library",
-        "@mytaptrack/types": "^2.0.45",
+        "@mytaptrack/types": "file:../types",
         "aws-sigv4-fetch": "^2.1.1",
         "body-parser": "^1.20.2",
         "crypto-ts": "^1.0.2",

@@ -1,0 +1,16 @@
+{
+    "name": "@mytaptrack/types",
+    "version": "2.0.45",
+    "description": "Types for mytaptrack",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc -d",
+        "start": "tsc -d --watch"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.4"
+    },
+    "author": "mytaptrack",
+    "license": ""
+}

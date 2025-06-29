@@ -22,11 +22,13 @@ core/
 - Reusable utility functions
 - Standardized configuration management
 - TypeScript-based infrastructure as code
+- Social authentication providers support (Google)
 
 ## Prerequisites
 - Node.js (v14+ recommended)
 - AWS CDK CLI
 - AWS CLI configured with appropriate credentials
+- Google OAuth credentials (if using Google authentication)
 
 ## Setup and Installation
 1. Clone the repository
@@ -51,9 +53,32 @@ core/
   ```
 
 ## Configuration
+
+### General Configuration
 - Modify `params/` for environment-specific configurations
 - Customize infrastructure in `lib/` directory
 - Adjust CDK settings in `cdk.json`
+
+### Authentication Configuration
+The system supports multiple authentication providers that can be configured in your environment configuration file:
+
+#### Google Authentication
+To enable Google authentication, add the following to your configuration:
+
+```yaml
+env:
+  auth:
+    google:
+      enabled: true
+      clientId: "your-google-client-id"
+      clientSecret: "your-google-client-secret"
+```
+
+Make sure to:
+1. Create a project in Google Cloud Console
+2. Configure OAuth 2.0 credentials
+3. Add your application's callback URLs to the Google Cloud Console
+4. Set the client ID and secret in your configuration
 
 ## Utilities
 The `utils/` directory contains shared utility functions that can be used across the project.

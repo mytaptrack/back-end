@@ -1,0 +1,11 @@
+node_modules
+/output/*.zip
+.serverless
+/coverage
+/.vscode
+/.nyc_output
+/dist
+.DS_Store
+
+/esm
+/cjs

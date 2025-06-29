@@ -20,7 +20,7 @@
         "typescript": "^5.0.4"
     },
     "dependencies": {
-        "@mytaptrack/types": "^2.0.42",
+        "@mytaptrack/types": "file:../types",
         "glob": "^10.3.10",
         "install": "^0.13.0",
         "jsonschema": "^1.4.1",

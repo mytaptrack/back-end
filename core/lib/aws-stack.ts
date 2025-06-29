@@ -10,7 +10,7 @@ import { Construct } from 'constructs';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { CfnOutput } from 'aws-cdk-lib';
 import { CfnContactList, ConfigurationSet, SuppressionReasons } from 'aws-cdk-lib/aws-ses';
-import { OAuthScope, UserPool, UserPoolEmail } from 'aws-cdk-lib/aws-cognito';
+import { OAuthScope, UserPool, UserPoolEmail, UserPoolIdentityProviderGoogle } from 'aws-cdk-lib/aws-cognito';
 import { EventBus } from 'aws-cdk-lib/aws-events';
 import { AttributeType } from 'aws-cdk-lib/aws-dynamodb';
 import { SecurityStack } from './security-stack';
@@ -449,6 +449,19 @@ export class AwsStack extends cdk.Stack {
       idTokenValidity: cdk.Duration.minutes(60),
       refreshTokenValidity: cdk.Duration.days(30)
     });
+
+    // Add Google as identity provider if enabled in config
+    if (config.env?.auth?.google) {
+      const googleProvider = new UserPoolIdentityProviderGoogle(this, 'GoogleProvider', {
+        userPool: cognito.userPool,
+        clientId: config.env.auth.google!.clientId,
+        clientSecret: config.env.auth.google.clientSecretName,
+        scopes: ['profile', 'email', 'openid']
+      });
+
+      // Update user pool to include Google provider
+      cognito.userPool.identityProviders.push(googleProvider);
+    }
 
     const identityPool = cognito.addIdPool(client);
 

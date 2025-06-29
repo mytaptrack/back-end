@@ -121,6 +121,14 @@ export interface Config {
                 a: string;
                 b: string;
             }
+        },
+        auth?: {
+            username: boolean;
+            google?: {
+                clientId: string;
+                clientSecretName: string;
+                scopes: string;
+            }
         }
     },
     slack?: {
@@ -132,14 +140,6 @@ export interface Config {
         secret: {
             name: string;
             arn: string;
-        }
-    },
-    website?: {
-        username: boolean;
-        google: {
-            client_id: string;
-            client_secret_name: string;
-            scopes: string;
         }
     }
 }
