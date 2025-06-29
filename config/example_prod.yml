@@ -12,6 +12,11 @@ env:
       tokenKey:
         name: /prod/app/tokenKey
         arn: "" # The arn of the secrets manager which stores the encryption key used for tokenizing the student id and validation of origin
+  auth:
+    google:
+      enabled: true # Whether to enable Google authentication
+      clientId: "" # The Google OAuth client ID
+      clientSecret: "" # The Google OAuth client secret 
   auto:
     data:
       dsn:

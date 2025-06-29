@@ -13,8 +13,9 @@ del-env:
 
 # Install dependencies for all services
 install-deps:
-	cd cdk && npm ci && npm run build && cd ..
-	cd lib && npm ci && npm run build && cd ..
+	cd types && npm ci && cd ..
+	cd cdk && npm ci && cd ..
+	cd lib && npm ci && cd ..
 	cd core && npm ci && cd ..
 	cd api && npm ci && cd ..
 	cd data-prop && npm ci && cd ..
@@ -22,6 +23,7 @@ install-deps:
 
 # Build all services
 build:
+	cd types && npm run build && cd ..
 	cd lib && npm run build && cd ..
 
 # Deploy all services
@@ -74,6 +76,7 @@ test:
 
 # Clean build artifacts
 clean:
+	cd types && rm -rf node_modules && cd ..
 	cd lib && rm -rf node_modules && cd ..
 	cd core && rm -rf node_modules && cd ..
 	cd api && rm -rf node_modules && cd ..

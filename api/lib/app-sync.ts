@@ -833,65 +833,6 @@ export class AppSyncStack extends Stack {
     //     runtime: FunctionRuntime.JS_1_0_0,
     // });
 
-
-    // Add more resolvers...
-
-    new MttFunction(context, {
-      id: 'crtu1',
-      codePath: 'src/migration/migrateTeam.ts',
-      timeout: Duration.minutes(15),
-      customResourceHandlers: {
-        create: 'onCreate'
-      },
-      tables: [{ table: dataTable, access: DynamoDBAccess.readWrite }]
-    });
-    new MttFunction(context, {
-      id: 'cr-notes-1',
-      codePath: 'src/migration/migrateNotes.ts',
-      timeout: Duration.minutes(15),
-      customResourceHandlers: {
-        create: 'onCreate'
-      },
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read },
-        { table: primaryTable, access: DynamoDBAccess.readWrite }
-      ],
-      buckets: [
-        { bucket: dataBucket, access: S3Access.read }
-      ]
-    });
-
-    new MttFunction(context, {
-      id: 'cram',
-      codePath: 'src/migration/migrateApps.ts',
-      timeout: Duration.minutes(15),
-      customResourceHandlers: {
-        create: 'onCreate'
-      },
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.readWrite },
-        { table: primaryTable, access: DynamoDBAccess.readWrite }
-      ],
-    });
-    new MttFunction(context, {
-      id: 'crms',
-      codePath: 'src/migration/migrateSources.ts',
-      timeout: Duration.minutes(15),
-      customResourceHandlers: {
-        create: 'onCreate'
-      },
-      tables: [{ table: dataTable, access: DynamoDBAccess.readWrite }],
-    });
-    new MttFunction(context, {
-      id: 'crru',
-      codePath: 'src/migration/migrateReports.ts',
-      timeout: Duration.minutes(15),
-      customResourceHandlers: {
-        create: 'onCreate'
-      },
-      tables: [{ table: dataTable, access: DynamoDBAccess.readWrite }],
-    });
-
     // Output the AppSync API endpoint
     new CfnOutput(this, 'AppSyncApiEndpoint', {
       value: this.appsync.graphqlUrl,
