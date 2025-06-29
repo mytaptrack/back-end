@@ -7,7 +7,6 @@
         "setup-env": "npx ts-node setup-env.ts"
     },
     "devDependencies": {
-        "@mytaptrack/cdk": "file:../cdk",
         "@types/aws-lambda": "^8.10.113",
         "@types/node": "^14.14.28"
     },
@@ -18,7 +17,8 @@
         "@aws-sdk/client-s3": "^3.563.0",
         "@aws-sdk/client-ssm": "^3.821.0",
         "@mytaptrack/lib": "file:../lib",
-        "@mytaptrack/types": "^2.0.29",
+        "@mytaptrack/cdk": "file:../cdk",
+        "@mytaptrack/types": "file:../types",
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
         "prompt-sync": "^4.2.0",
