@@ -40,7 +40,8 @@ export class MttLambdaCode extends Code {
       mkdir(outputDirectory);
       const files = readdirSync(sourceDir, true);
       logger.debug('compile files:', files, process.cwd());
-      const fileParam = files.map(f => path.join(f.path.slice(1), f.name)).join(' ');
+      // Generate fileParams from the files with a space between each file name/path
+      const fileParam = files.map(f => path.join(f.parentPath.slice(1), f.name)).join(' ');
       execOnlyShowErrors(`npx tsc ${compilerOptions} --outDir ${path.resolve(buildDir)} --rootDir . ${fileParam}`, { cwd: path.resolve('..')});
       this.updated = true;
     }

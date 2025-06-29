@@ -25,7 +25,7 @@
         "install": "^0.13.0",
         "jsonschema": "^1.4.1",
         "lodash": "^4.17.21",
-        "moment-timezone": "^0.5.43",
+        "moment-timezone": "^0.6.0",
         "npm": "^11.4.1",
         "path": "^0.12.7",
         "short-uuid": "^5.2.0",

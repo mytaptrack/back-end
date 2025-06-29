@@ -15,7 +15,7 @@ function getLatestTime(pathDir: string) {
 
     let retval: number = Number.MAX_VALUE;
     files.forEach(file => {
-        const stat = lstatSync(path.join(pathDir, file.path, file.name));
+        const stat = lstatSync(path.join(pathDir, file.parentPath, file.name));
         if(stat.ctimeMs > retval) {
             retval = stat.ctimeMs;
         }
