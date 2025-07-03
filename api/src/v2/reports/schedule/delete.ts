@@ -4,7 +4,8 @@ import { QLReportDetailsSchedule, typesV2 } from '@mytaptrack/types';
 const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-    schema: typesV2.OverwriteScheduleDeleteRequestSchema
+    schema: typesV2.OverwriteScheduleDeleteRequestSchema,
+    processBody: 'Parameters'
 });
 
 export async function handler(request: typesV2.OverwriteScheduleDeleteRequest, userDetails: WebUserDetails) {

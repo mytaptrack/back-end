@@ -1,10 +1,12 @@
 import { LoggingLevel, constructLogger, webApi } from "../../lib";
 import { config } from "../../config";
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('user', () => {
 
     beforeEach(() => {
-        constructLogger(LoggingLevel.WARN);
+        
     });
     
     test('UpdateUser', async () => {

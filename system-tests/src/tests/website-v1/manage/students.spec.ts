@@ -7,12 +7,13 @@ import {
 import { license } from "../../../config";
 import { cleanUp, setupBehaviors, setupStudent } from "../helpers";
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('ManageStudents', () => {
     beforeAll(async () => {
         await webApi.login();
     });
     beforeEach(() => {
-        constructLogger(LoggingLevel.WARN);
     });
     test('Add admin to student', async () => {
         console.info('Logging in');

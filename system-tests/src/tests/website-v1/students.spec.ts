@@ -7,12 +7,13 @@ import {
     testIntensity
 } from './helpers';
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('students', () => {
     beforeAll(async () => {
         await webApi.login();
     });
     beforeEach(() => {
-        constructLogger(LoggingLevel.WARN);
     });
     afterEach(async () => {
     });

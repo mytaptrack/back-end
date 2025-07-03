@@ -4,7 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { AwsStack } from '../lib/aws-stack';
 import { ConfigFile } from '@mytaptrack/cdk';
 
-const ENVIRONMENT = process.env.STAGE ?? 'test';
+const ENVIRONMENT = process.env.STAGE ?? 'dev';
 process.env.ENVIRONMENT = ENVIRONMENT;
 
 const configFile = new ConfigFile('../config', ENVIRONMENT);

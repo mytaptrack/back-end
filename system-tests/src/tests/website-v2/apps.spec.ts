@@ -3,6 +3,9 @@ import { qlApi } from "../../lib/api-ql";
 import { license } from "../../config";
 import { GraphQLAppInput } from "@mytaptrack/types";
 import moment from "moment-timezone";
+import { constructLogger, LoggingLevel } from "../../lib";
+
+constructLogger(LoggingLevel.ERROR);
 
 describe('website-v2', () => {
     describe('apps', () => {

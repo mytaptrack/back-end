@@ -11,12 +11,13 @@ import {
 import { cleanUp, setupStudent, setupBehaviors } from "../helpers";
 import { uuid } from 'short-uuid';
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('ManageApps', () => {
     beforeAll(async () => {
         await webApi.login();
     });
     beforeEach(() => {
-        constructLogger(LoggingLevel.WARN);
     });
     test('Add non-team student to app', async () => {
         const mobileAppId = uuid().toString();

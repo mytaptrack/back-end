@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { DataPropStack } from '../lib/aws-stack';
 
-const ENVIRONMENT = process.env.STAGE ?? 'test';
+const ENVIRONMENT = process.env.STAGE ?? 'dev';
 process.env.ENVIRONMENT = ENVIRONMENT;
 
 const app = new cdk.App();

@@ -2,9 +2,10 @@ import { LicenseStorage } from "@mytaptrack/lib";
 import { data, license } from "../../../config";
 import { LoggingLevel, constructLogger, login, webApi } from "../../../lib";
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('manage-abc', () => {
     beforeAll(async () => {
-        constructLogger(LoggingLevel.WARN);
         await webApi.login();
     });
 

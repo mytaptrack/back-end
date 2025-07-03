@@ -2,7 +2,8 @@ import { LambdaAppsyncQueryClient, v2, WebError, WebUserDetails, WebUtils } from
 import { AccessLevel, GraphQLAppInput, QLAppDeviceConfiguration, typesV2 } from '@mytaptrack/types';
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-    schema: typesV2.DeleteDeviceRequestSchema
+    schema: typesV2.DeleteDeviceRequestSchema,
+    processBody: 'Parameters'
 });
 
 const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);

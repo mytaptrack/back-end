@@ -81,6 +81,11 @@ export async function httpRequest(endpoint: string, auth: { apiKey?: string, cog
                 if(res.statusCode != 200) {
                     reject(`Http call failed with ${res.statusCode}`);
                     console.error("http error ", res.statusCode, " ", content);
+
+                    // Print callstack
+                    const stack = new Error().stack;
+                    console.error(stack);
+
                     return;
                 }
                 resolve(content);

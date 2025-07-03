@@ -3,7 +3,7 @@ process.env.DataTable = process.env.DataTable ?? 'mytaptrack-test-data';
 process.env.STRONGLY_CONSISTENT_READ = 'true';
 import { qlApi, wait, constructLogger, getAppDefinitions, LoggingLevel, getAppDefinitionsV3 } from '../../lib';
 
-constructLogger(LoggingLevel.DEBUG);
+constructLogger(LoggingLevel.ERROR);
 
 describe('app', () => {
     describe('graphql', () => {

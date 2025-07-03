@@ -4,7 +4,8 @@ import { GraphQLAppInput, QLAppDeviceConfiguration, typesV2 } from '@mytaptrack/
 const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-  schema: typesV2.DeleteDeviceRequestSchema
+  schema: typesV2.DeleteDeviceRequestSchema,
+  processBody: 'Parameters'
 });
 
 export async function handler(request: typesV2.DeleteDeviceRequest, userDetails: WebUserDetails) {

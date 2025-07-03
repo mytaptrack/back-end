@@ -121,8 +121,8 @@ async function setupConfiguration() {
             singleCount: 100,
             singleUsed: 0,
             multiCount: 100,
-            admins: ['teacher@mytaptrack.com'],
-            emailDomain: 'mytaptrack.com',
+            admins: [config.env.testing.admin.email],
+            emailDomain: '',
             start: '05/18/2018',
             expiration: '05/18/3000',
             features: {

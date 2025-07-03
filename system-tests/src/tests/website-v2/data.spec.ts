@@ -1,7 +1,9 @@
 import moment from 'moment-timezone';
-import { qlApi, wait } from '../../lib';
+import { constructLogger, LoggingLevel, qlApi, wait } from '../../lib';
 import * as helpers from './helpers';
 import { testBehavior } from './helpers';
+
+constructLogger(LoggingLevel.ERROR);
 
 describe('QLReporting', () => {
     beforeAll(async () => {

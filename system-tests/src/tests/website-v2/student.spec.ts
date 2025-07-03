@@ -12,13 +12,14 @@ import {
 
 let user: QLUser;
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('graphql', () => {
     beforeAll(async () => {
         await qlApi.login();
     }, 30 * 1000);
     beforeEach(() => {
         jest.useRealTimers();
-        constructLogger(LoggingLevel.WARN);
     });
     afterEach(async () => {
     });

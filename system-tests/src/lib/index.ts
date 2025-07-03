@@ -21,7 +21,7 @@ export enum LoggingLevel {
 
 export function constructLogger(loggingLevel: LoggingLevel) {
     console.debug = (...args: any) => {
-        if(loggingLevel >= LoggingLevel.DEBUG) {
+        if(loggingLevel > LoggingLevel.DEBUG) {
             return;
         } 
         
@@ -35,7 +35,7 @@ export function constructLogger(loggingLevel: LoggingLevel) {
         console.log('DEBUG:', ...args);
     }
     console.info = (...args: any) => {
-        if(loggingLevel >= LoggingLevel.INFO) {
+        if(loggingLevel > LoggingLevel.INFO) {
             return;
         } 
         
@@ -49,7 +49,7 @@ export function constructLogger(loggingLevel: LoggingLevel) {
         console.log('INFO:', ...args);
     }
     console.warn = (...args: any) => {
-        if(loggingLevel >= LoggingLevel.WARN) {
+        if(loggingLevel > LoggingLevel.WARN) {
             return;
         }
         const parts = args.map(x => {
@@ -62,7 +62,7 @@ export function constructLogger(loggingLevel: LoggingLevel) {
         console.log('WARN:', ...args);
     }
     console.error = (...args: any) => {
-        if(loggingLevel >= LoggingLevel.ERROR) {
+        if(loggingLevel > LoggingLevel.ERROR) {
             return;
         }
         const parts = args.map(x => {

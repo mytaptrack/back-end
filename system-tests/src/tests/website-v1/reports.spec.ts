@@ -3,13 +3,15 @@ import { LoggingLevel, constructLogger, wait, webApi } from "../../lib";
 import { setupStudent, cleanUp, testBehavior, setupBehaviors, setupSchedule } from "./helpers";
 import { CalculationType, SummaryScope } from "@mytaptrack/types";
 
+constructLogger(LoggingLevel.ERROR);
+
 describe('Reports', () => {
     beforeAll(async () => {
         await webApi.login();
     });
 
     beforeEach(() => {
-        constructLogger(LoggingLevel.WARN);
+        
         jest.useRealTimers();
     });
     

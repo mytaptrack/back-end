@@ -7,7 +7,7 @@ import { uuid } from 'short-uuid';
 import { cleanStudentApps, createQRCode, testTracking } from './helpers';
 import { Schema, Validator } from 'jsonschema';
 
-constructLogger(LoggingLevel.DEBUG);
+constructLogger(LoggingLevel.ERROR);
 
 const definitionV2Schema: Schema = {
     type: 'object',
@@ -143,7 +143,6 @@ describe('app', () => {
 
     beforeEach(() => {
         jest.useRealTimers();
-        constructLogger(LoggingLevel.WARN);
     });
 
     test('RegisterPhone', async () => {

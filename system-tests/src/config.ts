@@ -1,6 +1,6 @@
-const environment = process.env.STAGE ?? process.env.Environment ?? 'dev';
-process.env.PrimaryTable = process.env.PrimaryTable ?? `mytaptrack-${environment}-primary`;
-process.env.DataTable = process.env.DataTable ?? `mytaptrack-${environment}-data`;
+const environment = process.env.STAGE ?? 'dev';
+process.env.PrimaryTable = `mytaptrack-${environment}-primary`;
+process.env.DataTable = `mytaptrack-${environment}-data`;
 process.env.STRONGLY_CONSISTENT_READ = 'true';
 
 import { ConfigFile } from '@mytaptrack/cdk';
@@ -12,6 +12,7 @@ const ssm = new SSMClient({});
 const configFile = new ConfigFile(process.env.CONFIG_PATH ?? '../config', environment);
 export const config = configFile.config;
 
+console.log('Data Table: ', process.env.DataTable);
 export const data = new Dal('data');
 export const primary = new Dal('primary');
 

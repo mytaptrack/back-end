@@ -54,11 +54,7 @@ class WebApiClass {
         let now = moment();
         now = now.tz('America/Los_Angeles')
 
-        const params = {
-            dsn: serialNumber,
-            studentId
-        };
-        return await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/devices/track`, params);
+        return await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/devices/track?studentId=${studentId}&dsn=${serialNumber}`, undefined);
     }
 
     async putTrackConfig(data: DevicePutRequest) {
@@ -102,7 +98,7 @@ class WebApiClass {
         return JSON.parse(response) as { id: string; token: string; };
     }
     async deleteStudentAppV2(studentId: string, dsn: string) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/devices/app`, { studentId, dsn, isApp: true } as DeleteDeviceRequest);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/devices/app?studentId=${studentId}&dsn=${dsn}`, undefined);
     }
 
     async getManageAppV2(license: string) {
@@ -113,7 +109,7 @@ class WebApiClass {
         const response = await this.cognitoRequest('PUT', `${this.prefix}/api/v2/manage/app`, request);
     }
     async deleteManageAppV2(request: DeleteDeviceRequest): Promise<void> {
-        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/manage/app`, request);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/manage/app?studentId=${request.studentId}&dsn=${request.dsn}`, undefined);
     }
 
     async manageAbcPut(request: AbcCollection[]): Promise<void> {
@@ -141,7 +137,7 @@ class WebApiClass {
     }
 
     async deleteStudentTeam(studentId: string, userId: string) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/team?studentId=${studentId}`, { studentId, userId } as TeamDeleteRequest);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/team?studentId=${studentId}&userId=${userId}`, undefined);
     }
 
     async putStudentTeamMember(request: TeamPutRequest) {
@@ -167,7 +163,7 @@ class WebApiClass {
     }
 
     async deleteStudentNotifications(request: Notification<NotificationDetailsBehavior>) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/notification`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/notification?date=${request.date}&studentId=${request.details.studentId}&behaviorId=${request.details.behaviorId}&type=${request.details.type}`, undefined);
     }
 
     async createStudent(request: StudentCreateRequest): Promise<Student> {
@@ -186,7 +182,7 @@ class WebApiClass {
     }
 
     async deleteStudentBehavior(request: StudentBehaviorDeleteRequest) {
-        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/behavior`, request);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/behavior?studentId=${request.studentId}&behaviorId=${request.behaviorId}`, undefined);
         return JSON.parse(response) as StudentBehavior;
     }
 
@@ -195,7 +191,7 @@ class WebApiClass {
     }
 
     async deleteStudentAbc(request: StudentAbcDelete) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/abc`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/abc?studentId=${request.studentId}`, undefined);
     }
 
     async getSchedule(studentId: string): Promise<ScheduleCategory[]> {
@@ -209,7 +205,10 @@ class WebApiClass {
     }
 
     async deleteSchedule(request: ScheduleDeleteRequest) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/schedule`, request);
+        // Encode request.category for a url
+        const category = encodeURIComponent(request.category);
+
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/schedule?category=${category}&studentId=${request.studentId}&date=${moment(request.date).format('yyyy-MM-DD')}`, undefined);
     }
 
     async putStudentResponse(request: StudentResponsePutRequest): Promise<StudentResponse> {
@@ -218,7 +217,7 @@ class WebApiClass {
     }
 
     async deleteStudentResponse(request: StudentBehaviorDeleteRequest) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/response`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/response?studentId=${request.studentId}&behaviorId=${request.behaviorId}`, undefined);
     }
 
     async getStudentDocuments(studentId: string): Promise<StudentDocument[]> {
@@ -239,7 +238,7 @@ class WebApiClass {
         return JSON.parse(response);
     }
     async deleteStudentDocument(request: DeleteDocumentRequest) {
-        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/document`, request);
+        await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/student/document?studentId=${request.studentId}&id=${request.id}`, undefined);
     }
 
     async putSignedUrl(urlString: string, body: string) {
@@ -261,7 +260,7 @@ class WebApiClass {
     }
 
     async deleteReportsData(data: StudentTrackPut) {
-        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/reports/data`, data);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/reports/data?studentId=${data.studentId}&behaviorId=${data.behaviorId}&date=${data.date}`, undefined);
         return JSON.parse(response);
     }
 
@@ -280,7 +279,7 @@ class WebApiClass {
         return JSON.parse(response);
     }
     async deleteReportSchedule(data: OverwriteScheduleDeleteRequest) {
-        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/reports/schedule`, data);
+        const response = await this.cognitoRequest('DELETE', `${this.prefix}/api/v2/reports/schedule?studentId=${data.studentId}&date=${moment(data.date).format('yyyy-MM-DD')}`, undefined);
         return JSON.parse(response);
     }
     async getStudentSettings(studentId: string) {

@@ -11,6 +11,7 @@ export async function cleanUp(student: Student) {
     if(!user) {
         user = await webApi.getUser();
     }
+    console.log('data table:', data.tableName);
     await data.delete({ pk: `S#${student.studentId}`, sk: 'P'});
     await primary.delete({ pk: `S#${student.studentId}`, sk: 'P'});
     await data.delete({ pk: `U#${user.userId}`, sk: `S#${student.studentId}#S`})

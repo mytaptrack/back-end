@@ -27,5 +27,7 @@ export async function login(user?: TestUserConfig) {
         ClientId: clientId
     }));
 
+    console.log('Login succeeded', result.AuthenticationResult!.IdToken);
+
     return `Bearer ${result.AuthenticationResult!.IdToken}`;
 }
