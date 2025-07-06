@@ -4,7 +4,9 @@ import { moment } from '@mytaptrack/lib';
 import { readFileSync } from "fs";
 import * as https from 'https';
 import * as config from '../config';
+import { Logger, LoggingLevel } from "./logging";
 
+const logger = new Logger(LoggingLevel.WARN);
 const identity = "066c859c-9716-407e-8ce3-b72a92d51a98";
 const prefix = config.config.env.domain.sub.device.path ?? '';
 
@@ -29,9 +31,14 @@ export async function clickButton(clickCount: number, serialNumbers: string) {
 //
 export async function getAppDefinitions(deviceId: string, tokens: string[]) {  
     
-    const cleanTokens = tokens.map(x => x.replace(`${config.config.env.domain.sub.device.appid ?? 'mytaptrack'}://student?token=`, ''))
+    const cleanTokens = tokens.map(x => {
+        // Get token query parameter from url provided
+        const url = new URL(x);
+        const token = url.searchParams.get('token');
+        return token ?? x;
+    })
 
-    console.info("Constructing message")
+    logger.info("Constructing message")
     let jsonBodyDict = {
         device: {
             id: deviceId, 
@@ -44,15 +51,20 @@ export async function getAppDefinitions(deviceId: string, tokens: string[]) {
         }
     } as AppRetrieveDataPostRequest;
 
-    console.info("Executing request")
+    logger.info("Executing request")
     const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'POST', `${prefix}/app`, jsonBodyDict);
 
     return JSON.parse(response) as AppRetrieveDataPostResponse;
 }
 export async function getAppDefinitionsV3(deviceId: string, tokens: string[]) {  
-    const cleanTokens = tokens.map(x => x.replace(`${config.config.env.domain.sub.device.appid ?? 'mytaptrack'}://student?token=`, ''))
+    const cleanTokens = tokens.map(x => {
+        // Pull out the query parameter token from the url
+        const url = new URL(x);
+        const token = url.searchParams.get('token');
+        return token ?? x;
+    });
 
-    console.info("Constructing message")
+    logger.info("Constructing message")
     let jsonBodyDict = {
         device: {
             id: deviceId, 
@@ -65,13 +77,13 @@ export async function getAppDefinitionsV3(deviceId: string, tokens: string[]) {
         }
     } as AppRetrieveDataPostRequest;
 
-    console.info("Executing request")
+    logger.info("Executing request")
     const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'POST', `${prefix}/v3/app`, jsonBodyDict);
 
     return JSON.parse(response) as AppRetrieveDataPostResponse;
 }
 export async function deleteAppDefinitions(deviceId: string, tokens: string[]) {  
-    console.info("Constructing message")
+    logger.info("Constructing message")
     let jsonBodyDict = {
         device: {
             id: deviceId, 
@@ -84,7 +96,7 @@ export async function deleteAppDefinitions(deviceId: string, tokens: string[]) {
         }
     } as AppRetrieveDataPostRequest;
 
-    console.info("Executing request")
+    logger.info("Executing request")
     const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'DELETE', `${prefix}/app`, jsonBodyDict);
 
     return JSON.parse(response) as AppRetrieveDataPostResponse;
@@ -95,17 +107,17 @@ export async function appTokenTrack(request: AppTrackRequest) {
 }
 
 export async function sendAudio(dsn: string) {
-    console.log('Reading audio data');
+    logger.debug('Reading audio data');
     const buffer = Buffer.from(readFileSync('./src/tests/devices/M21343B210000010').toString('utf-8'), 'base64');
-    console.log('Content read', buffer.length);
+    logger.debug('Content read', buffer.length);
 
-    console.log('Converting DSNs to array', dsn);
+    logger.debug('Converting DSNs to array', dsn);
     const dsns = [dsn];
     const endpoint = await config.getDeviceEndpoint();
 
     await Promise.all(dsns.map(async dsn => {
         await new Promise<void>((resolve, reject) => {
-            console.log('Starting request');
+            logger.debug('Starting request');
             const request = https.request({
                 host: endpoint,
                 path: `/audio`,
@@ -117,25 +129,25 @@ export async function sendAudio(dsn: string) {
                     'Content-Length': 352004
                 }
             }, (res) => {
-                console.log('Received response');
+                logger.debug('Received response');
                 res.on('error', (err) => {
-                    console.log(err);
+                    logger.debug(err);
                     reject(err);
                 });
                 res.on('data', (data) => {
-                    console.log('Data call');
+                    logger.debug('Data call');
                 });
                 res.on('end', () => {
-                    console.log('Completed call');
+                    logger.debug('Completed call');
                     resolve();
                 });
             });
             request.on('error', (err) => {
-                console.log(err);
+                logger.debug(err);
                 reject(err);
             });
     
-            console.log('Writing data');
+            logger.debug('Writing data');
             request.write(buffer);
             request.end();
         });
@@ -143,19 +155,19 @@ export async function sendAudio(dsn: string) {
 }
 
 export async function getDeviceTime() {
-    console.info("Constructing message")
+    logger.info("Constructing message")
     
-    console.info("Executing request")
+    logger.info("Executing request")
     const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'GET', `${prefix}/time`, {});
-    console.log('GetTime response', response);
+    logger.info('GetTime response', response);
 
     return JSON.parse(response) as AppRetrieveDataPostResponse;
 }
 
 export async function getDevicePing() {
-    console.info("Constructing message")
+    logger.info("Constructing message")
     
-    console.info("Executing request")
+    logger.info("Executing request")
     const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'GET', `${prefix}/ping`, {});
 
     return response;
@@ -170,7 +182,7 @@ export interface Button2UpdateRequest {
 }
 
 export async function getFirmware(dsn: string, time: string) {
-    console.info("Constructing message")
+    logger.info("Constructing message")
     let jsonBodyDict = {
         dsn: dsn,
         identity,
@@ -179,7 +191,7 @@ export async function getFirmware(dsn: string, time: string) {
         }
     } as Button2UpdateRequest;
 
-    console.info("Executing request")
+    logger.info("Executing request")
     const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'POST', `${prefix}/firmware`, jsonBodyDict);
 
     return JSON.parse(response) as { identity: string, url: string };

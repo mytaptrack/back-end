@@ -1,8 +1,7 @@
 import { v2, WebUtils } from '@mytaptrack/lib';
 
 async function handleEvent(event: string) {
-    console.log(event);
-    const array = JSON.parse(event) as string[];
+    const array = event as string[];
     const ids = [];
     for(let i of array) {
         try {

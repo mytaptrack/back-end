@@ -1,9 +1,9 @@
 import moment from "moment-timezone";
-import { LoggingLevel, constructLogger, wait, webApi } from "../../lib";
+import { Logger, LoggingLevel, wait, webApi } from "../../lib";
 import { setupStudent, cleanUp, testBehavior, setupBehaviors, setupSchedule } from "./helpers";
 import { CalculationType, SummaryScope } from "@mytaptrack/types";
 
-constructLogger(LoggingLevel.ERROR);
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('Reports', () => {
     beforeAll(async () => {
@@ -231,7 +231,7 @@ describe('Reports', () => {
 
         const data1 = await webApi.getReportData(student.studentId, dp1Date, dp1Date.clone().endOf('week'));
         expect(Object.keys(data1.schedules).length).toBe(2);
-        console.log(JSON.stringify(data1.schedules));
+        logger.debug(JSON.stringify(data1.schedules));
         expect(data1.schedules[date1.format('yyyyMMDD')]).toBe(scheduleName);
         expect(data1.schedules[date2.format('yyyyMMDD')]).toBe(scheduleName2);
         
@@ -241,7 +241,7 @@ describe('Reports', () => {
         });
         const data2 = await webApi.getReportData(student.studentId, dp1Date, dp1Date.clone().endOf('week'));
         expect(Object.keys(data2.schedules).length).toBe(1);
-        console.log(JSON.stringify(data2.schedules));
+        logger.debug(JSON.stringify(data2.schedules));
         expect(data2.schedules[date1.format('yyyyMMDD')]).toBe(scheduleName);
 
         await cleanUp(student);
@@ -252,14 +252,14 @@ describe('Reports', () => {
         const studentData = await setupStudent();
         const student = await setupBehaviors(studentData.student, true);
 
-        console.log('Student Data: User: ', studentData.user.userId, ' , Student: ', studentData.student.studentId);
+        logger.debug('Student Data: User: ', studentData.user.userId, ' , Student: ', studentData.student.studentId);
         
         const duration = student.behaviors.find(x => x.isDuration);
         expect(duration).toBeDefined();
 
         // Get student settings
         const settings = await webApi.getStudentSettings(student.studentId);
-        console.log('Settings: ', JSON.stringify(settings));
+        logger.debug('Settings: ', JSON.stringify(settings));
         expect(settings).toBeDefined();
         expect(settings.antecedents).toMatchObject([]);
         expect(settings.autoExcludeDays).toMatchObject([0,6]);
@@ -309,20 +309,20 @@ describe('Reports', () => {
         const durationSetting = settings.behaviors.find(x => x.duration)!;
 
         // Save user student settings
-        console.log('Saving student settings');
+        logger.info('Saving student settings');
         await webApi.putStudentSettings({
             studentId: student.studentId,
             overwriteStudent: false,
             settings
         });
 
-        console.log('Waiting 2 seconds');
+        logger.debug('Waiting 2 seconds');
         await wait(3000);
 
-        console.log('Getting student settings');
+        logger.debug('Getting student settings');
         const studentV2 = await webApi.getStudent(student.studentId);
         const settings2 = studentV2.dashboard!;
-        console.log('Settings2: ', JSON.stringify(settings2));
+        logger.debug('Settings2: ', JSON.stringify(settings2));
         expect(settings2.behaviors.length).toBe(student.behaviors.length);
         expect(settings2.autoExcludeDays).toMatchObject([0,3,6]);
         expect(settings2.chartType).toBe('bar');
@@ -340,7 +340,7 @@ describe('Reports', () => {
         expect(durationSetting2!.duration?.max).toBeUndefined();
 
         const settings2V1 = await webApi.getStudentSettings(student.studentId);
-        console.log('Settings: ', JSON.stringify(settings));
+        logger.debug('Settings: ', JSON.stringify(settings));
         expect(settings2V1).toBeDefined();
         expect(settings2V1.antecedents).toMatchObject([]);
         expect(settings2V1.autoExcludeDays).toMatchObject([0,6]);
@@ -531,7 +531,7 @@ describe('Reports', () => {
             timezone: moment.tz.guess()
         });
 
-        console.log('Snapshot: ', JSON.stringify(snapshot));
+        logger.debug('Snapshot: ', JSON.stringify(snapshot));
 
         expect(snapshot.lastModified?.date).toBeFalsy();
         expect(snapshot.studentId).toBe(student.studentId);
@@ -552,7 +552,7 @@ describe('Reports', () => {
 
         const behavior2 = snapshot.behaviors.find(x => x.behaviorId == student.behaviors[1].id);
 
-        console.log('Behavior 2 Id: ', behavior2?.behaviorId);
+        logger.debug('Behavior 2 Id: ', behavior2?.behaviorId);
         expect(behavior2?.stats?.day.count).toBe(2);
         expect(behavior2?.stats?.day.delta).toBe(-1);
         expect(behavior2?.stats?.day.modifier).toBe('-');

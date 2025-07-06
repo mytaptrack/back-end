@@ -16,6 +16,9 @@ import { httpRequest, rawHttpRequest } from './httpClient';
 import { login } from './cognito';
 import { getApiEndpoint, config } from '../config';
 import { TestUserConfig } from '@mytaptrack/cdk';
+import { Logger, LoggingLevel } from './logging';
+
+const logger = new Logger(LoggingLevel.WARN);
 
 class WebApiClass {
     private token: string;
@@ -27,8 +30,11 @@ class WebApiClass {
     }
 
     private async cognitoRequest(method: string, path: string, params: any) {
-        console.log('Calling WebApi', method, path);
-        return await httpRequest(await getApiEndpoint(), this.cognitoAuth, method, path, params);
+        const endpoint = await getApiEndpoint()
+        logger.debug('Calling WebApi', method, endpoint, path);
+        const result = await httpRequest(endpoint, this.cognitoAuth, method, path, params);
+        logger.debug('WebApi Response', result);
+        return result;
     }
 
     async login(user?: TestUserConfig) {
@@ -82,7 +88,7 @@ class WebApiClass {
         now = now.tz('America/Los_Angeles');
 
         const path = `${this.prefix}/api/v2/reports/data?studentId=${studentId}&startDate=${weekStart.format('yyyy-MM-DD')}&endDate=${weekEnd.format('yyyy-MM-DD')}`;
-        console.log('Calling WebApi GET', path);
+        logger.debug('Calling WebApi GET', path);
         const response = await httpRequest(await getApiEndpoint(), this.cognitoAuth, 'GET', path, undefined);
 
         return JSON.parse(response) as ReportDetails;
@@ -245,8 +251,8 @@ class WebApiClass {
         const slashIndex = urlString.indexOf('/', 9);
         const host = urlString.slice('https://'.length + 1, slashIndex);
         const path = urlString.slice(slashIndex + 1);
-        console.debug('host: ', host);
-        console.debug('path: ', path);
+        logger.debug('host: ', host);
+        logger.debug('path: ', path);
         await rawHttpRequest('PUT', urlString, body);
     }
 

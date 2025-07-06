@@ -96,6 +96,7 @@ async function setupConfiguration() {
 
     // Create admin group in cognito
     try {
+        console.log('Checking for admin group in cognito');
         const adminGroupResponse = await userPoolClient.send(new GetGroupCommand({
             UserPoolId: userPoolId,
             GroupName: `licenses/${license_number}`
@@ -113,8 +114,11 @@ async function setupConfiguration() {
     }
 
     // Check if license needs to be created
+    console.log('Checking for license in dynamodb');
     let license = await LicenseDal.get(license_number);
+    console.log(license);
     if (!license) {
+        console.log('Creating system test license');
         license = {
             license: license_number,
             customer: 'System Tests',

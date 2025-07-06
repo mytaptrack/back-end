@@ -1,7 +1,7 @@
 import moment from "moment";
 import { data, primary, license } from '../../config';
 import {
-    constructLogger, LoggingLevel
+    Logger, LoggingLevel
 } from "../../lib";
 import { QLUser } from "@mytaptrack/types";
 import { qlApi } from "../../lib/api-ql";
@@ -12,7 +12,7 @@ import {
 
 let user: QLUser;
 
-constructLogger(LoggingLevel.ERROR);
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('graphql', () => {
     beforeAll(async () => {

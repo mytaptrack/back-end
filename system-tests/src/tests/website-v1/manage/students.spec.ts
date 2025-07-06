@@ -1,13 +1,13 @@
 import { AccessLevel, UserSummaryStatus } from "@mytaptrack/types";
 import { 
+    Logger,
     LoggingLevel,
-    constructLogger,
     webApi
 } from "../../../lib";
 import { license } from "../../../config";
 import { cleanUp, setupBehaviors, setupStudent } from "../helpers";
 
-constructLogger(LoggingLevel.ERROR);
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('ManageStudents', () => {
     beforeAll(async () => {
@@ -16,25 +16,25 @@ describe('ManageStudents', () => {
     beforeEach(() => {
     });
     test('Add admin to student', async () => {
-        console.info('Logging in');
+        logger.info('Logging in');
         const user = await webApi.getUser();
-        console.debug('user', user);
+        logger.debug('user', user);
 
         const student1 = await setupStudent('Admin Student 1');
         await setupBehaviors(student1.student);
 
-        console.info('Getting student 3');
+        logger.info('Getting student 3');
         const student1Team = await webApi.getStudentTeam(student1.student.studentId);
         if(student1Team.find(x => x.userId == user.userId)) {
-            console.info('Deleting user ', user.userId, ' from student team ', student1.student.studentId);
+            logger.info('Deleting user ', user.userId, ' from student team ', student1.student.studentId);
             await webApi.deleteStudentTeam(student1.student.studentId, user.userId);
         }
 
-        console.info('Checking to see if we can see student team');
+        logger.info('Checking to see if we can see student team');
         const student3TeamCall2 = await webApi.getStudentTeam(student1.student.studentId);
         expect(student3TeamCall2.find(x => x.userId == user.userId)).toBeFalsy();
 
-        console.info('Adding current user to student team');
+        logger.info('Adding current user to student team');
         await webApi.putStudentTeamMember({
             studentId: student1.student.studentId, 
             userId: '', 

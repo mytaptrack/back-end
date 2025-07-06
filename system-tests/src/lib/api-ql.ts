@@ -2,10 +2,12 @@ import {
   GraphQLAppInput, GraphQLAppOutput, QLApp, QLAppSummary, QLLicenseDetails, QLLicenseUsersResult, 
   QLReportData, QLReportDataInput, QLStudent, QLStudentUpdateInput, QLUser, QLUserSummary, QLUserUpdate 
 } from '@mytaptrack/types';
-import { httpRequest } from '.';
+import { Logger, LoggingLevel } from './logging';
 import { getQLEndpoint } from '../config';
 import { login } from './cognito';
 import { GraphQLClient } from 'graphql-request';
+
+const logger = new Logger(LoggingLevel.WARN);
 
 export class QLApiClass {
     private token: string;

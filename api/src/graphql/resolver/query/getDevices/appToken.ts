@@ -4,6 +4,7 @@ import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { LicenseAppConfigStorage, getAppGlobalV2Key } from '../../types';
 import { generateToken, getTokenKey } from '../../../../v2/student/devices/app/token-utils';
 import { v4 as uuid } from 'uuid';
+import { AppDal } from '../../../../../../lib/src/v2/dals/app-dal';
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
@@ -36,5 +37,8 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
     const key = await getTokenKey();
     const result = await generateToken(deviceConfig.deviceId, deviceConfig.auth[0], key);
 
-    return { deviceId, token: `${process.env.appid}://student?token=${result}` };
+    // Encode result to keep it url safe
+    const tokenEncoded = encodeURIComponent(result);
+
+    return { deviceId, token: `${process.env.appid}://student?token=${tokenEncoded}` };
 }

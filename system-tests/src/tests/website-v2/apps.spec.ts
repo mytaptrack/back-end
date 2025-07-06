@@ -3,9 +3,9 @@ import { qlApi } from "../../lib/api-ql";
 import { license } from "../../config";
 import { GraphQLAppInput } from "@mytaptrack/types";
 import moment from "moment-timezone";
-import { constructLogger, LoggingLevel } from "../../lib";
+import { Logger, LoggingLevel } from "../../lib";
 
-constructLogger(LoggingLevel.ERROR);
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('website-v2', () => {
     describe('apps', () => {
@@ -51,7 +51,7 @@ describe('website-v2', () => {
             const app = await qlApi.getApp(license, params.deviceId);
             expect(app).toBeDefined();
             expect(app?.name).toBe(originalName);
-            console.log('app:', JSON.stringify(apps));
+            logger.debug('app:', JSON.stringify(apps));
             const studentConfig = app!.studentConfigs.find(x => x.studentId == student.studentId);
             expect(studentConfig).toBeDefined();
             expect(studentConfig!.behaviors as any).toMatchObject(params.studentConfigs[0].behaviors);

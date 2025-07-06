@@ -1,24 +1,26 @@
 import * as https from 'https';
-import { wait } from '.';
+import { Logger, LoggingLevel } from './logging';
+
+const logger = new Logger(LoggingLevel.WARN);
 
 export async function rawHttpRequest(method: string, url: string, body: string, encoding: string = 'text/plain') {
     const headers = {
         'Content-Type': encoding,
         'Content-Length': body.length
     };
-    console.debug(`${method} https://${url}`);
+    logger.debug(`${method} https://${url}`);
     const result = await new Promise<string>((resolve, reject) => {
         const requestParams: https.RequestOptions = {
             method,
             port: 443,
             headers
         };
-        console.debug('Request Params', requestParams);
-        console.debug('Body', body);
+        logger.debug('Request Params', requestParams);
+        logger.debug('Body', body);
         const request = https.request(url, requestParams, (res) => {
             let content = '';
             res.on('error', (err) => {
-                console.error(err);
+                logger.error(err);
                 reject(err);
             });
             res.on('data', (raw) => {
@@ -27,14 +29,14 @@ export async function rawHttpRequest(method: string, url: string, body: string, 
             res.on('end', (val) => {
                 if(res.statusCode != 200) {
                     reject(`Http call failed with ${res.statusCode}`);
-                    console.error("http error ", res.statusCode, " ", content);
+                    logger.error("http error ", res.statusCode, " ", content);
                     return;
                 }
                 resolve(content);
             });
         });
         request.on('error', (err) => {
-            console.error(err);
+            logger.error(err);
             reject(err);
         });
 
@@ -57,7 +59,7 @@ export async function httpRequest(endpoint: string, auth: { apiKey?: string, cog
     if(auth?.cognito) {
         headers['Authorization'] = auth.cognito;
     }
-    console.debug(`${method} https://${endpoint}${path}`);
+    logger.debug(`${method} https://${endpoint}${path}`);
     const result = await new Promise<string>((resolve, reject) => {
         const requestParams: https.RequestOptions = {
             host: endpoint,
@@ -66,12 +68,12 @@ export async function httpRequest(endpoint: string, auth: { apiKey?: string, cog
             port: 443,
             headers
         };
-        console.debug('Request Params', requestParams);
-        console.debug('Body', body);
+        logger.debug('Request Params', requestParams);
+        logger.debug('Body', body);
         const request = https.request(requestParams, (res) => {
             let content = '';
             res.on('error', (err) => {
-                console.error(err);
+                logger.error(err);
                 reject(err);
             });
             res.on('data', (raw) => {
@@ -80,11 +82,11 @@ export async function httpRequest(endpoint: string, auth: { apiKey?: string, cog
             res.on('end', (val) => {
                 if(res.statusCode != 200) {
                     reject(`Http call failed with ${res.statusCode}`);
-                    console.error("http error ", res.statusCode, " ", content);
+                    logger.error("http error ", res.statusCode, " ", content);
 
                     // Print callstack
                     const stack = new Error().stack;
-                    console.error(stack);
+                    logger.error(stack);
 
                     return;
                 }
@@ -92,7 +94,7 @@ export async function httpRequest(endpoint: string, auth: { apiKey?: string, cog
             });
         });
         request.on('error', (err) => {
-            console.error(err);
+            logger.error(err);
             reject(err);
         });
 

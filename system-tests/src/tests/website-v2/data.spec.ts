@@ -1,9 +1,9 @@
 import moment from 'moment-timezone';
-import { constructLogger, LoggingLevel, qlApi, wait } from '../../lib';
+import { Logger, LoggingLevel, qlApi, wait } from '../../lib';
 import * as helpers from './helpers';
 import { testBehavior } from './helpers';
 
-constructLogger(LoggingLevel.ERROR);
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('QLReporting', () => {
     beforeAll(async () => {
@@ -175,7 +175,7 @@ describe('QLReporting', () => {
     //         timezone: moment.tz.guess()
     //     });
 
-    //     console.log('Snapshot: ', JSON.stringify(snapshot));
+    //     logger.debug('Snapshot: ', JSON.stringify(snapshot));
 
     //     expect(snapshot.lastModified?.date).toBeFalsy();
     //     expect(snapshot.studentId).toBe(student.studentId);
@@ -196,7 +196,7 @@ describe('QLReporting', () => {
 
     //     const behavior2 = snapshot.behaviors.find(x => x.behaviorId == student.behaviors[1].id);
 
-    //     console.log('Behavior 2 Id: ', behavior2?.behaviorId);
+    //     logger.info('Behavior 2 Id: ', behavior2?.behaviorId);
     //     expect(behavior2?.stats?.day.count).toBe(2);
     //     expect(behavior2?.stats?.day.delta).toBe(-1);
     //     expect(behavior2?.stats?.day.modifier).toBe('-');

@@ -2,14 +2,14 @@ process.env.PrimaryTable = process.env.PrimaryTable ?? 'mytaptrack-test-primary'
 process.env.DataTable = process.env.DataTable ?? 'mytaptrack-test-data';
 process.env.STRONGLY_CONSISTENT_READ = 'true';
 import { moment } from '@mytaptrack/lib';
-import { webApi, wait, constructLogger, getAppDefinitions, appTokenTrack, LoggingLevel } from '../../lib';
+import { webApi, wait, appTokenTrack, Logger, LoggingLevel } from '../../lib';
 import { AppRetrieveDataPostResponse, Student } from '@mytaptrack/types';
 import { license, data, primary } from '../../config';
-import { cleanUp, setupStudent, setupBehaviors } from '../website-v1/helpers';
-import { uuid } from 'short-uuid';
+
+const logger = new Logger(LoggingLevel.WARN);
 
 export async function testTracking(student: Student, appDefinitions: AppRetrieveDataPostResponse, mobileAppId: string) {
-    console.info('Validating student tracking', student.studentId);
+    logger.info('Validating student tracking', student.studentId);
     const appStudent = appDefinitions.targets.find(x => x.name == `${student.details.firstName} ${student.details.lastName}`)!;
 
     // Get reporting information
@@ -17,7 +17,7 @@ export async function testTracking(student: Student, appDefinitions: AppRetrieve
     const weekEnd = moment().endOf('week').add(1, 'day');
     
     // Track behavior with click
-    console.info('Sending app track request');
+    logger.info('Sending app track request');
     const click1Time = moment().toDate().getTime();
     const trackTime = moment().toISOString();
     await appTokenTrack({
@@ -28,19 +28,19 @@ export async function testTracking(student: Student, appDefinitions: AppRetrieve
         endDate: ''
     });
 
-    console.info('Waiting for processing');
+    logger.info('Waiting for processing');
     await wait(5000);
 
     // Validate data in student report
-    console.info('Validating data', appStudent.name, weekStart.toISOString(), weekEnd.toISOString());
+    logger.info('Validating data', appStudent.name, weekStart.toISOString(), weekEnd.toISOString());
     let report = await webApi.getReportData(student.studentId, weekStart, weekEnd);
     expect(report?.data).toBeDefined();
-    console.info('Report', report);
-    console.info('click time', click1Time);
+    logger.info('Report', report);
+    logger.info('click time', click1Time);
     let events = report.data.filter(x => x.dateEpoc >= click1Time && x.behavior == appStudent.behaviors[0].id);
     expect(events.length).toBe(1);
 
-    console.info('Deleting event');
+    logger.info('Deleting event');
     await appTokenTrack({
         deviceId: mobileAppId,
         token: appStudent.token,
@@ -52,11 +52,11 @@ export async function testTracking(student: Student, appDefinitions: AppRetrieve
     await wait(5000);
 
     // Validate data in student report
-    console.info('Validating data', appStudent.name, weekStart.toISOString(), weekEnd.toISOString());
+    logger.info('Validating data', appStudent.name, weekStart.toISOString(), weekEnd.toISOString());
     report = await webApi.getReportData(student.studentId, weekStart, weekEnd);
     expect(report?.data).toBeDefined();
-    console.info('Report', report);
-    console.info('click time', click1Time);
+    logger.info('Report', report);
+    logger.info('click time', click1Time);
     events = report.data.filter(x => x.dateEpoc >= click1Time && x.behavior == appStudent.behaviors[0].id);
     expect(events.length).toBe(0);
 }

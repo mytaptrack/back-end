@@ -232,7 +232,7 @@ export class MttContext implements IMttContext {
         }
 
         this.function = {
-            runtime: Runtime.NODEJS_LATEST,
+            runtime: Runtime.NODEJS_22_X,
             environmentVariables: {
                 LUMIGO_SECRET_MASKING_REGEX: this.config.env.lumigo?.attributeMasking,
                 LUMIGO_DOMAINS_SCRUBBER: this.config.env.lumigo?.domainScrubbing,

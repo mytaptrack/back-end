@@ -1,9 +1,13 @@
 import moment from "moment";
 import { data, primary, config } from '../../config';
 import {
-    webApi, wait
+    webApi, wait,
+    Logger,
+    LoggingLevel
 } from "../../lib";
 import { AccessLevel, Student, User, UserSummaryStatus } from "@mytaptrack/types";
+
+const logger = new Logger(LoggingLevel.WARN);
 
 let user: User;
 
@@ -11,7 +15,7 @@ export async function cleanUp(student: Student) {
     if(!user) {
         user = await webApi.getUser();
     }
-    console.log('data table:', data.tableName);
+    logger.debug('data table:', data.tableName);
     await data.delete({ pk: `S#${student.studentId}`, sk: 'P'});
     await primary.delete({ pk: `S#${student.studentId}`, sk: 'P'});
     await data.delete({ pk: `U#${user.userId}`, sk: `S#${student.studentId}#S`})
@@ -26,7 +30,7 @@ export async function setupStudent(firstName: string = 'System Test', lastName: 
         milestones: [],
         tags: []
     });
-    console.log('Student created', student.studentId, ' user ', user.userId);
+    logger.warn('Student created', student.studentId, ' user ', user.userId);
     return {
         user,
         student
@@ -144,7 +148,7 @@ export async function testSupportChanges(student: Student) {
 }
 
 export async function testBehavior(studentResponse: Student) {
-    console.debug('Student:', JSON.stringify(studentResponse));
+    logger.debug('Student:', JSON.stringify(studentResponse));
     const eventBehavior = await webApi.putStudentBehavior({
         studentId: studentResponse.studentId,
         behavior: {
@@ -242,7 +246,7 @@ export async function testTeam(studentResponse: Student) {
     await wait(6000);
 
     const studentTeam2 = await webApi.getStudentTeam(studentResponse.studentId);
-    console.log('Student Team:', JSON.stringify(studentTeam2));
+    logger.debug('Student Team:', JSON.stringify(studentTeam2));
     expect(studentTeam2.length).toBe(2);
     const demoUser = studentTeam2.find(x => x.details.email == config.env.testing.nonadmin.email)!;
     expect(demoUser).toBeTruthy();
@@ -289,7 +293,7 @@ export async function testAbc(studentResponse: Student) {
 }
 
 export async function testIntensity(studentResponse: Student) {
-    console.debug('Student:', JSON.stringify(studentResponse));
+    logger.debug('Student:', JSON.stringify(studentResponse));
     const eventBehavior = await webApi.putStudentBehavior({
         studentId: studentResponse.studentId,
         behavior: {

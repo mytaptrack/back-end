@@ -1,6 +1,7 @@
 import { ManageAppRenamePostRequest } from "@mytaptrack/types";
 import { 
-    webApi, wait, getAppDefinitions, deleteAppDefinitions, LoggingLevel, constructLogger 
+    webApi, wait, getAppDefinitions, deleteAppDefinitions, LoggingLevel, 
+    Logger
 } from "../../../lib";
 import { 
     cleanApp, cleanStudentApps, createQRCode
@@ -11,7 +12,7 @@ import {
 import { cleanUp, setupStudent, setupBehaviors } from "../helpers";
 import { uuid } from 'short-uuid';
 
-constructLogger(LoggingLevel.ERROR);
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('ManageApps', () => {
     beforeAll(async () => {
@@ -27,13 +28,13 @@ describe('ManageApps', () => {
         const student2 = await setupStudent('System Test 2');
         await setupBehaviors(student2.student);
 
-        console.info('Logging in');
+        logger.info('Logging in');
         const user = await webApi.getUser();
 
-        console.info('getting student');
+        logger.info('getting student');
         const student = await webApi.getStudent(student1.student.studentId);
 
-        console.info('creating app');
+        logger.info('creating app');
         const registeredData = await createQRCode(student, 'System Test App');
 
         const appDefinitions = await getAppDefinitions(mobileAppId, [registeredData.appTokenResponse.token]);
@@ -61,7 +62,7 @@ describe('ManageApps', () => {
             groups: []
         });
         const appTokenResponse = await webApi.getStudentAppTokenV2(student3.studentId, mobileAppId);
-        console.debug('AppTokenResponse', appTokenResponse);
+        logger.debug('AppTokenResponse', appTokenResponse);
         expect(appTokenResponse?.token).toBeTruthy();
         
         const appDefinitions2 = await getAppDefinitions(mobileAppId, []);
@@ -79,7 +80,7 @@ describe('ManageApps', () => {
 
         const appsForStudent3Call2 = await webApi.getDevicesForStudent(student3.studentId);
         
-        console.log('Apps', appsForStudent3Call2);
+        logger.debug('Apps', appsForStudent3Call2);
         expect(appsForStudent3Call2.length).toBe(0);
         cleanUp(student1.student);
         cleanUp(student2.student);
@@ -91,14 +92,14 @@ describe('ManageApps', () => {
         const student1 = await setupStudent();
         await setupBehaviors(student1.student);
 
-        console.info('Clean app');
+        logger.info('Clean app');
         const deviceId = `MLC-${mobileAppId}`;
 
         const appCall1 = await webApi.getManageAppV2(license);
         expect(appCall1.find(x => x.device.id == deviceId)).toBeFalsy();
-        console.info('DeviceId', deviceId);
+        logger.info('DeviceId', deviceId);
 
-        console.info('getting student');
+        logger.info('getting student');
         const student = await webApi.getStudent(student1.student.studentId);
 
         const params: ManageAppRenamePostRequest = {
@@ -130,13 +131,13 @@ describe('ManageApps', () => {
         expect(registeredDevice3).toBeTruthy();
         expect(registeredDevice3?.assignments.length).toBe(1);
         expect(registeredDevice3?.assignments[0].studentId).toBe(student.studentId);
-        console.debug('Apps', appCall3);
+        logger.debug('Apps', appCall3);
 
         const appTokenResponse = await webApi.getStudentAppTokenV2(student.studentId, deviceId);
 
         // Register MCL app to actual mobileAppId
         const appDefinitions = await getAppDefinitions(mobileAppId, [appTokenResponse.token]);
-        console.debug('appDefinitions', JSON.stringify(appDefinitions));
+        logger.debug('appDefinitions', JSON.stringify(appDefinitions));
         expect(appDefinitions.targets.length).toBe(1);
         expect(appDefinitions.targets[0].name).toBe(`${student.details.firstName} ${student.details.lastName}`);
 
@@ -153,13 +154,13 @@ describe('ManageApps', () => {
         const student1 = await setupStudent();
         await setupBehaviors(student1.student);
 
-        console.info('Clean app');
+        logger.info('Clean app');
         const deviceId = `MLC-${mobileAppId}`;
 
         const appCall1 = await webApi.getManageAppV2(license);
         expect(appCall1.find(x => x.device.id == deviceId)).toBeFalsy();
 
-        console.info('getting student');
+        logger.info('getting student');
         const student = await webApi.getStudent(student1.student.studentId);
 
         const params: ManageAppRenamePostRequest = {
