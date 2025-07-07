@@ -1,10 +1,11 @@
 import { LicenseStorage } from "@mytaptrack/lib";
 import { data, license } from "../../../config";
-import { LoggingLevel, constructLogger, login, webApi } from "../../../lib";
+import { Logger, LoggingLevel, webApi } from "../../../lib";
+
+const logger = new Logger(LoggingLevel.WARN);
 
 describe('manage-abc', () => {
     beforeAll(async () => {
-        constructLogger(LoggingLevel.WARN);
         await webApi.login();
     });
 
@@ -17,7 +18,7 @@ describe('manage-abc', () => {
         const consequences = ['c1', 'c2', 'c3'];
         await webApi.manageAbcPut([ { antecedents, consequences, name: 'System Test Abc', tags: []}]);
 
-        console.info('Getting license');
+        logger.info('Getting license');
         const licenseResponse = await webApi.manageLicenseGet(license);
 
         expect(licenseResponse.abcCollections?.length).toBe(1);

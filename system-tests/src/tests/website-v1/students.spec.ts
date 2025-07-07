@@ -1,5 +1,6 @@
 import {
-    webApi, constructLogger, LoggingLevel
+    webApi, LoggingLevel,
+    Logger
 } from "../../lib";
 import { 
     setupStudent, testBehavior, testResponse, cleanUp, testTeam,
@@ -7,12 +8,13 @@ import {
     testIntensity
 } from './helpers';
 
+const logger = new Logger(LoggingLevel.WARN);
+
 describe('students', () => {
     beforeAll(async () => {
         await webApi.login();
     });
     beforeEach(() => {
-        constructLogger(LoggingLevel.WARN);
     });
     afterEach(async () => {
     });

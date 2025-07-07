@@ -2,7 +2,9 @@ import moment from "moment";
 import { data, primary, license } from '../../config';
 import { AccessLevel, QLStudent, QLUser, UserSummaryStatus } from "@mytaptrack/types";
 import { qlApi } from "../../lib/api-ql";
-import { wait } from "../../lib";
+import { wait, Logger, LoggingLevel } from "../../lib";
+
+const logger = new Logger(LoggingLevel.INFO);
 
 let user: QLUser;
 
@@ -59,7 +61,7 @@ export async function setupStudent() {
             transferable: false
         }
     });
-    console.log('Student id: ', student.studentId, ' ', new Date().getTime());
+    logger.info('Student id: ', student.studentId, ' ', new Date().getTime());
 
     return {
         user,
@@ -206,7 +208,7 @@ export async function testSupportChanges(student: QLStudent) {
 
 export async function testBehavior(student: QLStudent) {
 
-    console.debug('Student:', JSON.stringify(student));
+    logger.debug('Student:', JSON.stringify(student));
     const behaviorUpdate = await qlApi.updateStudent({
         studentId: student.studentId!,
         license: student.license!,
@@ -311,7 +313,7 @@ export async function testTeam(studentResponse: QLStudent) {
 
     const licenseUsers2 = await qlApi.getUsersForLicense(license);
     const studentTeam2 = licenseUsers2.users.filter(x => x.students.find(y => y.studentId == studentResponse.studentId));
-    console.debug('Student Team:', JSON.stringify(studentTeam2));
+    logger.debug('Student Team:', JSON.stringify(studentTeam2));
     expect(studentTeam2.length).toBe(2);
     const demoUser = studentTeam2.find(x => x.email == 'demo@mytaptrack.com')!;
     expect(demoUser).toBeTruthy();

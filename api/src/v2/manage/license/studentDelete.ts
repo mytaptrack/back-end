@@ -7,7 +7,8 @@ export const handleEvent = WebUtils.apiWrapperEx(put, {
         properties: {
             studentId: { type: 'string', required: true }
         }
-    }
+    },
+    processBody: 'Parameters'
 });
 
 export async function put(request: { studentId: string}, user: WebUserDetails) {

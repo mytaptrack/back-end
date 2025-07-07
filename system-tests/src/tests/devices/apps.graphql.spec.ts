@@ -1,9 +1,7 @@
 process.env.PrimaryTable = process.env.PrimaryTable ?? 'mytaptrack-test-primary';
 process.env.DataTable = process.env.DataTable ?? 'mytaptrack-test-data';
 process.env.STRONGLY_CONSISTENT_READ = 'true';
-import { qlApi, wait, constructLogger, getAppDefinitions, LoggingLevel, getAppDefinitionsV3 } from '../../lib';
-
-constructLogger(LoggingLevel.DEBUG);
+import { qlApi } from '../../lib';
 
 describe('app', () => {
     describe('graphql', () => {

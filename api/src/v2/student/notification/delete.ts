@@ -5,7 +5,8 @@ import { typesV2 } from '@mytaptrack/types';
 const sqs = new SQS();
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, { 
-    schema: typesV2.NotificationDetailsDeleteSchema
+    schema: typesV2.NotificationDetailsDeleteSchema,
+    processBody: "Parameters"
 });
 
 export async function handler (request: typesV2.Notification<typesV2.NotificationDetailsBehavior>, userDetails: WebUserDetails) {

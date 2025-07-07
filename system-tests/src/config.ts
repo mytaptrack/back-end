@@ -1,17 +1,21 @@
-const environment = process.env.STAGE ?? process.env.Environment ?? 'dev';
-process.env.PrimaryTable = process.env.PrimaryTable ?? `mytaptrack-${environment}-primary`;
-process.env.DataTable = process.env.DataTable ?? `mytaptrack-${environment}-data`;
+const environment = process.env.STAGE ?? 'dev';
+process.env.PrimaryTable = `mytaptrack-${environment}-primary`;
+process.env.DataTable = `mytaptrack-${environment}-data`;
 process.env.STRONGLY_CONSISTENT_READ = 'true';
 
 import { ConfigFile } from '@mytaptrack/cdk';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
+import { Logger, LoggingLevel } from './lib/logging';
+
+const logger = new Logger(LoggingLevel.WARN)
 
 const ssm = new SSMClient({});
 
 const configFile = new ConfigFile(process.env.CONFIG_PATH ?? '../config', environment);
 export const config = configFile.config;
 
+logger.debug('Data Table: ', process.env.DataTable);
 export const data = new Dal('data');
 export const primary = new Dal('primary');
 
@@ -57,7 +61,7 @@ export async function getApiEndpoint() {
     }));
     const url = new URL(result.Parameter.Value);
     apiEndpoint = url.hostname;
-    console.log("WebAPI Endpoint", apiEndpoint);
+    logger.info("WebAPI Endpoint", apiEndpoint);
     return apiEndpoint;
 }
 

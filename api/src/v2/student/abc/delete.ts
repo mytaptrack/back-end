@@ -4,7 +4,8 @@ import shortUUID = require('short-uuid');
 import { v4 as uuid } from 'uuid';
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-    schema: typesV2.StudentAbcDeleteSchema
+    schema: typesV2.StudentAbcDeleteSchema,
+    processBody: 'Parameters'
 });
 
 export async function handler (request: typesV2.StudentAbcDelete, userDetails: WebUserDetails) {

@@ -3,6 +3,7 @@
     "version": "1.0.1",
     "scripts": {
         "start": "npm test",
+        "pretest": "rm -rf logs",
         "test": "jest",
         "clean": "npx ts-node ./src/clean.ts",
         "presetDebug": "npm uninstall @mytaptrack/types",
@@ -15,6 +16,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-cognito-identity-provider": "^3.799.0",
+        "@aws-sdk/credential-provider-sso": "^3.840.0",
         "@babel/plugin-transform-modules-commonjs": "^7.27.1",
         "@mytaptrack/cdk": "file:../cdk",
         "@mytaptrack/lib": "file:../lib",
@@ -32,5 +34,13 @@
         "ts-jest": "^29.3.2",
         "typescript": "^5.0.4",
         "yaml": "^2.8.0"
+    },
+    "jest": {
+        "preset": "ts-jest",
+        "testEnvironment": "node",
+        "testMatch": [
+            "**/src/tests/**/*.spec.ts"
+        ],
+        "testTimeout": 120000
     }
 }

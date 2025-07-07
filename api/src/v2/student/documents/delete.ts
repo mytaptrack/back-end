@@ -6,7 +6,8 @@ import { S3 } from '@aws-sdk/client-s3';
 const s3 = new S3();
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-    schema: typesV2.DeleteDocumentRequestSchema
+    schema: typesV2.DeleteDocumentRequestSchema,
+    processBody: 'Parameters'
 });
 
 export async function handler(request: typesV2.DeleteDocumentRequest, webUser: WebUserDetails) {

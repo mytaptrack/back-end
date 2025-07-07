@@ -3,7 +3,8 @@ import { v2, WebUtils, WebUserDetails, WebError } from '@mytaptrack/lib';
 import { typesV2 } from '@mytaptrack/types';
 
 export const handleEvent = WebUtils.apiWrapperEx<typesV2.StudentBehaviorDeleteRequest>(handler, {
-    schema: typesV2.StudentBehaviorDeleteRequestSchema
+    schema: typesV2.StudentBehaviorDeleteRequestSchema,
+    processBody: 'Parameters'
 });
 
 export async function handler(request: typesV2.StudentBehaviorDeleteRequest, userDetails: WebUserDetails) {

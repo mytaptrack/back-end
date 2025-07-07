@@ -39,7 +39,9 @@ async function getTokenKey() {
 }
 
 export function getTokenSegments(token: string, tokenKey: string): TokenSegments {
-    const decryptedToken = AES.decrypt(token, tokenKey).toString(enc.Utf8);
+    const result = AES.decrypt(token, tokenKey);
+    console.log('Token data', result)
+    const decryptedToken = result.toString(enc.Utf8);
     console.log('Decrypted', token, decryptedToken);
     if (!decryptedToken.startsWith(TokenPrefix)) {
         console.log('Invalid token retrieved', decryptedToken);

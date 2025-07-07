@@ -1,7 +1,9 @@
 import { AuthFlowType, CognitoIdentityProviderClient, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { config, getClientId } from '../config';
 import { TestUserConfig } from '@mytaptrack/cdk';
+import { Logger, LoggingLevel } from './logging';
 
+const logger = new Logger(LoggingLevel.ERROR);
 let clientId: string;
 
 export async function login(user?: TestUserConfig) {
@@ -26,6 +28,8 @@ export async function login(user?: TestUserConfig) {
         },
         ClientId: clientId
     }));
+
+    logger.info('Login succeeded', result.AuthenticationResult!.IdToken);
 
     return `Bearer ${result.AuthenticationResult!.IdToken}`;
 }

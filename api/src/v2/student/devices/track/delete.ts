@@ -2,7 +2,8 @@ import { v2, WebError, WebUserDetails, WebUtils } from '@mytaptrack/lib';
 import { AccessLevel, typesV2 } from '@mytaptrack/types';
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-    schema: typesV2.DeleteDeviceRequestSchema
+    schema: typesV2.DeleteDeviceRequestSchema,
+    processBody: 'Parameters'
 });
 
 export async function handler (request: typesV2.DeleteDeviceRequest, userDetails: WebUserDetails) {

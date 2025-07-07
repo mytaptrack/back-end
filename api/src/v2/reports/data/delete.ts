@@ -4,7 +4,8 @@ import { QLAppDeviceConfiguration, QLReportDataInput, typesV2 } from '@mytaptrac
 const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);
 
 export const handleEvent = WebUtils.apiWrapperEx(handler, {
-    schema: typesV2.StudentTrackPutSchema
+    schema: typesV2.StudentTrackPutSchema,
+    processBody: 'Parameters'
 });
 
 export async function handler(request: typesV2.StudentTrackPut, userDetails: WebUserDetails) {

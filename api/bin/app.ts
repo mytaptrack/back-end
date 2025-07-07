@@ -5,7 +5,7 @@ import { DevicesApiStack } from '../lib/devices-api';
 // Usage
 const app = new App();
 
-const ENVIRONMENT = process.env.STAGE ?? 'test';
+const ENVIRONMENT = process.env.STAGE ?? 'dev';
 process.env.ENVIRONMENT = ENVIRONMENT
 
 const CORE_STACK = `mytaptrack-${ENVIRONMENT}`
