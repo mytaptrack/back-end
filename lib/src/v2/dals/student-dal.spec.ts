@@ -30,7 +30,7 @@ describe('StudentDal', () => {
 
     test('setStudentAbc', async () => {
         const student = await StudentDal.getStudent(studentId, userId);
-        const abc: typesV2.AbcCollection = {
+        const abc = {
             name: 'Overwrite',
             antecedents: [
                 new Date().toISOString()

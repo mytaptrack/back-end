@@ -6,7 +6,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Rule, RuleProps } from 'aws-cdk-lib/aws-events';
 import { 
     DynamoDBAccess, IMttContext, MttDynamoDB, MttParameter, MttParameterAccess, MttRestApi, 
-    MttS3, MttSqs, MttTimestream, MttTimestreamAccess, S3Access, SqsAccess, logger, CognitoAccess, MttCognito, AppSyncApi, 
+    MttS3, MttSqs, S3Access, SqsAccess, logger, CognitoAccess, MttCognito, AppSyncApi, 
     MttAppSyncAccess, MttSecret, MTTSecretAccess, MttBedrockModelAccess, MttBedrockModel,
     MttStepFunction
 } from '.';
@@ -61,7 +61,7 @@ export interface MttFunctionProps {
         delete?: string;
     };
     tables?: { table: MttDynamoDB, access: DynamoDBAccess, indexes?: string[], keyPattern?: MttDynamoDBKeyPatterns[] }[];
-    timestream?: { table: MttTimestream, access: MttTimestreamAccess }[];
+
     sqs?: { sqs: MttSqs, access: SqsAccess }[];
     buckets?: { bucket: MttS3, access: S3Access, pattern?: string }[];
     events?: { eventBus?: events.IEventBus, source?: string[], detailType?: string[], detail?: {[key: string]: string[] }, access: EventBusAccess }[];
@@ -272,16 +272,7 @@ export class MttFunction {
             props.environmentVariables.EVENT_BUS = this.context.getEventBus().eventBusName;
         }
 
-        if(props.timestream && props.timestream.length > 0) {
-            if(!props.environmentVariables) {
-                props.environmentVariables = {};
-            }
-            props.timestream.forEach(table => {
-                if(table.table.database && table.table.envDatabase) props.environmentVariables[table.table.envDatabase] = table.table.database;
-                if(table.table.tableName && table.table.envTable) props.environmentVariables[table.table.envTable] = table.table.tableName;
-                hasPhi = hasPhi || table.table.hasPhi;
-            });
-        }
+
 
         if(props.sqs?.length > 0) {
             const sub = props.sqs.find(x => x.access == SqsAccess.subscribe);
@@ -356,15 +347,7 @@ export class MttFunction {
                 });
             });
         }
-        if(props.timestream) {
-            props.timestream.forEach(table => {
-                if(table.access == MttTimestreamAccess.readWrite) {
-                    table.table.grantReadWriteData(lambda);
-                } else if(table.access == MttTimestreamAccess.read) {
-                    table.table.grantReadData(lambda);
-                }
-            });
-        }
+
         if(props.buckets) {
             props.buckets.forEach(bucket => {
                 if(bucket.access == S3Access.read) {

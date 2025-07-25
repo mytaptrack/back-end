@@ -2,7 +2,7 @@ import { Duration, Fn, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   AppSyncApi, DynamoDBAccess, IMttDataStores, MttContext, MttRestApi, MttS3, 
-  S3Access, EventBusAccess, MttFunction, MttTimestreamAccess, MttDynamoDBKeyPatterns,
+  S3Access, EventBusAccess, MttFunction, MttDynamoDBKeyPatterns,
   MttStepFunction, MttIoTThing, MttIoTEndpoint, ConfigFile,
   Config
 } from '@mytaptrack/cdk';
@@ -78,7 +78,7 @@ export class DevicesApiStack extends Stack {
   
       this.AppApi(context, api, dataStores, appsync, eventBus, config);
       this.ProcessingFunctions(context, api, appsync, dataStores, templateBucket, config);
-      this.TimestreamProcessingFunctions(context, api, appsync, dataStores);
+
     }
   }
 
@@ -624,70 +624,5 @@ export class DevicesApiStack extends Stack {
     });
   }
 
-  private TimestreamProcessingFunctions(context: MttContext, api: MttRestApi, appsync: AppSyncApi, dataStores: IMttDataStores) {
-    const processTimestream = new MttFunction(context, {
-      id: 'processTimestream',
-      codePath: 'src/device/functions/processing/process-timestream.ts',
-      handler: 'processRequest',
-      tables: [
-        { table: dataStores.dataTable, access: DynamoDBAccess.readWrite },
-        { table: dataStores.primaryTable, access: DynamoDBAccess.readWrite }
-      ],
-      timestream: [
-        { table: dataStores.timestream, access: MttTimestreamAccess.readWrite }
-      ],
-      events: [
-        { detailType: [MttEventType.trackEvent], access: EventBusAccess.subscribe }
-      ]
-    });
 
-    new MttFunction(context, {
-      id: 'cleanTimestream',
-      codePath: 'src/device/functions/processing/process-timestream.ts',
-      handler: 'cleanHander',
-      tables: [
-        { table: dataStores.dataTable, access: DynamoDBAccess.readWrite },
-        { table: dataStores.primaryTable, access: DynamoDBAccess.read },
-        {
-          table: dataStores.primaryTable,
-          access: DynamoDBAccess.readWrite,
-          keyPattern: [MttDynamoDBKeyPatterns.licenseBehaviorLookup, MttDynamoDBKeyPatterns.licenseTagLookup]
-        }
-      ],
-      timestream: [
-        { table: dataStores.timestream, access: MttTimestreamAccess.readWrite }
-      ],
-      policyStatements: [
-        {
-          actions: ['lambda:InvokeFunction'],
-          resources: [processTimestream.lambda.functionArn]
-        }
-      ]
-    });
-
-    new MttFunction(context, {
-      id: 'buildTimestream',
-      codePath: 'src/device/functions/processing/process-timestream.ts',
-      handler: 'buildHandler',
-      tables: [
-        { table: dataStores.dataTable, access: DynamoDBAccess.readWrite },
-        { table: dataStores.primaryTable, access: DynamoDBAccess.read },
-        {
-          table: dataStores.primaryTable,
-          access: DynamoDBAccess.readWrite,
-          keyPattern: [MttDynamoDBKeyPatterns.licenseBehaviorLookup, MttDynamoDBKeyPatterns.licenseTagLookup]
-        }
-      ],
-      timestream: [
-        { table: dataStores.timestream, access: MttTimestreamAccess.readWrite }
-      ],
-      policyStatements: [
-        {
-          actions: ['lambda:InvokeFunction'],
-          resources: [processTimestream.lambda.functionArn]
-        }
-      ]
-    });
-
-  }
 }

@@ -35,8 +35,7 @@
         "@aws-sdk/client-sns": "^3.391.0",
         "@aws-sdk/client-sqs": "^3.391.0",
         "@aws-sdk/client-ssm": "^3.391.0",
-        "@aws-sdk/client-timestream-query": "^3.391.0",
-        "@aws-sdk/client-timestream-write": "^3.391.0",
+
         "@aws-sdk/lib-dynamodb": "^3.391.0",
         "@aws-sdk/s3-request-presigner": "^3.400.0",
         "@lumigo/tracer": "^1.85.0",

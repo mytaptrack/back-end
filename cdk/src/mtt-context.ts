@@ -17,13 +17,13 @@ import {
     MttFunction, MttLayer, MttRestApi, folderUpdated, writeCacheFile,
     MttDynamoDB,
     MttS3,
-    MttTimestream,
+
     MttKmsKey,
     Config,
     ConfigFile
 } from '.';
 import { EventBus, IEventBus } from 'aws-cdk-lib/aws-events';
-import * as timestream from 'aws-cdk-lib/aws-timestream';
+
 import * as _ from 'lodash';
 
 
@@ -42,7 +42,6 @@ export interface IMttDataStores {
     dataTable: MttDynamoDB;
     primaryTable: MttDynamoDB;
     dataBucket: MttS3;
-    timestream: MttTimestream;
 }
 
 export interface IMttContextDomain {
@@ -442,19 +441,10 @@ export class MttContext implements IMttContext {
             this.getParameter(`/${this.environment}/regional/calc/buckets/data/name`).stringValue,
             true,
             'dataBucket');
-        const timestreamArn = Fn.importValue(`${this.coreStack}-timestream-data-arn`);
-        const timestreamName = Fn.importValue(`${this.coreStack}-timestream-name`);
-        const timestream = MttTimestream.fromTableArn(this, timestreamArn, { 
-            tableName: timestreamName,
-            envTable: 'timestreamDatabase',
-            hasPhi: true 
-        });
-
         return {
             dataTable,
             primaryTable,
-            dataBucket,
-            timestream
+            dataBucket
         };
     }
 }

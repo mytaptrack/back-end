@@ -1,7 +1,7 @@
 import { 
   Config,
   EventBusAccess, MttCognito, MttContext, MttDynamoDB, MttFunction, 
-  MttKmsKey, MttS3, MttTimestreamDB
+  MttKmsKey, MttS3
 } from '@mytaptrack/cdk';
 import * as cdk from 'aws-cdk-lib';
 import { CfnClientCertificate } from 'aws-cdk-lib/aws-apigateway';
@@ -73,7 +73,6 @@ export class AwsStack extends cdk.Stack {
     (replicationRole.node.defaultChild as cdk.CfnResource).overrideLogicalId('S3ReplicationRole')
 
     const websiteStack = this.createS3Buckets(context);
-    this.createTimestream(context);
 
     if(config.env.regional.ses) {
       const ses = this.createSES();
@@ -238,43 +237,7 @@ export class AwsStack extends cdk.Stack {
     (nested.node.defaultChild as cdk.CfnResource).overrideLogicalId('SecurityStack');
   }
 
-  createTimestream(context: MttContext) {
-    const timestream = new MttTimestreamDB(context, {
-      id: 'TimestreamDB',
-      name: this.stackName
-   });
-   const events = timestream.addTable({
-     id: 'EventTimestreamTable',
-     tableName: 'events',
-     hasPhi: true
-   });
-   const data = timestream.addTable({
-     id: 'DataTimestreamTable',
-     tableName: 'data',
-     hasPhi: true
-   });
 
-   new CfnOutput(context.scope, 'TimestreamDatabase', {
-    value: timestream.name,
-    exportName: `${this.stackName}-timestream-name`
-   });
-   new CfnOutput(context.scope, 'TimestreamDatabaseArn', {
-    value: timestream.arn,
-    exportName: `${this.stackName}-timestream-arn`
-   });
-   new CfnOutput(context.scope, 'TimestreamEventTable', {
-    value: events.tableName,
-    exportName: `${this.stackName}-timestream-event-name`
-   });
-   new CfnOutput(context.scope, 'TimestreamEventTableArn', {
-    value: events.tableArn,
-    exportName: `${this.stackName}-timestream-event-arn`
-   });
-   new CfnOutput(context.scope, 'TimestreamDataTableArn', {
-    value: data.tableArn,
-    exportName: `${this.stackName}-timestream-data-arn`
-   });
-  }
 
   primaryRegionFunctions(context: MttContext, apiGatewayCert: CfnClientCertificate, regionPrimary: string, regions: string, environment: string, logsEncryptionKey: MttKmsKey, config: Config, websiteStack?: WebsiteStack) {
 
