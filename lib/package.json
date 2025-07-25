@@ -45,8 +45,7 @@
         "@aws-sdk/client-sms": "^3.391.0",
         "@aws-sdk/client-sns": "^3.391.0",
         "@aws-sdk/client-ssm": "^3.391.0",
-        "@aws-sdk/client-timestream-query": "^3.391.0",
-        "@aws-sdk/client-timestream-write": "^3.391.0",
+
         "@aws-sdk/credential-providers": "^3.409.0",
         "@aws-sdk/lib-dynamodb": "^3.391.0",
         "@aws-sdk/protocol-http": "^3.374.0",

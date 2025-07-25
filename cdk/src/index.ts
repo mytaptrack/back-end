@@ -11,7 +11,7 @@ export * from './appsync';
 export * from './utils';
 export * from './lambda-bundle';
 export * from './cloudfront';
-export * from './timestream';
+
 export * from './cognito';
 export * from './ssm-parameter';
 export * from './secret';

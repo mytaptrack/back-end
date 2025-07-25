@@ -1,6 +1,6 @@
 import { NestedStack, NestedStackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { AppSyncApi, CognitoAccess, DynamoDBAccess, MttCognito, MttContext, MttDynamoDB, MttParameter, MttParameterAccess, MttRestApi, MttS3, MttTimestream, MttTimestreamAccess } from "@mytaptrack/cdk";
+import { AppSyncApi, CognitoAccess, DynamoDBAccess, MttCognito, MttContext, MttDynamoDB, MttParameter, MttParameterAccess, MttRestApi, MttS3 } from "@mytaptrack/cdk";
 import { MttIndexes } from "@mytaptrack/lib/dist/v2/dals/dal";
 
 export interface AppManageApiStackProps extends NestedStackProps {
@@ -9,7 +9,7 @@ export interface AppManageApiStackProps extends NestedStackProps {
     primaryTable: MttDynamoDB;
     cognito: MttCognito;
     applicationName: string;
-    timestream: MttTimestream;
+
     appDetailsKey: MttParameter;
     parentStackName: string;
     coreStack: string;
@@ -19,7 +19,7 @@ export interface AppManageApiStackProps extends NestedStackProps {
 export class ApiV2ManageApi extends NestedStack {
     constructor(scope: Construct, id: string, props: AppManageApiStackProps) {
         super(scope, id, props);
-        const { apiSource, dataTable, primaryTable, cognito, timestream, appDetailsKey } = props;
+        const { apiSource, dataTable, primaryTable, cognito, appDetailsKey } = props;
         const context = new MttContext(this, `${props.parentStackName}-mng`, props.applicationName, undefined, props.coreStack)
         const api = new MttRestApi(context, apiSource);
 
@@ -33,7 +33,6 @@ export class ApiV2ManageApi extends NestedStack {
                 { table: dataTable, access: DynamoDBAccess.readWrite, indexes: ['', 'License'] },
                 { table: primaryTable, access: DynamoDBAccess.readWrite }
             ],
-            timestream: [{ table: timestream, access: MttTimestreamAccess.read }],
             ssm: [{ param: appDetailsKey, access: MttParameterAccess.read }]
         });
     
@@ -139,8 +138,7 @@ export class ApiV2ManageApi extends NestedStack {
             tables: [
                 { table: dataTable, access: DynamoDBAccess.read },
                 { table: primaryTable, access: DynamoDBAccess.read }
-            ],
-            timestream: [{ table: timestream, access: MttTimestreamAccess.read }]
+            ]
         });
     
         api.addLambdaHandler({
@@ -152,8 +150,7 @@ export class ApiV2ManageApi extends NestedStack {
             tables: [
                 { table: dataTable, access: DynamoDBAccess.read },
                 { table: primaryTable, access: DynamoDBAccess.read }
-            ],
-            timestream: [{ table: timestream, access: MttTimestreamAccess.read }]
+            ]
         });
     
         api.addLambdaHandler({

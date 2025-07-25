@@ -3,7 +3,7 @@ import { MttStackProps } from './params';
 import { Construct } from 'constructs';
 import {
     MttContext, MttDynamoDB, MttS3, 
-    MttRestApi, MttTimestream, MttCognito, MttParameter, AppSyncApi, 
+    MttRestApi, MttCognito, MttParameter, AppSyncApi, 
     ConfigFile
 } from '@mytaptrack/cdk';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
@@ -54,13 +54,7 @@ export class ApiV2Stack extends Stack {
         false, 
         'TemplateBucket');
         
-    const timestreamArn = Fn.importValue(`${CoreStack}-timestream-data-arn`);
-    const timestreamName = Fn.importValue(`${CoreStack}-timestream-name`);
-    const timestream = MttTimestream.fromTableArn(context, timestreamArn, {
-        tableName: timestreamName,
-        envTable: 'timestreamDatabase',
-        hasPhi: true
-    });
+
 
     const appsync = props.appsync;
 
@@ -124,7 +118,6 @@ export class ApiV2Stack extends Stack {
         primaryTable,
         cognito,
         applicationName: 'ApiV2',
-        timestream,
         parentStackName: stackReferenceName
     });
 
@@ -135,7 +128,6 @@ export class ApiV2Stack extends Stack {
         primaryTable,
         cognito,
         applicationName: 'ApiV2',
-        timestream,
         appDetailsKey: AppDetailsKey,
         parentStackName: stackReferenceName,
         appsync

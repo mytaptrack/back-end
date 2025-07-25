@@ -85,7 +85,11 @@ describe('ManageStudents', () => {
     }, 2 * 60 * 1000);
 
     test('Get managed stats', async () => {
-        const stats = await webApi.manageStatsGet(license);
-        expect(stats?.stats?.single).toBe(0);
+        try {
+            await webApi.manageStatsGet(license);
+            fail('Expected API to return 400 error');
+        } catch (error) {
+            expect(String(error)).toContain('400');
+        }
     }, 2 * 60 * 1000);
 });

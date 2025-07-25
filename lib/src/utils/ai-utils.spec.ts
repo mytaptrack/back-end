@@ -33,7 +33,7 @@ describe('ai-utils/AiTrainingUtils', () => {
                 data: [
                     {
                         date: '2018-09-17T10:14:59.187Z'
-                    } as any
+                    }
                 ],
                 type: 'training'
             });

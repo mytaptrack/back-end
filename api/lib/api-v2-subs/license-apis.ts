@@ -1,6 +1,6 @@
 import { NestedStack, NestedStackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { CognitoAccess, DynamoDBAccess, MttCognito, MttContext, MttDynamoDB, MttParameter, MttParameterAccess, MttRestApi, MttS3, MttTimestream, MttTimestreamAccess } from "@mytaptrack/cdk";
+import { CognitoAccess, DynamoDBAccess, MttCognito, MttContext, MttDynamoDB, MttParameter, MttParameterAccess, MttRestApi, MttS3 } from "@mytaptrack/cdk";
 
 export interface AppLicenseApiStackProps extends NestedStackProps {
     apiSource: MttRestApi,
@@ -8,7 +8,7 @@ export interface AppLicenseApiStackProps extends NestedStackProps {
     primaryTable: MttDynamoDB,
     cognito: MttCognito,
     applicationName: string;
-    timestream: MttTimestream;
+
     parentStackName: string;
     coreStack: string;
 }
@@ -16,7 +16,7 @@ export interface AppLicenseApiStackProps extends NestedStackProps {
 export class ApiV2LicenseApi extends NestedStack {
     constructor(scope: Construct, id: string, props: AppLicenseApiStackProps) {
         super(scope, id, props);
-        const { apiSource, dataTable, primaryTable, cognito, timestream } = props;
+        const { apiSource, dataTable, primaryTable, cognito } = props;
         const context = new MttContext(this, `${props.parentStackName}-license`, props.applicationName, undefined, props.coreStack)
         const api = new MttRestApi(context, apiSource);
         
@@ -53,9 +53,6 @@ export class ApiV2LicenseApi extends NestedStack {
             tables: [
                 { table: dataTable, access: DynamoDBAccess.readWrite, indexes: ['', 'License'] },
                 { table: primaryTable, access: DynamoDBAccess.readWrite, indexes: ['', 'License'] }
-            ],
-            timestream: [
-                { table: timestream, access: MttTimestreamAccess.read }
             ],
             cognito: [
                 { pool: cognito, access: CognitoAccess.listUsers }

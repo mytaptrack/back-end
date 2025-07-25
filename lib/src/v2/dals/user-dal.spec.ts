@@ -51,11 +51,11 @@ describe('UserDal', () => {
         await UserDal.setStudentActiveNoResponse(userId, studentId, true);
         let events = await UserDal.getUserStudentStats(userId);
         expect(events.find(x => x.studentId == studentId)).toBeDefined();
-        expect(events.find(x => x.studentId == studentId)!.awaitingResponse).toBe(true);
+        expect(events.find(x => x.studentId == studentId)?.awaitingResponse).toBe(true);
         await UserDal.setStudentActiveNoResponse(userId, studentId, false);
         events = await UserDal.getUserStudentStats(userId);
         expect(events.find(x => x.studentId == studentId)).toBeDefined();
-        expect(events.find(x => x.studentId == studentId)!.awaitingResponse).toBe(false);
+        expect(events.find(x => x.studentId == studentId)?.awaitingResponse).toBe(false);
     });
 
     test('saveStudentBehaviorNotification', async () => {
@@ -81,7 +81,7 @@ describe('UserDal', () => {
         }));
         
         console.log('Adding new event');
-        const event: UserStudentSummary = {
+        const event = {
             studentId,
             awaitingResponse: false,
             count: 1
@@ -99,8 +99,8 @@ describe('UserDal', () => {
         await UserDal.updateUserEvent(userId, event, 0);
         user = await UserDal.getUserConfig(userId);
         userEvent = user.events.find(x => x.studentId == studentId);
-        expect(userEvent!.awaitingResponse).toBe(true);
-        expect(userEvent!.count).toBe(2);
+        expect(userEvent?.awaitingResponse).toBe(true);
+        expect(userEvent?.count).toBe(2);
 
         console.log('Updating existing event 2');
         event.awaitingResponse = false;
@@ -108,8 +108,8 @@ describe('UserDal', () => {
         await UserDal.updateUserEvent(userId, event, 0);
         user = await UserDal.getUserConfig(userId);
         userEvent = user.events.find(x => x.studentId == studentId);
-        expect(userEvent!.awaitingResponse).toBe(false);
-        expect(userEvent!.count).toBe(0);
+        expect(userEvent?.awaitingResponse).toBe(false);
+        expect(userEvent?.count).toBe(0);
 
         console.log('Removing existing event');
         await UserDal.updateUserEvent(userId, null, 0);

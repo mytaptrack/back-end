@@ -43,7 +43,7 @@ export class AppSyncStack extends Stack {
     const dataTable = dataStores.dataTable;
     const primaryTable = dataStores.primaryTable;
     const dataBucket = dataStores.dataBucket;
-    const timestream = dataStores.timestream;
+
 
     // AppSync CloudWatch Role
     const appsyncCloudwatchRole = new Role(this, 'AppsyncCloudwatchRole', {
@@ -131,34 +131,7 @@ export class AppSyncStack extends Stack {
       tables: [{ table: dataTable, access: DynamoDBAccess.read }]
     });
 
-    this.appsync.addLambdaResolver('GetLicenseStats', {
-      id: 'GetLicenseStats',
-      typeName: 'Query',
-      fieldName: 'getLicenseStats',
-      codePath: 'src/graphql/resolver/query/getLicenses/stats.ts',
-      environmentVariables: {
-        timestreamDatabase: timestream.tableName
-      },
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read, indexes: ['', MttIndexes.license ] }
-      ],
-      policyStatements: [
-        {
-          actions: [
-            'timestream:DescribeEndpoints'
-          ],
-          resources: ['*']
-        },
-        {
-          actions: [
-            'timestream:Select'
-          ],
-          resources: [
-            `${timestream.tableArn}`
-          ]
-        }
-      ]
-    });
+
 
     this.appsync.addLambdaResolver('GetStudentData', {
       id: 'GetStudentData',
