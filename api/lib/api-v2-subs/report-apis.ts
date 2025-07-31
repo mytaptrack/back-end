@@ -1,6 +1,6 @@
 import { NestedStack, NestedStackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { AppSyncApi, DynamoDBAccess, EventBusAccess, MttCognito, MttContext, MttDynamoDB, MttFunction, MttParameter, MttParameterAccess, MttRestApi, MttS3, MttSqs, MttTimestream, S3Access, SqsAccess } from "@mytaptrack/cdk";
+import { AppSyncApi, DynamoDBAccess, EventBusAccess, MttCognito, MttContext, MttDynamoDB, MttFunction, MttParameter, MttParameterAccess, MttRestApi, MttS3, MttSqs, S3Access, SqsAccess } from "@mytaptrack/cdk";
 import { Effect } from "aws-cdk-lib/aws-iam";
 
 export interface AppV2ReportApiStackProps extends NestedStackProps {
