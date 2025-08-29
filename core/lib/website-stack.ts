@@ -52,6 +52,11 @@ export class WebsiteStack extends cdk.NestedStack {
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        }
       ]
     });
     this.behaviorDNS = behaviorDistribution.domainName;
@@ -69,6 +74,11 @@ export class WebsiteStack extends cdk.NestedStack {
       errorResponses: [
         {
           httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+        {
+          httpStatus: 403,
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
