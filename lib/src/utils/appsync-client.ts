@@ -7,7 +7,11 @@ export class LambdaAppsyncQueryClient {
 
     constructor(url: string) {
         this.client = new GraphQLClient(url, {
-            fetch: createSignedFetcher({ service: 'appsync', region: 'us-west-2', fetch }),
+            fetch: createSignedFetcher({ 
+                service: 'appsync', 
+                region: process.env.AWS_REGION || 'us-west-2', 
+                fetch 
+            }),
         });
     }
 
