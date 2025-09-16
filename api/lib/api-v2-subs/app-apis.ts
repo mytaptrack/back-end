@@ -33,7 +33,8 @@ export class ApiV2AppApi extends NestedStack {
             path: '/api/v2/student/devices',
             method: 'get',
             environmentVariables: {
-                STRONGLY_CONSISTENT_READ: 'true'
+                STRONGLY_CONSISTENT_READ: 'true',
+                appsyncUrl: props.appsync.graphqlUrl
             },
             tables: [
                 { table: dataTable, access: DynamoDBAccess.read },
