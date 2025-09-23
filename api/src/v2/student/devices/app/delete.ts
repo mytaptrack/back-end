@@ -11,6 +11,9 @@ const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);
 export async function handler (request: typesV2.DeleteDeviceRequest, userDetails: WebUserDetails) {
     console.log('Getting student id');
     const studentId = request.studentId;
+    
+    // Convert string 'true'/'false' to boolean if needed
+    const isApp = typeof request.isApp === 'string' ? request.isApp === 'true' : request.isApp;
 
     console.log('Checking if user is on students team');
     const team = await v2.TeamDal.getTeamMember(userDetails.userId, studentId);
