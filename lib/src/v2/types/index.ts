@@ -17,6 +17,7 @@ export * from './database-abstraction';
 export * from './database-errors';
 export * from './database-provider';
 export * from './storage-models';
+export * from './migration';
 
 // Metrics exports (avoiding conflicts)
 export {

@@ -126,13 +126,14 @@ export const StudentResponsePutRequestSchema: Schema = {
 export interface DeleteDeviceRequest {
     dsn: string;
     studentId: string;
+    isApp?: boolean;
 }
 export const DeleteDeviceRequestSchema: Schema = {
     type: 'object',
     properties: {
         dsn: { type: 'string' },
         studentId: { type: 'string' },
-        isApp: { type: 'boolean' }
+        isApp: { type: ['boolean', 'string'] }
     },
     required: ['dsn', 'studentId']
 }
