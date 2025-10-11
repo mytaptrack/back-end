@@ -124,7 +124,7 @@ class StudentDalClass extends DalBaseClass {
             },
             abc: pii.abc,
             behaviors: config.behaviors.map(cb => {
-                const lookup = pii.behaviorLookup.find(x => x.id == cb.id);
+                const lookup = pii.behaviorLookup?.find(x => x.id == cb.id);
                 if(!lookup) {
                     return;
                 }
@@ -145,7 +145,7 @@ class StudentDalClass extends DalBaseClass {
                 } as typesV2.StudentBehavior;
             }).filter(x => x? true : false),
             responses: config.responses.map(cr => {
-                const lookup = pii.responseLookup.find(x => x.id == cr.id);
+                const lookup = pii.responseLookup?.find(x => x.id == cr.id);
                 if(!lookup) {
                     return;
                 }
@@ -166,7 +166,7 @@ class StudentDalClass extends DalBaseClass {
             services: [],
             dashboard: userDashboard? userDashboard.dashboard : config.dashboard,
             milestones: pii.milestones,
-            tags: pii.tags.map(x => x.tag),
+            tags: pii.tags?.map(x => x.tag),
             lastTracked: config.lastTracked,
             lastUpdateDate: config.lastUpdatedDate,
             absences: config.absences ?? [],
@@ -551,7 +551,7 @@ class StudentDalClass extends DalBaseClass {
                 keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
                 attributeValues: { 
                     ':lpk': `${license}#S`,
-                    ':lsk': 'P#'
+                    ':lsk': 'P'
                 },
                 indexName: MttIndexes.license,
                 projectionExpression: 'studentId, firstName, lastName, nickname, subtext, behaviorLookup, responseLookup, tags'
@@ -560,7 +560,7 @@ class StudentDalClass extends DalBaseClass {
                 keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
                 attributeValues: { 
                     ':lpk': `${license}#S`,
-                    ':lsk': 'P#'
+                    ':lsk': 'P'
                 },
                 indexName: MttIndexes.license,
                 projectionExpression: 'studentId, licenseDetails, behaviors, responses, archived'
@@ -579,7 +579,7 @@ class StudentDalClass extends DalBaseClass {
                     nickname: pii.nickname
                 },
                 behaviors: config.behaviors?.map(b => {
-                    const piiB = pii.behaviorLookup.find(x => x.id === b.id);
+                    const piiB = pii.behaviorLookup?.find(x => x.id === b.id);
                     if(!piiB) {
                         return;
                     }
@@ -597,7 +597,7 @@ class StudentDalClass extends DalBaseClass {
                 }).filter(x => x? true : false) ?? [],
                 responses: config.responses?.map(r => ({
                     id: r.id,
-                    name: pii.responseLookup.find(x => x.id === r.id).name,
+                    name: pii.responseLookup?.find(x => x.id === r.id).name,
                     isArchived: r.isArchived,
                     isDuration: r.isDuration,
                 })) ?? [],

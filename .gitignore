@@ -2,3 +2,7 @@
 requirements
 requirements/ai/*
 .cache_ggshield
+primary
+
+node_modules/*
+**/node_modules/*

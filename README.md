@@ -48,7 +48,25 @@ make install STAGE=test
 | install | Gets dependencies, builds all the projects, and deploys all the code to AWS |
 | deploy | Leverages all existing dependencies and projects and deploys the code to AWS |
 | test | Builds and executes the system tests against the configured environment |
+| export-data | Exports all tracked data and configurations organized by license |
 | clean | Cleans all build directories and artifacts |
+
+## Data Export
+
+To export all tracked data and student configurations organized by license:
+
+```bash
+# Using the shell script (recommended)
+./export-data.sh [output-directory] [start-date] [end-date]
+
+# Using make
+make export-data
+
+# Direct execution
+cd utils && npm run export-data [output-directory] [start-date] [end-date]
+```
+
+See [utils/README-export.md](./utils/README-export.md) for detailed documentation.
 
 ## References
 - [Configuration Documentation](./config/README.md)
@@ -57,6 +75,7 @@ make install STAGE=test
 - [Data Prop](./data-prop/README.md)
 - [Lib](./lib/README.md)
 - [System Tests](./lib/README.md)
+- [Data Export](./utils/README-export.md)
 
 ## License
 [Mozilla Public License Version 2.0](./LICENSE)

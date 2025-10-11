@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@aws-sdk/util-dynamodb": "^3.899.0"
+  }
+}

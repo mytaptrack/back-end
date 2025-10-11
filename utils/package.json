@@ -4,11 +4,15 @@
     "scripts": {
         "set-env": "npx ts-node set-env.ts",
         "del-env": "npx ts-node del-env.ts",
-        "setup-env": "npx ts-node setup-env.ts"
+        "setup-env": "npx ts-node setup-env.ts",
+        "export-data": "npx ts-node export-data.ts",
+        "reload-primary-table": "npx ts-node reload-primary-table.ts"
     },
     "devDependencies": {
+        "@aws-sdk/util-dynamodb": "^3.899.0",
         "@types/aws-lambda": "^8.10.113",
-        "@types/node": "^14.14.28"
+        "@types/node": "^14.14.28",
+        "@types/yazl": "^2.4.5"
     },
     "dependencies": {
         "@aws-sdk/client-cognito-identity-provider": "^3.806.0",
@@ -19,6 +23,7 @@
         "@mytaptrack/cdk": "file:../cdk",
         "@mytaptrack/lib": "file:../lib",
         "@mytaptrack/types": "file:../types",
+        "yazl": "^2.5.1",
         "jsonschema": "^1.5.0",
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
