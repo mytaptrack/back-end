@@ -4,7 +4,7 @@
 
 import { HealthCheck } from './health-check';
 import { MetricsCollector } from './metrics-collector';
-import { IDatabaseProvider } from '../types/database-provider';
+import { IDatabaseProvider, DatabaseProviderType, HealthStatus } from '../types/database-provider';
 import { DEFAULT_METRICS_CONFIG } from '../types/metrics';
 
 // Mock database provider
@@ -23,8 +23,21 @@ class MockDatabaseProvider implements IDatabaseProvider {
     return this.connected;
   }
 
-  getProviderType(): string {
-    return 'mock';
+  getProviderType(): DatabaseProviderType {
+    return 'mock' as DatabaseProviderType;
+  }
+
+  async healthCheck(): Promise<HealthStatus> {
+    return {
+      healthy: this.connected,
+      provider: 'mock' as DatabaseProviderType,
+      connectionStatus: this.connected ? 'connected' : 'disconnected',
+      metrics: {
+        averageResponseTime: 0,
+        errorRate: 0,
+        connectionCount: 1
+      }
+    };
   }
 
   setConnected(connected: boolean): void {
@@ -120,8 +133,14 @@ describe('HealthCheck', () => {
       // Mock provider that throws error
       const errorProvider = {
         ...mockProvider,
-        isConnected: () => { throw new Error('Connection check failed'); }
-      } as IDatabaseProvider;
+        isConnected: () => { throw new Error('Connection check failed'); },
+        healthCheck: async () => ({ 
+          healthy: false, 
+          provider: 'mock' as DatabaseProviderType,
+          connectionStatus: 'error' as const,
+          metrics: { averageResponseTime: 0, errorRate: 1, connectionCount: 0 }
+        })
+      } as unknown as IDatabaseProvider;
       
       const errorHealthCheck = new HealthCheck(errorProvider, metricsCollector);
       
@@ -156,8 +175,14 @@ describe('HealthCheck', () => {
       const errorProvider = {
         ...mockProvider,
         isConnected: () => { throw new Error('Connection error'); },
-        getProviderType: () => 'mock'
-      } as IDatabaseProvider;
+        getProviderType: () => 'mock' as DatabaseProviderType,
+        healthCheck: async () => ({ 
+          healthy: false, 
+          provider: 'mock' as DatabaseProviderType,
+          connectionStatus: 'error' as const,
+          metrics: { averageResponseTime: 0, errorRate: 1, connectionCount: 0 }
+        })
+      } as unknown as IDatabaseProvider;
       
       const errorHealthCheck = new HealthCheck(errorProvider, metricsCollector);
       

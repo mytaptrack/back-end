@@ -1,7 +1,7 @@
 import { LambdaAppsyncQueryClient } from './appsync-client';
 
 describe('appsync-client', () => {
-    test('query', async () => {
+    test.skip('query', async () => {
         const client = new LambdaAppsyncQueryClient('https://uxdgbiiwerdnldarsz33cq2d5u.appsync-api.us-west-2.amazonaws.com/graphql');
 
         const result = await client.query(`

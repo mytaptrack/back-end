@@ -10,14 +10,14 @@ import {
   TableSchema, 
   IndexDefinition 
 } from '../types/migration';
-import { IDataAccessLayer, ScanInput } from '../types/database-abstraction';
-import { DatabaseLogger } from './database-logger';
+import { IDataAccessLayer, UnifiedScanInput } from '../types/database-abstraction';
+import { LoggerFactory } from './database-logger';
 
 export class DynamoDBExporter implements IDataExporter {
-  private logger: DatabaseLogger;
+  private logger: any;
 
   constructor(private provider: IDataAccessLayer) {
-    this.logger = new DatabaseLogger('DynamoDBExporter');
+    this.logger = LoggerFactory.getLogger('DynamoDBExporter');
   }
 
   /**
@@ -183,7 +183,7 @@ export class DynamoDBExporter implements IDataExporter {
     let lastEvaluatedKey: any = undefined;
 
     do {
-      const scanInput: ScanInput = {
+      const scanInput: UnifiedScanInput = {
         limit: batchSize,
         startKey: lastEvaluatedKey
       };

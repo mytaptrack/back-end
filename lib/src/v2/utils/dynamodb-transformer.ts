@@ -24,9 +24,9 @@ export class DynamoDBTransformer<T extends BaseStorageModel> implements IDataTra
    */
   transform(input: T): DynamoDBDocument {
     if (this.options.validateInput) {
-      const isValid = this.validate(input);
-      if (!isValid) {
-        throw new Error(`Validation failed: Input data is invalid`);
+      const validation = this.validate(input);
+      if (!validation.isValid) {
+        throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
       }
     }
 
@@ -49,9 +49,9 @@ export class DynamoDBTransformer<T extends BaseStorageModel> implements IDataTra
     }
 
     if (this.options.validateOutput) {
-      const isValid = this.validate(document);
-      if (!isValid) {
-        throw new Error(`Output validation failed: Document is invalid`);
+      const validation = this.validate(document);
+      if (!validation.isValid) {
+        throw new Error(`Output validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
       }
     }
 
@@ -64,9 +64,9 @@ export class DynamoDBTransformer<T extends BaseStorageModel> implements IDataTra
    */
   reverse(output: DynamoDBDocument): T {
     if (this.options.validateInput) {
-      const isValid = this.validate(output);
-      if (!isValid) {
-        throw new Error(`Validation failed: Output data is invalid`);
+      const validation = this.validate(output);
+      if (!validation.isValid) {
+        throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
       }
     }
 
@@ -87,7 +87,7 @@ export class DynamoDBTransformer<T extends BaseStorageModel> implements IDataTra
   /**
    * Validate data structure for DynamoDB requirements
    */
-  validate(data: T | DynamoDBDocument): boolean {
+  validate(data: T | DynamoDBDocument): ValidationResult {
     const errors: ValidationFieldError[] = [];
 
     // Check required fields
@@ -158,7 +158,10 @@ export class DynamoDBTransformer<T extends BaseStorageModel> implements IDataTra
       });
     }
 
-    return errors.length === 0;
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 
   /**
@@ -192,6 +195,16 @@ export class DynamoDBTransformer<T extends BaseStorageModel> implements IDataTra
         });
       }
     });
+
+    // Check composite key consistency
+    if (data.pk && data.sk && data.pksk && data.pksk !== `${data.pk}#${data.sk}`) {
+      issues.push({
+        type: 'constraint_violation',
+        field: 'pksk',
+        message: 'Composite key (pksk) must match pk#sk format',
+        severity: 'error'
+      });
+    }
 
     // Check for item size (approximate - DynamoDB has 400KB limit)
     const itemSize = JSON.stringify(data).length;

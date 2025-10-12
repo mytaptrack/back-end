@@ -37,6 +37,8 @@ describe('MigrationManager', () => {
       scan: jest.fn(),
       batchGet: jest.fn(),
       beginTransaction: jest.fn(),
+      executeTransaction: jest.fn(),
+      healthCheck: jest.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
       executeNative: jest.fn()
     } as jest.Mocked<IDataAccessLayer>;
 
@@ -53,6 +55,8 @@ describe('MigrationManager', () => {
       scan: jest.fn(),
       batchGet: jest.fn(),
       beginTransaction: jest.fn(),
+      executeTransaction: jest.fn(),
+      healthCheck: jest.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
       executeNative: jest.fn()
     } as jest.Mocked<IDataAccessLayer>;
   });
@@ -434,7 +438,8 @@ describe('MigrationManager', () => {
             action: 'restore_table' as const,
             table: 'table1',
             details: { recordCount: 5 },
-            completed: false
+            completed: false,
+            error: undefined
           }
         ]
       };

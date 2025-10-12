@@ -11,13 +11,13 @@ import {
   IndexDefinition 
 } from '../types/migration';
 import { IDataAccessLayer, PutOptions } from '../types/database-abstraction';
-import { DatabaseLogger } from './database-logger';
+import { LoggerFactory } from './database-logger';
 
 export class MongoDBImporter implements IDataImporter {
-  private logger: DatabaseLogger;
+  private logger: any;
 
   constructor(private provider: IDataAccessLayer) {
-    this.logger = new DatabaseLogger('MongoDBImporter');
+    this.logger = LoggerFactory.getLogger('MongoDBImporter');
   }
 
   /**
@@ -198,7 +198,7 @@ export class MongoDBImporter implements IDataImporter {
    */
   private async importBatch(records: any[], options: MigrationOptions): Promise<void> {
     const putOptions: PutOptions = {
-      overwrite: true // Allow overwriting existing documents during migration
+      ensureNotExists: false // Allow overwriting existing documents during migration
     };
 
     // Transform records for MongoDB format

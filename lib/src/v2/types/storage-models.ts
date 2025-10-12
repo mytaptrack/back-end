@@ -42,7 +42,7 @@ export interface UserStudentStorageModel extends UserStorageModel {
 export interface IDataTransformer<TInput, TOutput> {
   transform(input: TInput): TOutput;
   reverse(output: TOutput): TInput;
-  validate(data: TInput | TOutput): boolean;
+  validate(data: TInput | TOutput): ValidationResult;
 }
 
 // Database-specific document structures

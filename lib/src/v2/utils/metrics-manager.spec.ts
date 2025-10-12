@@ -3,7 +3,7 @@
  */
 
 import { MetricsManager } from './metrics-manager';
-import { IDatabaseProvider } from '../types/database-provider';
+import { IDatabaseProvider, DatabaseProviderType, HealthStatus } from '../types/database-provider';
 import { DEFAULT_METRICS_CONFIG } from '../types/metrics';
 
 // Mock database provider
@@ -22,8 +22,21 @@ class MockDatabaseProvider implements IDatabaseProvider {
     return this.connected;
   }
 
-  getProviderType(): string {
-    return 'mock';
+  getProviderType(): DatabaseProviderType {
+    return 'mock' as DatabaseProviderType;
+  }
+
+  async healthCheck(): Promise<HealthStatus> {
+    return {
+      healthy: this.connected,
+      provider: 'mock' as DatabaseProviderType,
+      connectionStatus: this.connected ? 'connected' : 'disconnected',
+      metrics: {
+        averageResponseTime: 0,
+        errorRate: 0,
+        connectionCount: 1
+      }
+    };
   }
 
   setConnected(connected: boolean): void {

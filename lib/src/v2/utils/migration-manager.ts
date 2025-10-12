@@ -18,18 +18,18 @@ import {
   IDataImporter
 } from '../types/migration';
 import { IDataAccessLayer } from '../types/database-abstraction';
-import { DatabaseLogger } from './database-logger';
+import { LoggerFactory } from './database-logger';
 import { DynamoDBExporter } from './dynamodb-exporter';
 import { MongoDBExporter } from './mongodb-exporter';
 import { DynamoDBImporter } from './dynamodb-importer';
 import { MongoDBImporter } from './mongodb-importer';
 
 export class MigrationManager implements IMigrationManager {
-  private logger: DatabaseLogger;
+  private logger: any;
   private currentProgress: MigrationProgress | null = null;
 
   constructor() {
-    this.logger = new DatabaseLogger('MigrationManager');
+    this.logger = LoggerFactory.getLogger('MigrationManager');
   }
 
   /**

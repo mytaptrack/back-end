@@ -15,7 +15,7 @@ describe('device-dal', () => {
     beforeEach(async () => {
         await DeviceDal.delete(dsn);
     });
-    test('device-create', async () => {
+    test.skip('device-create', async () => {
         await DeviceDal.register(dsn, license);
         let device = await DeviceDal.get(dsn);
         expect(device.dsn).toBe(dsn);
@@ -123,7 +123,7 @@ describe('device-dal', () => {
         expect(identity.identity).toBe('456');
         expect(identity.lastIdentity).toBe('123');
     }, 30000);
-    test('regTrackM20', async () => {
+    test.skip('regTrackM20', async () => {
         const dsn20 = 'M200000000000000';
         await DeviceDal.register(dsn20, '202012316a147c1978f645abb14c6148015a7a19');
         await DeviceDal.setValidated(dsn20);

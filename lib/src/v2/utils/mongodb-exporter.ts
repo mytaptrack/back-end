@@ -10,14 +10,14 @@ import {
   TableSchema, 
   IndexDefinition 
 } from '../types/migration';
-import { IDataAccessLayer, ScanInput } from '../types/database-abstraction';
-import { DatabaseLogger } from './database-logger';
+import { IDataAccessLayer, UnifiedScanInput } from '../types/database-abstraction';
+import { LoggerFactory } from './database-logger';
 
 export class MongoDBExporter implements IDataExporter {
-  private logger: DatabaseLogger;
+  private logger: any;
 
   constructor(private provider: IDataAccessLayer) {
-    this.logger = new DatabaseLogger('MongoDBExporter');
+    this.logger = LoggerFactory.getLogger('MongoDBExporter');
   }
 
   /**
@@ -191,7 +191,7 @@ export class MongoDBExporter implements IDataExporter {
     let skip = 0;
 
     while (true) {
-      const scanInput: ScanInput = {
+      const scanInput: UnifiedScanInput = {
         limit: batchSize,
         startKey: { skip }
       };

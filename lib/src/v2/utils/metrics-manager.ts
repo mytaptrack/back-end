@@ -335,7 +335,7 @@ export class MetricsManager implements IMetricsManager {
       } catch (error) {
         console.error('Health check error:', error);
       }
-    }, this.config.healthCheckInterval);
+    }, this.config.healthCheckInterval) as NodeJS.Timeout;
   }
 
   private stopPeriodicHealthChecks(): void {

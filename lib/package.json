@@ -6,6 +6,10 @@
         "start": "tsc -d --watch",
         "build": "tsc -d",
         "test": "jest --coverage --passWithNoTests --forceExit",
+        "test:db": "node dist/v2/testing/cli.js",
+        "test:db:quick": "node dist/v2/testing/cli.js quick",
+        "test:db:full": "node dist/v2/testing/cli.js full",
+        "test:db:performance": "node dist/v2/testing/cli.js performance",
         "setDebug": "npm i ../../types --save-dev",
         "unsetDebug": "npm uninstall @mytaptrack/types && npm i @mytaptrack/types@latest --save-dev"
     },

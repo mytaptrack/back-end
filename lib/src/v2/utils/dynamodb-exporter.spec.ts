@@ -24,6 +24,8 @@ describe('DynamoDBExporter', () => {
       scan: jest.fn(),
       batchGet: jest.fn(),
       beginTransaction: jest.fn(),
+      executeTransaction: jest.fn(),
+      healthCheck: jest.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
       executeNative: jest.fn()
     } as jest.Mocked<IDataAccessLayer>;
 

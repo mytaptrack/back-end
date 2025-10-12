@@ -25,9 +25,9 @@ export class MongoDBTransformer<T extends BaseStorageModel> implements IDataTran
    */
   transform(input: T): MongoDBDocument {
     if (this.options.validateInput) {
-      const isValid = this.validate(input);
-      if (!isValid) {
-        throw new Error(`Validation failed: Input data is invalid`);
+      const validation = this.validate(input);
+      if (!validation.isValid) {
+        throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
       }
     }
 
@@ -107,7 +107,7 @@ export class MongoDBTransformer<T extends BaseStorageModel> implements IDataTran
   /**
    * Validate application data structure
    */
-  validate(data: T): boolean {
+  validate(data: T | MongoDBDocument): ValidationResult {
     const errors: ValidationFieldError[] = [];
 
     // Check required fields
@@ -161,7 +161,10 @@ export class MongoDBTransformer<T extends BaseStorageModel> implements IDataTran
       });
     }
 
-    return errors.length === 0;
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 
   /**

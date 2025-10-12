@@ -393,7 +393,7 @@ describe('utils', () => {
                 const mobileDevice = getDefaultMobileDevice();
                 mobileDevice.assignments = [];
                 const student = getDefaultStudent();
-                student.details.subtext = 'nickname'
+                student.details.nickname = 'nickname'
                 await applyTemplatesToApp(studentTemplates, mobileDevice, [student]);
 
                 expect(updateAppConfig).toBeCalled();
@@ -520,6 +520,7 @@ function getDefaultStudent(): typesV2.Student {
         },
         milestones: [],
         services: [],
+        absences: [],
         lastTracked: 'lastTracked',
         lastUpdateDate: 'lastUpdateDate',
         restrictions: {} as any,

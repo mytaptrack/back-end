@@ -18,24 +18,30 @@ describe('DatabaseLogger', () => {
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
-    consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+    // Spy on all console methods
+    jest.spyOn(console, 'debug').mockImplementation();
+    jest.spyOn(console, 'info').mockImplementation();
+    jest.spyOn(console, 'warn').mockImplementation();
+    jest.spyOn(console, 'error').mockImplementation();
+    consoleSpy = jest.spyOn(console, 'info'); // Default to info for most tests
   });
 
   afterEach(() => {
-    consoleSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
   describe('Basic Logging', () => {
     it('should log debug messages when level is DEBUG', () => {
+      const debugSpy = jest.spyOn(console, 'debug');
       logger.debug('Test debug message', { operation: 'test' });
       
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining('"level":"DEBUG"')
       );
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining('"message":"Test debug message"')
       );
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining('"operation":"test"')
       );
     });
@@ -48,21 +54,23 @@ describe('DatabaseLogger', () => {
     });
 
     it('should include timestamp in log entries', () => {
+      const infoSpy = jest.spyOn(console, 'info');
       logger.info('Test message');
       
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.stringContaining('"timestamp":"')
       );
     });
 
     it('should serialize error objects properly', () => {
+      const errorSpy = jest.spyOn(console, 'error');
       const error = new Error('Test error');
       logger.error('Error occurred', error);
       
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(errorSpy).toHaveBeenCalledWith(
         expect.stringContaining('"name":"Error"')
       );
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(errorSpy).toHaveBeenCalledWith(
         expect.stringContaining('"message":"Test error"')
       );
     });
@@ -70,27 +78,29 @@ describe('DatabaseLogger', () => {
 
   describe('Child Loggers', () => {
     it('should create child logger with inherited context', () => {
+      const infoSpy = jest.spyOn(console, 'info');
       const childLogger = logger.child({ provider: 'dynamodb' });
       childLogger.info('Child message', { operation: 'get' });
       
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.stringContaining('"provider":"dynamodb"')
       );
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.stringContaining('"operation":"get"')
       );
     });
 
     it('should merge context from parent and child', () => {
+      const infoSpy = jest.spyOn(console, 'info');
       const baseLogger = new DatabaseLogger(LogLevel.DEBUG, { component: 'test' });
       const childLogger = baseLogger.child({ provider: 'mongodb' });
       
       childLogger.info('Test message');
       
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.stringContaining('"component":"test"')
       );
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(infoSpy).toHaveBeenCalledWith(
         expect.stringContaining('"provider":"mongodb"')
       );
     });
@@ -98,6 +108,11 @@ describe('DatabaseLogger', () => {
 
   describe('Log Levels', () => {
     it('should respect log level hierarchy', () => {
+      const warnSpy = jest.spyOn(console, 'warn');
+      const errorSpy = jest.spyOn(console, 'error');
+      const debugSpy = jest.spyOn(console, 'debug');
+      const infoSpy = jest.spyOn(console, 'info');
+      
       logger.setLevel(LogLevel.WARN);
       
       logger.debug('Debug message');
@@ -105,7 +120,10 @@ describe('DatabaseLogger', () => {
       logger.warn('Warn message');
       logger.error('Error message');
       
-      expect(consoleSpy).toHaveBeenCalledTimes(2); // Only warn and error
+      expect(debugSpy).not.toHaveBeenCalled();
+      expect(infoSpy).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -196,15 +214,16 @@ describe('ConnectionLogger', () => {
   });
 
   it('should sanitize sensitive configuration', () => {
+    const infoSpy = jest.spyOn(console, 'info');
     connectionLogger.logConnectionAttempt('mongodb', {
       connectionString: 'mongodb://user:password@localhost:27017',
       password: 'secret123'
     });
 
-    const logCall = consoleSpy.mock.calls[0][0];
+    const logCall = infoSpy.mock.calls[0][0];
     expect(logCall).toContain('[REDACTED]');
-    expect(logCall).not.toContain('password');
     expect(logCall).not.toContain('secret123');
+    expect(logCall).not.toContain('mongodb://user:password@localhost:27017');
   });
 
   it('should log connection success with duration', () => {

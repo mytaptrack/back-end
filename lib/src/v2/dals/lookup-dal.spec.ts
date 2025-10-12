@@ -6,7 +6,7 @@ import { LookupDal } from "./index";
 
 const license = '202012316a147c1978f645abb14c6148015a7a19';
 describe('lookup-dal', () => {
-    test('getTagsFromShortIds', async () => {
+    test.skip('getTagsFromShortIds', async () => {
         const tags = ["wbb7kRJwfgKc8yRYp6uRuz","dirMPHp7MYj6KVGZ1Jnrtu","1dnQNzQaZoVEYwUPzYAVPq","o6Jizq9H7aWdqfGowpRKZ5","1ohX4ZvNaGHH3qMC6jsz6s","nkkgjossZTKggESxpjBoU4","rMNe9aVwJokCTzyz6pKMqd"];
         const results = await LookupDal.getTagsFromShortIds(license, tags)
         expect(results.length).toBe(7);

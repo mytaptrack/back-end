@@ -11,13 +11,13 @@ import {
   IndexDefinition 
 } from '../types/migration';
 import { IDataAccessLayer, PutOptions } from '../types/database-abstraction';
-import { DatabaseLogger } from './database-logger';
+import { LoggerFactory } from './database-logger';
 
 export class DynamoDBImporter implements IDataImporter {
-  private logger: DatabaseLogger;
+  private logger: any;
 
   constructor(private provider: IDataAccessLayer) {
-    this.logger = new DatabaseLogger('DynamoDBImporter');
+    this.logger = LoggerFactory.getLogger('DynamoDBImporter');
   }
 
   /**
@@ -190,7 +190,7 @@ export class DynamoDBImporter implements IDataImporter {
    */
   private async importBatch(records: any[], options: MigrationOptions): Promise<void> {
     const putOptions: PutOptions = {
-      overwrite: true // Allow overwriting existing records during migration
+      ensureNotExists: false // Allow overwriting existing records during migration
     };
 
     // Transform records for DynamoDB format
