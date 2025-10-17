@@ -112,8 +112,8 @@ export async function crossProviderMigrationExample() {
     
     console.log('Data integrity check:');
     console.log('Original studentId:', studentData.studentId);
-    console.log('Migrated studentId:', reversedData.data.studentId);
-    console.log('Match:', studentData.studentId === reversedData.data.studentId);
+    console.log('Migrated studentId:', (reversedData.data as any).studentId);
+    console.log('Match:', studentData.studentId === (reversedData.data as any).studentId);
 
   } catch (error) {
     console.error('Migration failed:', error);

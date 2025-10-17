@@ -41,6 +41,7 @@
         "testMatch": [
             "**/src/tests/**/*.spec.ts"
         ],
-        "testTimeout": 120000
+        "testTimeout": 120000,
+        "setupFilesAfterEnv": ["<rootDir>/src/jest.setup.ts"]
     }
 }

@@ -36,7 +36,7 @@ export { LookupDal } from './lookup-dal';
 export { ScheduleDal } from './schedule-dal';
 export { DataDal } from './data-dal';
 export { NotesDal } from './notes-dal';
-export { AppDal } from './app-dal';
+export { AppDal, getTokenSegments } from './app-dal';
 export { LicenseDal } from './license-dal';
 export { EventDal } from './event-dal';
 export { TimestreamDal } from './timestream-dal';

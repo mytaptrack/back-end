@@ -76,13 +76,26 @@ export class Logger {
     }
 
     private writeToFileLog(...args) {
-        const currentTestName = expect.getState().currentTestName.replace(/ /g, '_');
+        let currentTestName = 'unknown-test';
+        
+        // Check if we're in a Jest context
+        if (typeof expect !== 'undefined' && expect.getState) {
+            try {
+                const testState = expect.getState();
+                currentTestName = testState?.currentTestName || 'unknown-test';
+            } catch (error) {
+                // Fallback if expect.getState() fails
+                currentTestName = 'unknown-test';
+            }
+        }
+        
+        const sanitizedTestName = currentTestName.replace(/ /g, '_').replace(/[\/\\:*?"<>|]/g, '_');
 
         if(!fs.existsSync('./logs')) {
             fs.mkdirSync('./logs');
         }
         // Append log to file or create the file if it doesn't exist
-        const logFilePath = path.join('.', 'logs', `${currentTestName}.log`);
+        const logFilePath = path.join('.', 'logs', `${sanitizedTestName}.log`);
         fs.appendFileSync(logFilePath, args.join(' ') + '\n');
     }
 }

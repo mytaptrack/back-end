@@ -174,7 +174,24 @@ class StudentDalClass extends DalBaseClass {
         };
 
         if(!student.restrictions) {
-            student.restrictions = {} as any;
+            student.restrictions = {
+                info: typesV2.AccessLevel.none,
+                data: typesV2.AccessLevel.none,
+                schedules: typesV2.AccessLevel.none,
+                devices: typesV2.AccessLevel.none,
+                team: typesV2.AccessLevel.none,
+                comments: typesV2.AccessLevel.none,
+                behavior: typesV2.AccessLevel.none,
+                abc: typesV2.AccessLevel.none,
+                milestones: typesV2.AccessLevel.none,
+                reports: typesV2.AccessLevel.none,
+                notifications: typesV2.AccessLevel.none,
+                documents: typesV2.AccessLevel.none,
+                service: typesV2.AccessLevel.none,
+                serviceData: typesV2.AccessLevel.none,
+                serviceGoals: typesV2.AccessLevel.none,
+                serviceSchedule: typesV2.AccessLevel.none
+            };
         }
         return student;
     }

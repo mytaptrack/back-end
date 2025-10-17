@@ -6,7 +6,7 @@ import * as https from 'https';
 import * as config from '../config';
 import { Logger, LoggingLevel } from "./logging";
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger(LoggingLevel.DEBUG);
 const identity = "066c859c-9716-407e-8ce3-b72a92d51a98";
 const prefix = config.config.env.domain.sub.device.path ?? '';
 
@@ -51,8 +51,17 @@ export async function getAppDefinitions(deviceId: string, tokens: string[]) {
         }
     } as AppRetrieveDataPostRequest;
 
+    const endpoint = await config.getDeviceEndpoint();
+    const fullPath = `${prefix}/app`;
+    logger.info("🌐 Device API Call Details:");
+    logger.info(`   Endpoint: ${endpoint}`);
+    logger.info(`   Path: ${fullPath}`);
+    logger.info(`   Full URL: https://${endpoint}${fullPath}`);
+    logger.info(`   Method: POST`);
+    logger.info(`   Body:`, JSON.stringify(jsonBodyDict, null, 2));
+    
     logger.info("Executing request")
-    const response = await httpRequest(await config.getDeviceEndpoint(), { apiKey: config.getApiKey() }, 'POST', `${prefix}/app`, jsonBodyDict);
+    const response = await httpRequest(endpoint, { apiKey: config.getApiKey() }, 'POST', fullPath, jsonBodyDict);
 
     return JSON.parse(response) as AppRetrieveDataPostResponse;
 }

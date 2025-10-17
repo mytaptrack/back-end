@@ -31,6 +31,7 @@ import {
   ConnectionError,
   ValidationError,
   TimeoutError,
+  InternalServerError,
   ErrorTranslatorFactory
 } from '../types/database-errors';
 
@@ -317,7 +318,7 @@ export class DatabaseProviderWithErrorHandling {
       
       // Provider-specific patterns
       Object.entries(errorSummary.byProvider).forEach(([provider, count]) => {
-        if (count > 10) {
+        if ((count as number) > 10) {
           analysis.patterns.push(`High error rate for ${provider} provider`);
           analysis.recommendations.push(`Review ${provider} configuration and performance`);
         }
@@ -434,7 +435,7 @@ export class CustomDatabaseErrorTranslator {
         return new TimeoutError(errorMessage, error, provider);
       
       default:
-        return new DatabaseError(errorMessage, error, provider);
+        return new InternalServerError(errorMessage, error, provider);
     }
   }
 }

@@ -10,6 +10,15 @@ import {
   MigrationConfig,
   DatabaseProviderType 
 } from '../types/database-abstraction';
+
+// Re-export types for convenience
+export { 
+  DatabaseConfig, 
+  DynamoDBConfig, 
+  MongoDBConfig, 
+  MigrationConfig,
+  DatabaseProviderType 
+} from '../types/database-abstraction';
 import { ConfigurationError, ValidationError } from '../types/database-errors';
 
 /**

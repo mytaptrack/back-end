@@ -7,7 +7,9 @@ const logger = new Logger(LoggingLevel.ERROR);
 let clientId: string;
 
 export async function login(user?: TestUserConfig) {
-    const client = new CognitoIdentityProviderClient({});
+    const client = new CognitoIdentityProviderClient({
+        maxAttempts: 3 // Retry up to 3 times
+    });
 
     if(!user) {
         user = config.env.testing.admin;
@@ -16,20 +18,31 @@ export async function login(user?: TestUserConfig) {
     const email = user.email;
     const password = user.password;
     
-    if(!clientId) {
-        clientId = await getClientId()
+    try {
+        logger.info('Getting Cognito client ID...');
+        if(!clientId) {
+            clientId = await getClientId()
+        }
+        logger.info('Cognito client ID obtained');
+
+        logger.info('Initiating Cognito authentication...');
+        const result = await client.send(new InitiateAuthCommand({    
+            AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+            AuthParameters: {
+                USERNAME: email,
+                PASSWORD: password
+            },
+            ClientId: clientId
+        }));
+
+        if (!result.AuthenticationResult?.IdToken) {
+            throw new Error('Authentication failed: No ID token received');
+        }
+
+        logger.info('Cognito authentication succeeded');
+        return `Bearer ${result.AuthenticationResult.IdToken}`;
+    } catch (error) {
+        logger.error('Cognito login failed:', error);
+        throw error;
     }
-
-    const result = await client.send(new InitiateAuthCommand({    
-        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
-        AuthParameters: {
-            USERNAME: email,
-            PASSWORD: password
-        },
-        ClientId: clientId
-    }));
-
-    logger.info('Login succeeded', result.AuthenticationResult!.IdToken);
-
-    return `Bearer ${result.AuthenticationResult!.IdToken}`;
 }

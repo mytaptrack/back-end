@@ -13,7 +13,7 @@ export async function handler(request: typesV2.TeamDeleteRequest, userDetails: W
     console.log('Checking if user is on students team');
     const student = await v2.TeamDal.getTeamMember(userDetails.userId, studentId, false);
     const isLicenseAdmin = student.license && userDetails.licenses?.includes(student.license);
-    if (!isLicenseAdmin && student.restrictions.devices !== AccessLevel.admin) {
+    if (!isLicenseAdmin && student?.restrictions?.devices !== AccessLevel.admin) {
         throw new WebError('Access Denied');
     }
 

@@ -1,18 +1,18 @@
 import { ManageAppRenamePostRequest } from "@mytaptrack/types";
-import { 
-    webApi, wait, getAppDefinitions, deleteAppDefinitions, LoggingLevel, 
+import {
+    webApi, wait, getAppDefinitions, deleteAppDefinitions, LoggingLevel,
     Logger
 } from "../../../lib";
-import { 
+import {
     cleanApp, cleanStudentApps, createQRCode
 } from "../../devices/helpers";
-import { 
+import {
     license
 } from "../../../config";
 import { cleanUp, setupStudent, setupBehaviors } from "../helpers";
 import { uuid } from 'short-uuid';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger(LoggingLevel.DEBUG);
 
 describe('ManageApps', () => {
     beforeAll(async () => {
@@ -20,7 +20,7 @@ describe('ManageApps', () => {
     });
     beforeEach(() => {
     });
-    test('Add non-team student to app', async () => {
+    it('Add non-team student to app', async () => {
         const mobileAppId = uuid().toString();
         const student1 = await setupStudent('System Test 1');
         await setupBehaviors(student1.student);
@@ -64,7 +64,7 @@ describe('ManageApps', () => {
         const appTokenResponse = await webApi.getStudentAppTokenV2(student3.studentId, mobileAppId);
         logger.debug('AppTokenResponse', appTokenResponse);
         expect(appTokenResponse?.token).toBeTruthy();
-        
+
         const appDefinitions2 = await getAppDefinitions(mobileAppId, []);
 
         expect(appDefinitions2.targets.length).toBe(2);
@@ -79,76 +79,107 @@ describe('ManageApps', () => {
         await webApi.deleteStudentAppV2(student3.studentId, mobileAppId);
 
         const appsForStudent3Call2 = await webApi.getDevicesForStudent(student3.studentId);
-        
+
         logger.debug('Apps', appsForStudent3Call2);
         expect(appsForStudent3Call2.length).toBe(0);
         cleanUp(student1.student);
         cleanUp(student2.student);
     }, 3 * 60 * 1000);
 
-    test('ManagedAppZeroStudents-AddStudent', async () => {
+    it('ManagedAppZeroStudents-AddStudent', async () => {
         const mobileAppId = uuid().toString();
+        logger.info('🚀 Starting ManagedAppZeroStudents-AddStudent test with mobileAppId:', mobileAppId);
 
-        const student1 = await setupStudent();
-        await setupBehaviors(student1.student);
+        try {
+            logger.info('📝 Step 1: Setting up student and behaviors');
+            const student1 = await setupStudent();
+            await setupBehaviors(student1.student);
+            logger.info('✅ Student setup complete:', student1.student.studentId);
 
-        logger.info('Clean app');
-        const deviceId = `MLC-${mobileAppId}`;
+            logger.info('📝 Step 2: Clean app check');
+            const deviceId = `MLC-${mobileAppId}`;
+            logger.info('🔍 Checking for existing app with deviceId:', deviceId);
 
-        const appCall1 = await webApi.getManageAppV2(license);
-        expect(appCall1.find(x => x.device.id == deviceId)).toBeFalsy();
-        logger.info('DeviceId', deviceId);
+            const appCall1 = await webApi.getManageAppV2(license);
+            expect(appCall1.find(x => x.device.id == deviceId)).toBeFalsy();
+            logger.info('✅ No existing app found');
 
-        logger.info('getting student');
-        const student = await webApi.getStudent(student1.student.studentId);
+            logger.info('📝 Step 3: Getting student details');
+            const student = await webApi.getStudent(student1.student.studentId);
+            logger.info('✅ Student details retrieved:', student.studentId);
 
-        const params: ManageAppRenamePostRequest = {
-            deviceId: deviceId,
-            name: 'System Test App 3',
-            license,
-            reassign: false,
-            tags: []
-        };
-        await webApi.putManageAppV2(params);
-        
-        const appCall2 = await webApi.getManageAppV2(license);
-        const registeredDevice2 = appCall2.find(x => x.device.id == deviceId);
-        expect(registeredDevice2).toBeTruthy();
-        expect(registeredDevice2?.assignments?.length).toBe(0);
+            logger.info('📝 Step 4: Creating managed app');
+            const params: ManageAppRenamePostRequest = {
+                deviceId: deviceId,
+                name: 'System Test App 3',
+                license,
+                reassign: false,
+                tags: []
+            };
+            logger.info('🔄 Calling putManageAppV2 with params:', JSON.stringify(params));
+            await webApi.putManageAppV2(params);
+            logger.info('✅ Managed app created successfully');
 
-        await webApi.putStudentAppV2({ 
-            studentId: student1.student.studentId,
-            deviceId: params.deviceId,
-            deviceName: params.name,
-            dsn: '',
-            studentName: `${student.details.firstName} ${student.details.lastName}`,
-            groups: [],
-            events: []
-        });
+            logger.info('📝 Step 5: Verifying app creation');
+            const appCall2 = await webApi.getManageAppV2(license);
+            const registeredDevice2 = appCall2.find(x => x.device.id == deviceId);
+            expect(registeredDevice2).toBeTruthy();
+            expect(registeredDevice2?.assignments?.length).toBe(0);
+            logger.info('✅ App verified with 0 assignments');
 
-        const appCall3 = await webApi.getManageAppV2(license);
-        const registeredDevice3 = appCall3.find(x => x.device.id == deviceId);
-        expect(registeredDevice3).toBeTruthy();
-        expect(registeredDevice3?.assignments.length).toBe(1);
-        expect(registeredDevice3?.assignments[0].studentId).toBe(student.studentId);
-        logger.debug('Apps', appCall3);
+            logger.info('📝 Step 6: Adding student to app - THIS IS WHERE 502 MIGHT OCCUR');
+            const studentAppRequest = {
+                studentId: student1.student.studentId,
+                deviceId: params.deviceId,
+                deviceName: params.name,
+                dsn: '',
+                studentName: `${student.details.firstName} ${student.details.lastName}`,
+                groups: [],
+                events: []
+            };
+            logger.info('🔄 Calling putStudentAppV2 with request:', JSON.stringify(studentAppRequest));
+            logger.info('🎯 This calls PUT /api/v2/student/devices/app endpoint');
 
-        const appTokenResponse = await webApi.getStudentAppTokenV2(student.studentId, deviceId);
+            await webApi.putStudentAppV2(studentAppRequest);
+            logger.info('✅ Student successfully added to app');
 
-        // Register MCL app to actual mobileAppId
-        const appDefinitions = await getAppDefinitions(mobileAppId, [appTokenResponse.token]);
-        logger.debug('appDefinitions', JSON.stringify(appDefinitions));
-        expect(appDefinitions.targets.length).toBe(1);
-        expect(appDefinitions.targets[0].name).toBe(`${student.details.firstName} ${student.details.lastName}`);
+            logger.info('📝 Step 7: Verifying student assignment');
+            const appCall3 = await webApi.getManageAppV2(license);
+            const registeredDevice3 = appCall3.find(x => x.device.id == deviceId);
+            expect(registeredDevice3).toBeTruthy();
+            expect(registeredDevice3?.assignments.length).toBe(1);
+            expect(registeredDevice3?.assignments[0].studentId).toBe(student.studentId);
+            logger.info('✅ Student assignment verified');
 
-        await deleteAppDefinitions(mobileAppId, [appDefinitions.targets[0].token]);
+            logger.info('📝 Step 8: Getting app token');
+            const appTokenResponse = await webApi.getStudentAppTokenV2(student.studentId, deviceId);
+            logger.info('✅ App token retrieved');
 
-        const appDefinitions2 = await getAppDefinitions(mobileAppId, [appTokenResponse.token]);
-        expect(appDefinitions2.targets.length).toBe(0);
-        cleanUp(student1.student);
+            logger.info('📝 Step 9: Registering MCL app to actual mobileAppId');
+            const appDefinitions = await getAppDefinitions(mobileAppId, [appTokenResponse.token]);
+            logger.debug('appDefinitions', JSON.stringify(appDefinitions));
+            expect(appDefinitions.targets.length).toBe(1);
+            expect(appDefinitions.targets[0].name).toBe(`${student.details.firstName} ${student.details.lastName}`);
+            logger.info('✅ App definitions verified');
+
+            logger.info('📝 Step 10: Cleaning up app definitions');
+            await deleteAppDefinitions(mobileAppId, [appDefinitions.targets[0].token]);
+
+            const appDefinitions2 = await getAppDefinitions(mobileAppId, [appTokenResponse.token]);
+            expect(appDefinitions2.targets.length).toBe(0);
+            logger.info('✅ App definitions cleaned up');
+
+            cleanUp(student1.student);
+            logger.info('🎉 Test completed successfully');
+        } catch (error) {
+            logger.error('❌ Test failed at step:', error);
+            logger.error('Error details:', error.message);
+            logger.error('Stack trace:', error.stack);
+            throw error;
+        }
     }, 3 * 60 * 1000);
 
-    test('AddRemoveNonRegisteredApp', async () => {
+    it('AddRemoveNonRegisteredApp', async () => {
         const mobileAppId = uuid().toString();
 
         const student1 = await setupStudent();

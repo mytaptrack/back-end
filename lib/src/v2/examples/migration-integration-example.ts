@@ -78,7 +78,7 @@ export async function migrateDynamoDBToMongoDB() {
       }
     };
 
-    await migrationManager.importData(mongoProvider, exportedData, importOptions);
+    const importResult = await migrationManager.importData(mongoProvider, exportedData, importOptions);
     console.log('Data import completed successfully');
 
     // Step 4: Validate migration
@@ -114,7 +114,7 @@ export async function migrateDynamoDBToMongoDB() {
     // Attempt rollback on error
     try {
       console.log('Attempting rollback...');
-      await migrationManager.executeRollback(dynamoProvider, rollbackInfo!);
+      await migrationManager.executeRollback(dynamoProvider, rollbackInfo);
       console.log('Rollback completed successfully');
     } catch (rollbackError) {
       console.error('Rollback also failed:', rollbackError.message);

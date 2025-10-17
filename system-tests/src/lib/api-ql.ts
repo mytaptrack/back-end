@@ -15,10 +15,27 @@ export class QLApiClass {
     private client: GraphQLClient;
 
     async login() {
-        this.token = await login();
-        this.token = this.token.slice(7);
-        this.cognitoAuth = { cognito: this.token };
-        this.client = new GraphQLClient(await getQLEndpoint(), { headers: { Authorization: this.cognitoAuth.cognito }});
+        try {
+            logger.info('Starting login process...');
+            this.token = await login();
+            logger.info('Cognito login successful');
+            
+            this.token = this.token.slice(7);
+            this.cognitoAuth = { cognito: this.token };
+            
+            logger.info('Getting GraphQL endpoint...');
+            const endpoint = await getQLEndpoint();
+            logger.info('GraphQL endpoint retrieved:', endpoint);
+            
+            this.client = new GraphQLClient(endpoint, { 
+                headers: { Authorization: this.cognitoAuth.cognito }
+            });
+            
+            logger.info('Login process completed successfully');
+        } catch (error) {
+            logger.error('Login failed:', error);
+            throw error;
+        }
     }
 
     async query<T>(query: string, params: any, resultField: string): Promise<T | undefined> {
