@@ -15,6 +15,9 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "validate-links": "node scripts/validate-links.js",
     "validate-diagrams": "node scripts/validate-diagrams.js",
+    "validate-content": "node scripts/validate-content.js",
+    "validate-accessibility": "node scripts/validate-accessibility.js",
+    "validate-all": "node scripts/validate-all.js",
     "generate-api-docs": "node scripts/generate-api-docs.js"
   },
   "dependencies": {

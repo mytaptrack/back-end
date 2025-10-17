@@ -11,7 +11,10 @@ const glob = require('glob');
 const markdownLinkCheck = require('markdown-link-check');
 
 const docsDir = path.join(__dirname, '..');
-const markdownFiles = glob.sync('**/*.md', { cwd: docsDir });
+const markdownFiles = glob.sync('**/*.md', { 
+  cwd: docsDir,
+  ignore: ['node_modules/**', '.docusaurus/**', 'build/**']
+});
 
 let totalFiles = 0;
 let totalLinks = 0;
@@ -27,13 +30,22 @@ async function validateFile(filePath) {
     const options = {
       baseUrl: 'file://' + docsDir,
       showProgressBar: false,
-      timeout: 5000,
+      timeout: 10000,
       retryOn429: true,
       retryCount: 3,
       ignorePatterns: [
         { pattern: '^mailto:' },
         { pattern: '^tel:' },
         { pattern: '^#' }, // Skip anchor links for now
+        { pattern: '^javascript:' },
+        { pattern: 'localhost' },
+        { pattern: '127.0.0.1' }
+      ],
+      replacementPatterns: [
+        {
+          pattern: '^/',
+          replacement: 'file://' + docsDir + '/'
+        }
       ]
     };
 
