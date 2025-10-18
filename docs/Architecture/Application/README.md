@@ -6,8 +6,8 @@ The application architecture perspective describes the structure and behavior of
 
 - [Application Component Model](./components.md)
 - [Integration Patterns](./integration.md)
-- [Application Interfaces](./interfaces.md)
 - [Application Lifecycle](./lifecycle.md)
+- [Event-Driven Architecture](./event-driven-architecture.md)
 
 ## Overview
 

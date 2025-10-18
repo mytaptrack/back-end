@@ -4,10 +4,10 @@ The data architecture perspective describes the structure of logical and physica
 
 ## Contents
 
-- [Conceptual Data Model](./conceptual-model.md)
-- [Logical Data Model](./logical-model.md)
-- [Data Flow Patterns](./data-flows.md)
-- [Data Governance](./governance.md)
+- [Conceptual Data Model](./conceptual-data-model.md)
+- [Logical Data Model](./logical-data-model.md)
+- [Data Flow Patterns](./data-flow-patterns.md)
+- [Data Governance](./data-governance.md)
 
 ## Overview
 

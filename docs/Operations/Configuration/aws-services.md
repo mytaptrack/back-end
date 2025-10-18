@@ -731,4 +731,4 @@ After configuring AWS services:
 1. [Set up Secrets Management](./secrets-management.md)
 2. [Configure Monitoring](../Monitoring/README.md)
 3. [Deploy Infrastructure](../Deployment/system-deployment.md)
-4. [Test Service Integration](../../Development/testing-procedures.md)
+4. [Test Service Integration](../../Development/testing.md)

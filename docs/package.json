@@ -13,7 +13,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "validate-links": "node scripts/validate-links.js",
+    "validate-links": "node scripts/validate-internal-links.js",
     "validate-diagrams": "node scripts/validate-diagrams.js",
     "validate-content": "node scripts/validate-content.js",
     "validate-accessibility": "node scripts/validate-accessibility.js",

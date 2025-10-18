@@ -4,35 +4,29 @@ This section contains end-user documentation and troubleshooting guides for MyTa
 
 ## Contents
 
-- [User Guides](./Guides/README.md)
 - [Troubleshooting](./Troubleshooting/README.md)
-- [FAQ](./FAQ/README.md)
 - [Support](./Support/README.md)
 
 ## For End Users
-
-### Getting Started
-- [Account Setup](./Guides/account-setup.md)
-- [Basic Operations](./Guides/basic-operations.md)
-- [Device Management](./Guides/device-management.md)
-- [Reporting](./Guides/reporting.md)
 
 ### Common Issues
 - [Login Problems](./Troubleshooting/login-issues.md)
 - [Device Connection Issues](./Troubleshooting/device-issues.md)
 - [Data Sync Problems](./Troubleshooting/sync-issues.md)
 - [Performance Issues](./Troubleshooting/performance.md)
+- [Mobile App Issues](./Troubleshooting/mobile-issues.md)
+- [Reporting Issues](./Troubleshooting/reporting-issues.md)
 
 ## For Support Teams
 
 ### Diagnostic Procedures
-- [User Account Diagnostics](./Support/account-diagnostics.md)
-- [System Health Checks](./Support/health-checks.md)
-- [Data Integrity Verification](./Support/data-verification.md)
+- [Account Management](./Support/account-management.md)
+- [System Health Monitoring](./Support/system-health.md)
+- [Diagnostic Procedures](./Support/diagnostic-procedures.md)
 
 ### Escalation Procedures
-- [Technical Support Escalation](./Support/technical-escalation.md)
-- [Security Incident Escalation](./Support/security-escalation.md)
+- [Escalation Procedures](./Support/escalation-procedures.md)
+- [Security Incidents](./Support/security-incidents.md)
 - [Data Recovery Procedures](./Support/data-recovery.md)
 
 ## Contact Information

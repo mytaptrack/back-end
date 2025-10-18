@@ -63,7 +63,6 @@ Settings are merged using deep merge, with later configurations overriding earli
 - [Updating configuration parameters](./configuration-parameters.md#updating-parameters)
 - [Managing secrets and credentials](./secrets-management.md#credential-management)
 - [Configuring AWS services](./aws-services.md#service-configuration)
-- [Troubleshooting configuration issues](./troubleshooting.md)
 
 ## Related Documentation
 

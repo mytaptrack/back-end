@@ -12,9 +12,9 @@ The technology architecture perspective describes the logical software and hardw
 
 ## Architecture Diagrams
 
-- [Technology Architecture Overview](../diagrams/technology-architecture.drawio.xml)
-- [Security Architecture](../diagrams/security-architecture.drawio.xml)
-- [Deployment Architecture](../diagrams/deployment-architecture.drawio.xml)
+- [Technology Architecture Overview](../diagrams/technology-architecture.drawio)
+- [Security Architecture](../diagrams/security-architecture.drawio)
+- [Deployment Architecture](../diagrams/deployment-architecture.drawio)
 
 ## Overview
 

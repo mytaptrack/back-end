@@ -10,7 +10,7 @@ const path = require('path');
 
 const scriptsDir = __dirname;
 const validationScripts = [
-  { name: 'Link Validation', script: 'validate-links.js', critical: true },
+  { name: 'Link Validation', script: 'validate-internal-links.js', critical: true },
   { name: 'Diagram Validation', script: 'validate-diagrams.js', critical: true },
   { name: 'Content Validation', script: 'validate-content.js', critical: false },
   { name: 'Accessibility Validation', script: 'validate-accessibility.js', critical: false }
