@@ -9,3 +9,5 @@ node_modules/*
 **/dist/*
 **/.build/*
 **/cdk.out/*
+
+.DS_Store

@@ -172,7 +172,7 @@ aws ssm delete-parameters \
   "secretName": "/prod/twilio/credentials",
   "description": "Twilio SMS service credentials",
   "secretString": {
-    "accountSid": "AC1234567890abcdef1234567890abcdef",
+    "accountSid": "your-twilio-account-id",
     "authToken": "your-twilio-auth-token",
     "phoneNumber": "+15551234567"
   }
