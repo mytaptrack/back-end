@@ -1,0 +1,230 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="MyTapTrack Documentation" etag="data-flow-patterns-v1" version="22.1.11" type="device">
+    <diagram name="Data-Flow-Patterns" id="data-flow-patterns">
+        <mxGraphModel dx="772" dy="450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-interface" target="rest-api">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="V1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="2">
+                    <mxGeometry x="-0.0308" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="user-interface" value="User Interface&#10;(Web/Mobile)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="30" y="70" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="iot-devices" value="IoT Devices&#10;(Behavioral Tracking)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="50" y="165" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" style="edgeStyle=none;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="graphql-api" target="data-table">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="graphql-api" value="GraphQL API&#10;(AppSync)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="220" y="40" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" style="edgeStyle=none;html=1;" edge="1" parent="1" source="rest-api" target="graphql-api">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rest-api" value="REST API&#10;(API Gateway)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="220" y="110" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="device-api" value="Device API&#10;(IoT Core)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="220" y="170" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="primary-table" value="Primary Table&#10;(PII/Sensitive)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="380" y="50" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-table" value="Data Table&#10;(Config/Behavioral)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="380" y="160" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="primary-stream" value="Primary&#10;Stream" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="520" y="90" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-stream" value="Data&#10;Stream" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="520" y="170" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="stream-processor" value="Stream Processing&#10;Lambda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="620" y="120" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="eventbridge" value="EventBridge&#10;Data Events Bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#666666;fontSize=12;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="770" y="120" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="student-to-s3" value="Student to S3&#10;(Data Lake)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="950" y="50" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="license-to-user" value="License to User&#10;(Access Control)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="950" y="110" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="notification-proc" value="Notification&#10;Processing" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="950" y="170" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="device-sync" value="Device Sync&#10;(Mobile Apps)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="950" y="230" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="s3-data-lake" value="S3 Data Lake&#10;(Analytics)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="1080" y="50" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="cognito" value="Cognito&#10;(User Management)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="1080" y="110" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="notifications" value="Notifications&#10;(Email/SMS/Push)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="1080" y="170" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="mobile-apps" value="Mobile Apps&#10;(Real-time Sync)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="1080" y="230" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="ui-to-graphql" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="user-interface" target="graphql-api" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="4" value="VNext" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ui-to-graphql">
+                    <mxGeometry x="-0.048" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="devices-to-api" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="iot-devices" target="device-api" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="apis-to-primary" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="graphql-api" target="primary-table" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="device-to-data" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="device-api" target="data-table" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="primary-to-stream" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="primary-table" target="primary-stream" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="data-to-stream" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="data-table" target="data-stream" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="streams-to-processor" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="primary-stream" target="stream-processor" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="data-stream-to-processor" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="data-stream" target="stream-processor" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="processor-to-eventbridge" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="stream-processor" target="eventbridge" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eventbridge-to-s3" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="eventbridge" target="student-to-s3" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eventbridge-to-license" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.4;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="eventbridge" target="license-to-user" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eventbridge-to-notification" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.6;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="eventbridge" target="notification-proc" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eventbridge-to-device" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="eventbridge" target="device-sync" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s3-func-to-lake" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="student-to-s3" target="s3-data-lake" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="license-func-to-cognito" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="license-to-user" target="cognito" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="notification-func-to-services" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="notification-proc" target="notifications" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="device-func-to-mobile" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="device-sync" target="mobile-apps" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="event-types-title" value="Event Types" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="50" y="320" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="user-event" value="user" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="50" y="350" width="60" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="student-event" value="student-config" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="120" y="350" width="80" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="license-event" value="license" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="210" y="350" width="60" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="device-event" value="device" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="280" y="350" width="60" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="notification-event" value="user-notification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="350" y="350" width="90" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="patterns-title" value="Processing Patterns" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="500" y="320" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="real-time-pattern" value="Real-time: &lt; 1s latency" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="500" y="350" width="130" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="near-real-time-pattern" value="Near real-time: 1-5s latency" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="500" y="370" width="150" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="batch-pattern" value="Batch: Minutes to hours" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="500" y="390" width="130" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="error-handling-title" value="Error Handling" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="700" y="320" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="dlq" value="Dead Letter Queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="700" y="350" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="retry" value="Exponential Backoff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="790" y="350" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="circuit-breaker" value="Circuit Breaker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="700" y="390" width="80" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -1,6 +1,7 @@
 import { TagMapping, BehaviorMapping } from '../types';
 import { generate } from 'short-uuid';
 import { DalBaseClass } from './dal';
+import { IDataAccessLayer, DatabaseKey } from '../types/database-abstraction';
 
 interface TagStorage {
     pk: string;
@@ -12,10 +13,24 @@ interface TagStorage {
 }
 
 class LookupDalClass extends DalBaseClass {
+    /**
+     * Get behavior mapping using abstraction layer when available
+     */
     async getBehavior(license: string, behaviorName: string): Promise<BehaviorMapping> {
         const pk = `L#${license}#B`;
         const sk = `${behaviorName}`;
-        const result = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
+        
+        // Use abstraction layer if available, otherwise fall back to legacy DAL
+        let result: TagStorage | null = null;
+        
+        if (this.isAbstractionEnabled()) {
+            const provider = this.getAbstractionProvider()!;
+            const key: DatabaseKey = { primary: pk, sort: sk };
+            result = await provider.get<TagStorage>(key, { projection: ['shortId'] });
+        } else {
+            result = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
+        }
+        
         let retval = result ? { behaviorName, shortId: result.shortId } : null;
 
         if (!retval) {
@@ -24,17 +39,33 @@ class LookupDalClass extends DalBaseClass {
                 shortId: generate()
             };
             try {
-                await this.primary.put({
-                        pk,
-                        sk,
-                        pksk: `${pk}#${sk}`,
-                        type: 'customer behavior',
-                        shortId: retval.shortId,
-                        license
-                    } as TagStorage, true);
+                const tagData: TagStorage = {
+                    pk,
+                    sk,
+                    pksk: `${pk}#${sk}`,
+                    type: 'customer behavior',
+                    shortId: retval.shortId,
+                    license
+                };
+
+                if (this.isAbstractionEnabled()) {
+                    const provider = this.getAbstractionProvider()!;
+                    await provider.put(tagData, { ensureNotExists: true });
+                } else {
+                    await this.primary.put(tagData, true);
+                }
             } catch (err) {
                 if (err.message === 'The conditional request failed') {
-                    const secondResult = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
+                    let secondResult: TagStorage | null = null;
+                    
+                    if (this.isAbstractionEnabled()) {
+                        const provider = this.getAbstractionProvider()!;
+                        const key: DatabaseKey = { primary: pk, sort: sk };
+                        secondResult = await provider.get<TagStorage>(key, { projection: ['shortId'] });
+                    } else {
+                        secondResult = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
+                    }
+                    
                     retval = secondResult ? { behaviorName, shortId: secondResult.shortId } : null;
                 }
                 if (!retval) {

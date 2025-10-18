@@ -1,0 +1,118 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="MyTapTrack Documentation" etag="technology-arch-v1" version="22.1.11" type="device">
+    <diagram name="Technology Architecture" id="technology-architecture">
+        <mxGraphModel dx="693" dy="450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="MyTapTrack Technology Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="20" width="369" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="internet-layer" value="Internet / Users" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="80" width="870" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="cdn-layer" value="CDN / Edge Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=12;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="140" width="870" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="cloudfront" value="CloudFront CDN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="180" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="route53" value="Route 53 DNS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="180" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="waf" value="AWS WAF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="180" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="certificate-manager" value="Certificate Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="480" y="180" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="lb-layer" value="Load Balancing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;strokeColor=#3A5431;fontSize=12;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="240" width="290" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="api-gateway" value="API Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;strokeColor=#3A5431;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="280" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="appsync" value="AppSync GraphQL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;strokeColor=#3A5431;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="280" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="auth-layer" value="Authentication &amp; Authorization" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;fontSize=12;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="240" width="560" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="cognito" value="Cognito User Pools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="280" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="cognito-identity" value="Cognito Identity Pools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="480" y="280" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="iam" value="IAM Roles &amp; Policies" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="630" y="280" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="secrets-manager" value="Secrets Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="280" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="compute-layer" value="Compute Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontSize=12;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="340" width="860" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="lambda-api" value="Lambda Functions&#10;(API Services)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="380" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="lambda-graphql" value="Lambda Functions&#10;(GraphQL Resolvers)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="190" y="380" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="lambda-device" value="Lambda Functions&#10;(Device APIs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="380" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="lambda-data-prop" value="Lambda Functions&#10;(Data Propagation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="450" y="380" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="step-functions" value="Step Functions&#10;(Workflows)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="584.5" y="380" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="storage-layer" value="Data Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontSize=12;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="460" width="860" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="dynamodb" value="DynamoDB&#10;(Primary Database)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="500" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="s3-data-lake" value="S3 Data Lake&#10;(Analytics Storage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="500" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="s3-static" value="S3 Static Assets&#10;(Web Content)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="500" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="events-layer" value="Event Processing &amp; Messaging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="580" width="860" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="eventbridge" value="EventBridge&#10;(Event Bus)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="620" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="sns" value="SNS&#10;(Notifications)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="620" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="sqs" value="SQS&#10;(Message Queues)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="620" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="monitoring-layer" value="Monitoring &amp; Operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontSize=12;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="700" width="860" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="cloudwatch" value="CloudWatch&#10;(Monitoring)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="740" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="cloudtrail" value="CloudTrail&#10;(Audit Logs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="190" y="740" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="config" value="Config&#10;(Compliance)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="740" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="systems-manager" value="Systems Manager&#10;(Parameter Store)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="470" y="740" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="cloudformation" value="CloudFormation&#10;(Infrastructure)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="740" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="cdk" value="AWS CDK&#10;(Infrastructure Code)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="750" y="740" width="120" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

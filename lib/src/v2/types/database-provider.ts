@@ -327,3 +327,5 @@ export class DefaultMetricsCollector implements IMetricsCollector {
     };
   }
 }
+// Export types for external use
+export { DatabaseProviderType, HealthStatus };

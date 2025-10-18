@@ -86,7 +86,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
             if(!studentAppPii || !student) {
                 return;
             }
-            if(!team || team.restrictions.devices == AccessLevel.none) {
+            if(!team || team?.restrictions?.devices == AccessLevel.none) {
                 return {
                     studentId: "Restricted",
                     studentName: "Restricted",
@@ -168,7 +168,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
                 console.debug('Skipping student', studentPii, team);
                 return;
             }
-            if(!team || team.restrictions.devices == AccessLevel.none) {
+            if(!team || team?.restrictions?.devices == AccessLevel.none) {
                 console.debug('Access to student is restricted', studentPii, team);
                 return;
             }
@@ -177,22 +177,22 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
                 nickname: studentPii.nickname ?? `${studentPii.firstName} ${studentPii.lastName}`,
                 abcAvailable: studentConfig.abc && studentConfig.abc.antecedents?.length > 0 && studentConfig.abc.consequences?.length > 0,
                 restrictions: {
-                    info: team.restrictions.info ?? AccessLevel.none,
-                    data: team.restrictions.data ?? AccessLevel.none,
-                    schedules: team.restrictions.schedules ?? AccessLevel.none,
-                    devices: team.restrictions.devices ?? AccessLevel.none,
-                    team: team.restrictions.team ?? AccessLevel.none,
-                    comments: team.restrictions.comments ?? AccessLevel.none,
-                    behavior: team.restrictions.behavior ?? AccessLevel.none,
-                    behaviors: team.restrictions.behaviors,
-                    abc: team.restrictions.abc ?? AccessLevel.none,
-                    service: team.restrictions.service ?? AccessLevel.none,
-                    services: team.restrictions.services,
-                    milestones: team.restrictions.milestones ?? AccessLevel.none,
-                    reports: team.restrictions.reports ?? AccessLevel.none,
-                    notifications: team.restrictions.notifications ?? AccessLevel.none,
-                    reportsOverride: team.restrictions.reportsOverride,
-                    transferLicense: team.restrictions.transferLicense,
+                    info: team?.restrictions?.info ?? AccessLevel.none,
+                    data: team?.restrictions?.data ?? AccessLevel.none,
+                    schedules: team?.restrictions?.schedules ?? AccessLevel.none,
+                    devices: team?.restrictions?.devices ?? AccessLevel.none,
+                    team: team?.restrictions?.team ?? AccessLevel.none,
+                    comments: team?.restrictions?.comments ?? AccessLevel.none,
+                    behavior: team?.restrictions?.behavior ?? AccessLevel.none,
+                    behaviors: team?.restrictions?.behaviors,
+                    abc: team?.restrictions?.abc ?? AccessLevel.none,
+                    service: team?.restrictions?.service ?? AccessLevel.none,
+                    services: team?.restrictions?.services,
+                    milestones: team?.restrictions?.milestones ?? AccessLevel.none,
+                    reports: team?.restrictions?.reports ?? AccessLevel.none,
+                    notifications: team?.restrictions?.notifications ?? AccessLevel.none,
+                    reportsOverride: team?.restrictions?.reportsOverride,
+                    transferLicense: team?.restrictions?.transferLicense,
                     documents: team.restrictions.documents ?? AccessLevel.none
                 },
                 behaviors: team.restrictions.behavior == AccessLevel.none? [] : studentConfig.behaviors?.filter(b => !b.isArchived).map(b => {

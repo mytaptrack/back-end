@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="MyTapTrack Documentation" etag="business-capabilities-v1" version="22.1.11" type="device">
+    <diagram name="Business Capability Map" id="business-capabilities">
+        <mxGraphModel dx="702" dy="409" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="MyTapTrack Business Capability Map" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="30" width="350" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-mgmt" value="Data Management&#10;Capability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="360" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="api-services" value="API Services&#10;Capability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="90" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="reporting-analytics" value="Reporting &amp;amp; Analytics&#10;Capability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="170" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="user-mgmt" value="User Management&#10;Capability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="490" y="260" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-collection" value="Data Collection" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-storage" value="Data Storage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-processing" value="Data Processing" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-governance" value="Data Governance" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="graphql-api" value="GraphQL API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="rest-api" value="REST API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="device-api" value="Device API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="790" y="490" width="80" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge1" value="generates data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;fontColor=#1A1A1A;strokeColor=#1A1A1A;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="device-integration" target="data-mgmt" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge2" value="provides data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;fontColor=#1A1A1A;strokeColor=#1A1A1A;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" parent="1" source="data-mgmt" target="reporting-analytics" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="350" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="395" y="280"/>
+                            <mxPoint x="330" y="280"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge3" value="exposes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;fontColor=#1A1A1A;strokeColor=#1A1A1A;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="api-services" target="data-mgmt" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge4" value="serves" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;fontColor=#1A1A1A;strokeColor=#1A1A1A;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="1" source="api-services" target="reporting-analytics" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge5" value="manages" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;fontColor=#1A1A1A;strokeColor=#1A1A1A;" parent="1" source="api-services" target="device-integration" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge6" value="secures" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;dashed=1;fontColor=#1A1A1A;strokeColor=#1A1A1A;startArrow=none;" parent="1" source="device-integration" target="api-services" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge7" value="controls access" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;dashed=1;fontColor=#1A1A1A;strokeColor=#1A1A1A;" parent="1" source="user-mgmt" target="data-mgmt" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="550" y="310"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="data-mgmt" target="data-collection" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="data-mgmt" target="data-storage" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="data-mgmt" target="data-processing" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="data-mgmt" target="data-governance" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="api-services" target="graphql-api" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="api-services" target="rest-api" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A1A1A;fontColor=#1A1A1A;" parent="1" source="api-services" target="device-api" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="590" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-core" value="Core Capability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="620" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-sub" value="Sub-capability" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="620" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-cross" value="Cross-cutting" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#ff6666;fontSize=10;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="620" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=9;labelBackgroundColor=#ffffff;dashed=1;fontColor=#1A1A1A;strokeColor=#1A1A1A;endArrow=none;" edge="1" parent="1" source="user-mgmt" target="device-integration">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="830" y="360" as="sourcePoint"/>
+                        <mxPoint x="180" y="200" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="device-integration" value="Device Integration&#10;Capability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="110" y="260" width="140" height="80" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

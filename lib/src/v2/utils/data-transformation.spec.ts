@@ -165,10 +165,10 @@ describe('Data Transformation Layer', () => {
           field2: { subField: 'subValue' }
         },
         arrayField: [1, 2, 3]
-      };
+      } as any;
       
       const transformed = transformer.transform(complexData);
-      const reversed = transformer.reverse(transformed);
+      const reversed = transformer.reverse(transformed) as any;
       
       expect(reversed.nestedObject).toEqual(complexData.nestedObject);
       expect(reversed.arrayField).toEqual(complexData.arrayField);
@@ -224,7 +224,7 @@ describe('Data Transformation Layer', () => {
     it('should allow custom validation rules', () => {
       validator.addValidationRule('CustomModel', {
         name: 'custom_validation',
-        validate: (data) => {
+        validate: (data: any) => {
           if (!data.customField) {
             return [{
               field: 'customField',
@@ -333,8 +333,8 @@ describe('Data Transformation Layer', () => {
       
       expect(final.data.pk).toBe(userTestData.pk);
       expect(final.data.sk).toBe(userTestData.sk);
-      expect(final.data.userId).toBe(userTestData.userId);
-      expect(final.data.license).toBe(userTestData.license);
+      expect((final.data as any).userId).toBe((userTestData as any).userId);
+      expect((final.data as any).license).toBe((userTestData as any).license);
     });
 
     it('should handle complex nested data structures', () => {
@@ -354,7 +354,7 @@ describe('Data Transformation Layer', () => {
       const mongoResult = manager.transformForProvider(complexData, 'mongodb');
       const reversed = manager.reverseTransformFromProvider(mongoResult.data, 'mongodb');
       
-      expect(reversed.data.complexField).toEqual(complexData.complexField);
+      expect((reversed.data as any).complexField).toEqual((complexData as any).complexField);
     });
 
     it('should validate consistency across all transformations', () => {

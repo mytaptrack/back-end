@@ -75,6 +75,7 @@ export interface ITransactionManager {
   rollbackTransaction(transaction: IEnhancedTransaction, reason?: string): Promise<void>;
   getActiveTransactions(): IEnhancedTransaction[];
   cleanupExpiredTransactions(): Promise<void>;
+  destroy?(): Promise<void>;
 }
 
 // Enhanced transaction implementation
@@ -319,7 +320,7 @@ export class EnhancedTransaction implements IEnhancedTransaction {
     if (this.context.options.timeout) {
       this.timeoutHandle = setTimeout(() => {
         this.handleTimeout();
-      }, this.context.options.timeout);
+      }, this.context.options.timeout) as NodeJS.Timeout;
     }
   }
 
@@ -399,7 +400,7 @@ export class TransactionManager implements ITransactionManager {
       this.cleanupExpiredTransactions().catch(error => {
         console.error('Error during transaction cleanup:', error);
       });
-    }, 5 * 60 * 1000);
+    }, 5 * 60 * 1000) as NodeJS.Timeout;
   }
 
   async beginTransaction(
@@ -541,7 +542,7 @@ export class TransactionManager implements ITransactionManager {
     return new FallbackTransaction(provider, options, this.metrics);
   }
 
-  destroy(): void {
+  async destroy(): Promise<void> {
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval);
     }

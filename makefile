@@ -74,6 +74,8 @@ push-env:
 test:
 	cd system-tests && npm run envSetup && npm test
 
+export-data:
+	cd utils && npm run export-data
 
 # Clean build artifacts
 clean:

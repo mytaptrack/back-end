@@ -15,7 +15,7 @@ export async function handler (request: typesV2.DevicePutRequest, userDetails: W
 
     console.log('Checking if user is on students team');
     const student = await v2.StudentDal.getStudent(studentId, userDetails.userId);
-    if(student.restrictions.devices !== AccessLevel.admin) {
+    if(student?.restrictions?.devices !== AccessLevel.admin) {
         throw new WebError('Access Denied');
     }
 

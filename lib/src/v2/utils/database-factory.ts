@@ -416,3 +416,6 @@ export class DatabaseConfigurationManager {
     }
   }
 }
+
+// Export alias for backward compatibility
+export { DatabaseProviderFactory as DatabaseFactory };

@@ -18,6 +18,22 @@ export * from './database-errors';
 export * from './database-provider';
 export * from './storage-models';
 
+// Migration exports (avoiding conflicts with database-errors)
+export {
+  MigrationData,
+  MigrationOptions,
+  MigrationProgress,
+  ValidationResult as MigrationValidationResult,
+  RollbackInfo,
+  RollbackStep,
+  IMigrationManager,
+  IDataExporter,
+  IDataImporter,
+  TableSchema,
+  IndexDefinition,
+  ValidationWarning
+} from './migration';
+
 // Metrics exports (avoiding conflicts)
 export {
   IMetricsCollector as IMetricsCollectorV2,

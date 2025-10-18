@@ -1,0 +1,48 @@
+name: Documentation Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: [ 'docs/**' ]
+  pull_request:
+    branches: [ main, develop ]
+    paths: [ 'docs/**' ]
+  workflow_dispatch:
+
+jobs:
+  validate-documentation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: docs/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd docs
+        npm ci
+        
+    - name: Run documentation validation
+      run: |
+        cd docs
+        npm run validate-all
+        
+    - name: Build documentation site
+      run: |
+        cd docs
+        npm run build
+        
+    - name: Upload validation results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: validation-results
+        path: docs/validation-results.json
+        retention-days: 7

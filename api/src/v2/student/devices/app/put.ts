@@ -20,7 +20,7 @@ export async function handler(request: typesV2.AppPutRequest, userDetails: WebUs
         v2.AppDal.getAppConfig(studentId, request.dsn)
     ]);
     const isLicenseAdmin = student?.license && userDetails.licenses.includes(student.license);
-    if (!isLicenseAdmin && student.restrictions.devices !== AccessLevel.admin) {
+    if (!isLicenseAdmin && student?.restrictions?.devices !== AccessLevel.admin) {
         throw new WebError('Access Denied');
     }
 

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "sourceMap": true,
     "declaration": false,
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,

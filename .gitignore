@@ -2,3 +2,12 @@
 requirements
 requirements/ai/*
 .cache_ggshield
+primary
+
+node_modules/*
+**/node_modules/*
+**/dist/*
+**/.build/*
+**/cdk.out/*
+
+.DS_Store

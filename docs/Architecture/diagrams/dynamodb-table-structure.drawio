@@ -1,0 +1,103 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="MyTapTrack Documentation" etag="dynamodb-structure-v1" version="22.1.11" type="device">
+    <diagram name="DynamoDB-Tables" id="dynamodb-structure">
+        <mxGraphModel dx="772" dy="450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="primary-table" value="Primary Table&#10;(PII/Sensitive Data)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="50" y="50" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-table" value="Data Table&#10;(Configuration/Behavioral)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="350" y="50" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="user-pii" value="User PII&#10;PK: U#{userId}&#10;SK: P&#10;• firstName, lastName&#10;• email, state, zip&#10;• license, terms" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="20" y="150" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="student-pii" value="Student PII&#10;PK: S#{studentId}&#10;SK: P&#10;• firstName, lastName&#10;• nickname, tags&#10;• behaviorLookup&#10;• milestones" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="160" y="150" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="device-pii" value="Device Global&#10;PK: D#{deviceId}&#10;SK: G&#10;• name, license&#10;• currentStudentId&#10;• validated, commands" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="20" y="270" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="license-data" value="License&#10;PK: L#{licenseId}&#10;SK: P&#10;• customer, limits&#10;• features, admins&#10;• expiration" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="160" y="270" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="user-data" value="User Data&#10;PK: U#{userId}&#10;SK: D&#10;• preferences&#10;• notifications&#10;• subscriptions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="320" y="150" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="student-config" value="Student Config&#10;PK: S#{studentId}&#10;SK: C&#10;• behaviors, services&#10;• dashboard settings&#10;• restrictions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="460" y="150" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="device-config" value="Device Config&#10;PK: ST#{studentId}#D&#10;SK: D#{deviceId}&#10;• timezone, config&#10;• behavior mappings" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="320" y="270" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="behavioral-data" value="Behavioral Data&#10;PK: S#{studentId}#D#{week}&#10;SK: D#{timestamp}#{behavior}&#10;• duration, intensity&#10;• abc, source" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="460" y="270" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="gsi-license" value="GSI: License Index&#10;PK: lpk (L#{license}#{type})&#10;SK: lsk (Entity#{id})&#10;&#10;Multi-tenant access patterns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="660" y="50" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="gsi-student" value="GSI: Student Index&#10;PK: studentId&#10;SK: tsk (Time Sort Key)&#10;&#10;Student-centric queries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="660" y="150" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="gsi-device" value="GSI: Device Index&#10;PK: deviceId&#10;SK: dsk (Device Sort Key)&#10;&#10;Device configuration access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="660" y="250" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="gsi-app" value="GSI: App Index&#10;PK: appId&#10;SK: deviceId&#10;&#10;Mobile app mappings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="660" y="350" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="primary-to-user-pii" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="primary-table" target="user-pii" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="primary-to-student-pii" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="primary-table" target="student-pii" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="data-to-user-data" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="data-table" target="user-data" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="data-to-student-config" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="data-table" target="student-config" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="data-to-gsi-license" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=#ff6666;" parent="1" source="data-table" target="gsi-license" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="data-to-gsi-student" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeColor=#ff6666;" parent="1" source="data-table" target="gsi-student" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="300" as="sourcePoint"/>
+                        <mxPoint x="450" y="250" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="legend-title" value="Key Patterns" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="50" y="490" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-pk" value="PK = Partition Key (determines shard)&#10;SK = Sort Key (enables range queries)&#10;GSI = Global Secondary Index&#10;#{} = Variable substitution" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="50" y="520" width="250" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="encryption-title" value="Encryption Levels" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="350" y="490" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="encryption-primary" value="Primary Table: Customer KMS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="350" y="520" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="encryption-data" value="Data Table: AWS Managed" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontColor=#000000" parent="1" vertex="1">
+                    <mxGeometry x="350" y="560" width="140" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

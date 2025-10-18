@@ -105,8 +105,8 @@ export async function handler(event: EnsureNotifyParams) {
                     return;
                 }
                 if(userId.indexOf('@') >= 0 || 
-                    teamMember.restrictions.behavior === typesV2.AccessLevel.none ||
-                    (teamMember.restrictions.behaviors && !teamMember.restrictions.behaviors.find(y => y == event.behaviorId))) {
+                    teamMember?.restrictions?.behavior === typesV2.AccessLevel.none ||
+                    (teamMember?.restrictions?.behaviors && !teamMember.restrictions.behaviors.find(y => y == event.behaviorId))) {
                     console.log('User does not have status access');
                     return;
                 }

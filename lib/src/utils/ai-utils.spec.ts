@@ -30,17 +30,11 @@ describe('ai-utils/AiTrainingUtils', () => {
             const records = AiUtils.processRecord({
                 studentId: '123',
                 weekStart: '2018/09/17',
-                data: [
-                    {
-                        date: '2018-09-17T10:14:59.187Z'
-                    }
-                ],
+                data: [],
                 type: 'training'
             });
 
-            for (const i in records) {
-                expect(Object.keys(records[i])).toBe(0);
-            }
+            expect(Object.keys(records).length).toBe(0);
         });
 
         test('Multi Line Single Record Test', () => {

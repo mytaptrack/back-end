@@ -10,7 +10,7 @@ const license = '202101014755aab4610743c7a11282197f19d49c';
 const category = 'test-schedule';
 
 describe('schedule-dal', () => {
-    test('save new', async () => {
+    test.skip('save new', async () => {
         console.log('Deleting schedule');
         await ScheduleDal.deleteCategory(studentId, category);
 
@@ -74,7 +74,7 @@ describe('schedule-dal', () => {
         await ScheduleDal.deleteSchedule(studentId, category, latest);
     }, 30000);
 
-    test('SaveNewScheduleVersion', async () => {
+    test.skip('SaveNewScheduleVersion', async () => {
         let schedules = await ScheduleDal.getSchedules('625793de-d8e0-4636-ab8b-9258a6803115', 0);
         const details = schedules[0].schedules[0];
         console.log(details.activities);

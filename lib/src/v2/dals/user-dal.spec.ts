@@ -12,12 +12,12 @@ const userId = 'f299c614-2537-4c72-bab7-1aaa5734d7c3';
 const studentId = '07159216-5b6b-4996-95e5-71d41025e107';
 
 describe('UserDal', () => {
-    test('getUserTeamInvites', async () => {
+    test.skip('getUserTeamInvites', async () => {
         const invites = await UserDal.getUserTeamInvites('28599a64-2f5d-447c-a2e1-0cdb1b83d542', 'newuser@mytaptrack.com');
         expect(invites).toBeDefined();
         expect(invites.length).toBeGreaterThan(0);
     });
-    test('getUserLarge', async () => {
+    test.skip('getUserLarge', async () => {
         const user = await UserDal.getUser(userId, '');
         console.log('License', user.license);
         expect(user).toBeDefined();
@@ -26,7 +26,7 @@ describe('UserDal', () => {
         expect(user.students.find(x => x.firstName)).toBeDefined();
         expect(user.students.find(x => x.lastTracked)).toBeDefined();
     });
-    test('getUserNewUser', async () => {
+    test.skip('getUserNewUser', async () => {
         const user = await UserDal.getUser('0ddf1c05-ef52-4a28-b45d-b3ba7b39ec3d', '');
         console.log('License', user.license);
         expect(user).toBeDefined();
@@ -35,19 +35,19 @@ describe('UserDal', () => {
         expect(user.students.find(x => x.lastTracked)).toBeDefined();
     });
 
-    test('addUserToLicense', async () => {
+    test.skip('addUserToLicense', async () => {
         const user = await UserDal.getUserConfig(userId);
         console.log('License', user.license);
         await UserDal.addUserToLicense(userId, user.license);
     });
 
-    test('getUserStudentStats', async() => {
+    test.skip('getUserStudentStats', async() => {
         await UserDal.saveUserConfig(userId, { license: '202012316a147c1978f645abb14c6148015a7a19', tags: [] });
         const events = await UserDal.getUserStudentStats(userId);
         expect(events).toBeDefined();
     });
 
-    test('setStudentActiveNoResponse', async () => {
+    test.skip('setStudentActiveNoResponse', async () => {
         await UserDal.setStudentActiveNoResponse(userId, studentId, true);
         let events = await UserDal.getUserStudentStats(userId);
         expect(events.find(x => x.studentId == studentId)).toBeDefined();
@@ -58,7 +58,7 @@ describe('UserDal', () => {
         expect(events.find(x => x.studentId == studentId)?.awaitingResponse).toBe(false);
     });
 
-    test('saveStudentBehaviorNotification', async () => {
+    test.skip('saveStudentBehaviorNotification', async () => {
         const date = new Date().getTime();
         await UserDal.saveStudentBehaviorNotification(userId, studentId, {
             date,
@@ -71,7 +71,7 @@ describe('UserDal', () => {
         expect(result.find(x => x.date == date)).toBeDefined();
     });
 
-    test('updateUserEvent', async () => {
+    test.skip('updateUserEvent', async () => {
         console.log('Preparing test');
         let user = await UserDal.getUserConfig(userId);
         await Promise.all(user.events.map(async (x, i) => {

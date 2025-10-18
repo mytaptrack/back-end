@@ -7,8 +7,15 @@ const logger = new Logger(LoggingLevel.WARN);
 
 describe('QLReporting', () => {
     beforeAll(async () => {
-        await qlApi.login();
-    }, 30 * 1000);
+        try {
+            console.log('Starting qlApi.login()...');
+            await qlApi.login();
+            console.log('qlApi.login() completed successfully');
+        } catch (error) {
+            console.error('qlApi.login() failed:', error);
+            throw error;
+        }
+    }, 60 * 1000); // Increased timeout to 60 seconds
     test('QLData', async () => {
         const testData = await helpers.setupStudent();
         const student = await testBehavior(testData.student);

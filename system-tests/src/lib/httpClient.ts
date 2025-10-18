@@ -1,7 +1,7 @@
 import * as https from 'https';
 import { Logger, LoggingLevel } from './logging';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger(LoggingLevel.DEBUG);
 
 export async function rawHttpRequest(method: string, url: string, body: string, encoding: string = 'text/plain') {
     const headers = {

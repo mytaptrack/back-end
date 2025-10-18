@@ -1,0 +1,1461 @@
+openapi: 3.0.3
+info:
+  title: MyTapTrack REST API
+  description: |
+    The MyTapTrack REST API provides HTTP endpoints for managing students, behaviors, services, devices, and data collection.
+    
+    ## Authentication
+    All endpoints require AWS Cognito JWT authentication via the Authorization header.
+    
+    ## Rate Limiting
+    - Standard endpoints: 500 requests per minute per user
+    - Data collection endpoints: 1000 requests per minute per user
+    - Bulk operations: 100 requests per minute per user
+  version: 2.0.0
+  contact:
+    name: MyTapTrack API Support
+    email: api-support@mytaptrack.com
+    url: https://docs.mytaptrack.com
+  license:
+    name: Proprietary
+    url: https://mytaptrack.com/terms
+
+servers:
+  - url: https://api.mytaptrack.com
+    description: Production server
+  - url: https://api-dev.mytaptrack.com
+    description: Development server
+
+security:
+  - CognitoAuth: []
+
+paths:
+  /api/v2/student:
+    get:
+      summary: Get student information
+      description: Retrieve detailed information for a specific student
+      tags:
+        - Students
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Student identifier
+          example: "student-123"
+      responses:
+        '200':
+          description: Student information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Create or update student
+      description: Create a new student or update existing student information
+      tags:
+        - Students
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '201':
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v2/student/behavior:
+    put:
+      summary: Add or update behavior
+      description: Create a new behavior or update existing behavior for a student
+      tags:
+        - Behaviors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BehaviorRequest'
+      responses:
+        '200':
+          description: Behavior updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      summary: Delete behavior
+      description: Remove a behavior from a student
+      tags:
+        - Behaviors
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "student-123"
+        - name: behaviorId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "behavior-789"
+      responses:
+        '200':
+          description: Behavior deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v2/student/response:
+    put:
+      summary: Add or update response
+      description: Create a new response or update existing response for a student
+      tags:
+        - Responses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponseRequest'
+      responses:
+        '200':
+          description: Response updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      summary: Delete response
+      description: Remove a response from a student
+      tags:
+        - Responses
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: responseId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Response deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v2/student/devices:
+    get:
+      summary: Get student devices
+      description: Retrieve all devices associated with a student
+      tags:
+        - Devices
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "student-123"
+      responses:
+        '200':
+          description: Devices retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicesResponse'
+
+  /api/v2/student/devices/app:
+    put:
+      summary: Create or update mobile app
+      description: Create a new mobile app or update existing app configuration
+      tags:
+        - Devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppRequest'
+      responses:
+        '200':
+          description: App updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+
+    delete:
+      summary: Delete mobile app
+      description: Remove a mobile app configuration
+      tags:
+        - Devices
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: deviceId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: App deleted successfully
+
+  /api/v2/student/devices/app/token:
+    get:
+      summary: Get app authentication token
+      description: Generate an authentication token for mobile app access
+      tags:
+        - Devices
+      parameters:
+        - name: deviceId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: expiration
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: Token expiration timestamp
+      responses:
+        '200':
+          description: Token generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  /api/v2/student/devices/app/qrcode:
+    get:
+      summary: Get QR code for app
+      description: Generate a QR code for mobile app setup
+      tags:
+        - Devices
+      parameters:
+        - name: deviceId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: QR code generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCodeResponse'
+
+  /api/v2/reports/data:
+    get:
+      summary: Get report data
+      description: Retrieve behavior and service data for reporting
+      tags:
+        - Reports
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2024-01-01"
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2024-01-31"
+        - name: scope
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [behavior, service, both]
+          example: "both"
+      responses:
+        '200':
+          description: Report data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDataResponse'
+
+    put:
+      summary: Add data point
+      description: Add a new behavior or service data point
+      tags:
+        - Reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataPointRequest'
+      responses:
+        '200':
+          description: Data point added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      summary: Delete data point
+      description: Remove a behavior or service data point
+      tags:
+        - Reports
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: dateEpoc
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: behavior
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: service
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Data point deleted successfully
+
+  /api/v2/user:
+    get:
+      summary: Get user information
+      description: Retrieve current user profile and associated data
+      tags:
+        - Users
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+    put:
+      summary: Update user information
+      description: Update user profile information
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /api/v2/student/team:
+    get:
+      summary: Get team members
+      description: Retrieve all team members for a student
+      tags:
+        - Team Management
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team members retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+
+    put:
+      summary: Add team member
+      description: Add a new team member to a student
+      tags:
+        - Team Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamMemberRequest'
+      responses:
+        '200':
+          description: Team member added successfully
+
+    delete:
+      summary: Remove team member
+      description: Remove a team member from a student
+      tags:
+        - Team Management
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team member removed successfully
+
+  /api/v2/license:
+    get:
+      summary: Get license information
+      description: Retrieve license details and features
+      tags:
+        - License Management
+      parameters:
+        - name: license
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseResponse'
+
+  /api/v2/manage/stats:
+    get:
+      summary: Get license statistics
+      description: Retrieve usage statistics for a license
+      tags:
+        - Management
+      parameters:
+        - name: license
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+
+  /api/v2/manage/students:
+    get:
+      summary: Get managed students
+      description: Retrieve all students under a license
+      tags:
+        - Management
+      parameters:
+        - name: license
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedStudentsResponse'
+
+components:
+  securitySchemes:
+    CognitoAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: AWS Cognito JWT token
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Invalid student ID provided"
+            details:
+              type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    StudentCreateRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        studentId:
+          type: string
+          description: Optional for new students
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        subtext:
+          type: string
+          example: "Johnny"
+        archived:
+          type: boolean
+          default: false
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        milestones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Milestone'
+
+    StudentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Student'
+
+    Student:
+      type: object
+      properties:
+        studentId:
+          type: string
+        license:
+          type: string
+        details:
+          $ref: '#/components/schemas/StudentDetails'
+        behaviors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Behavior'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/Service'
+        restrictions:
+          $ref: '#/components/schemas/Restrictions'
+        lastUpdateDate:
+          type: string
+          format: date-time
+
+    StudentDetails:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        nickname:
+          type: string
+        schoolId:
+          type: string
+
+    Behavior:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        desc:
+          type: string
+        isDuration:
+          type: boolean
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Target'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        target:
+          type: integer
+        currentBalance:
+          type: integer
+
+    Target:
+      type: object
+      properties:
+        measurement:
+          type: string
+          enum: [frequency, duration, average, percentage]
+        target:
+          type: integer
+        progress:
+          type: integer
+        targetType:
+          type: string
+          enum: [increase, decrease, maintain]
+
+    Tag:
+      type: object
+      properties:
+        tag:
+          type: string
+        type:
+          type: string
+
+    Milestone:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        title:
+          type: string
+        description:
+          type: string
+
+    Restrictions:
+      type: object
+      properties:
+        info:
+          type: string
+          enum: [none, view, edit, admin]
+        data:
+          type: string
+          enum: [none, view, edit, admin]
+        behavior:
+          type: string
+          enum: [none, view, edit, admin]
+        service:
+          type: string
+          enum: [none, view, edit, admin]
+
+    BehaviorRequest:
+      type: object
+      required:
+        - studentId
+        - behavior
+      properties:
+        studentId:
+          type: string
+        behavior:
+          $ref: '#/components/schemas/Behavior'
+
+    ResponseRequest:
+      type: object
+      required:
+        - studentId
+        - response
+      properties:
+        studentId:
+          type: string
+        response:
+          $ref: '#/components/schemas/Behavior'
+
+    DevicesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            apps:
+              type: array
+              items:
+                $ref: '#/components/schemas/AppSummary'
+            track20Devices:
+              type: array
+              items:
+                $ref: '#/components/schemas/Track20Device'
+
+    AppSummary:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        name:
+          type: string
+        studentName:
+          type: string
+        behaviors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppBehaviorItem'
+        textAlerts:
+          type: boolean
+
+    AppBehaviorItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        order:
+          type: integer
+        abc:
+          type: boolean
+        intensity:
+          type: boolean
+        maxIntensity:
+          type: integer
+
+    Track20Device:
+      type: object
+      properties:
+        dsn:
+          type: string
+        deviceName:
+          type: string
+        validated:
+          type: boolean
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceEvent'
+
+    DeviceEvent:
+      type: object
+      properties:
+        eventId:
+          type: string
+        presses:
+          type: integer
+        order:
+          type: integer
+        isDuration:
+          type: boolean
+
+    AppRequest:
+      type: object
+      required:
+        - studentId
+        - app
+      properties:
+        studentId:
+          type: string
+        app:
+          $ref: '#/components/schemas/AppConfig'
+
+    AppConfig:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        name:
+          type: string
+        textAlerts:
+          type: boolean
+        timezone:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        behaviors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppBehaviorConfig'
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppResponseConfig'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppServiceConfig'
+
+    AppBehaviorConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        order:
+          type: integer
+        abc:
+          type: boolean
+        intensity:
+          type: boolean
+
+    AppResponseConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        order:
+          type: integer
+
+    AppServiceConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        order:
+          type: integer
+
+    AppResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            deviceId:
+              type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+            qrExpiration:
+              type: integer
+              format: int64
+
+    QRCodeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            deviceId:
+              type: string
+            qrCode:
+              type: string
+              description: Base64 encoded PNG image
+            expirationDate:
+              type: string
+              format: date-time
+
+    ReportDataResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            behaviors:
+              type: array
+              items:
+                $ref: '#/components/schemas/BehaviorDataPoint'
+            services:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceDataPoint'
+            startMillis:
+              type: integer
+              format: int64
+            endMillis:
+              type: integer
+              format: int64
+
+    BehaviorDataPoint:
+      type: object
+      properties:
+        dateEpoc:
+          type: integer
+          format: int64
+        behavior:
+          type: string
+        reported:
+          type: boolean
+        score:
+          type: integer
+        duration:
+          type: integer
+        intensity:
+          type: integer
+        source:
+          $ref: '#/components/schemas/DataSource'
+        abc:
+          $ref: '#/components/schemas/ABCData'
+
+    ServiceDataPoint:
+      type: object
+      properties:
+        dateEpoc:
+          type: integer
+          format: int64
+        service:
+          type: string
+        duration:
+          type: integer
+        reported:
+          type: boolean
+        source:
+          $ref: '#/components/schemas/DataSource'
+        modifications:
+          type: array
+          items:
+            type: string
+        serviceProgress:
+          $ref: '#/components/schemas/ServiceProgress'
+
+    DataSource:
+      type: object
+      properties:
+        device:
+          type: string
+        rater:
+          type: string
+
+    ABCData:
+      type: object
+      properties:
+        a:
+          type: string
+          description: Antecedent
+        c:
+          type: string
+          description: Consequence
+
+    ServiceProgress:
+      type: object
+      properties:
+        progress:
+          type: integer
+        measurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgressMeasurement'
+
+    ProgressMeasurement:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: integer
+
+    DataPointRequest:
+      type: object
+      required:
+        - studentId
+        - data
+      properties:
+        studentId:
+          type: string
+        data:
+          $ref: '#/components/schemas/DataPoint'
+
+    DataPoint:
+      type: object
+      required:
+        - dateEpoc
+        - reported
+        - source
+      properties:
+        dateEpoc:
+          type: integer
+          format: int64
+        behavior:
+          type: string
+          description: Required for behavior data
+        service:
+          type: string
+          description: Required for service data
+        reported:
+          type: boolean
+        score:
+          type: integer
+        isManual:
+          type: boolean
+        source:
+          $ref: '#/components/schemas/DataSource'
+        abc:
+          $ref: '#/components/schemas/ABCData'
+        duration:
+          type: integer
+        intensity:
+          type: integer
+        modifications:
+          type: array
+          items:
+            type: string
+        serviceProgress:
+          $ref: '#/components/schemas/ServiceProgress'
+
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        userId:
+          type: string
+        details:
+          $ref: '#/components/schemas/UserDetails'
+        license:
+          type: string
+        licenseDetails:
+          $ref: '#/components/schemas/LicenseDetails'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserStudent'
+
+    UserDetails:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+
+    UserStudent:
+      type: object
+      properties:
+        studentId:
+          type: string
+        restrictions:
+          $ref: '#/components/schemas/Restrictions'
+        behaviors:
+          type: boolean
+        services:
+          type: boolean
+        teamStatus:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+        details:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            state:
+              type: string
+            zip:
+              type: string
+
+    TeamResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            members:
+              type: array
+              items:
+                $ref: '#/components/schemas/TeamMember'
+            invites:
+              type: array
+              items:
+                $ref: '#/components/schemas/TeamInvite'
+
+    TeamMember:
+      type: object
+      properties:
+        userId:
+          type: string
+        details:
+          type: object
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+        status:
+          type: string
+        restrictions:
+          $ref: '#/components/schemas/Restrictions'
+
+    TeamInvite:
+      type: object
+      properties:
+        email:
+          type: string
+        status:
+          type: string
+        restrictions:
+          $ref: '#/components/schemas/Restrictions'
+
+    TeamMemberRequest:
+      type: object
+      required:
+        - studentId
+        - email
+        - restrictions
+      properties:
+        studentId:
+          type: string
+        email:
+          type: string
+        restrictions:
+          $ref: '#/components/schemas/Restrictions'
+
+    LicenseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/LicenseDetails'
+
+    LicenseDetails:
+      type: object
+      properties:
+        license:
+          type: string
+        customer:
+          type: string
+        expiration:
+          type: string
+          format: date
+        features:
+          $ref: '#/components/schemas/LicenseFeatures'
+        admins:
+          type: array
+          items:
+            type: string
+        singleCount:
+          type: integer
+        singleUsed:
+          type: integer
+        multiCount:
+          type: integer
+
+    LicenseFeatures:
+      type: object
+      properties:
+        abc:
+          type: boolean
+        behaviorTracking:
+          type: boolean
+        serviceTracking:
+          type: boolean
+        devices:
+          type: boolean
+        dashboard:
+          type: boolean
+        notifications:
+          type: boolean
+        manage:
+          type: boolean
+        intensity:
+          type: integer
+
+    StatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            license:
+              type: object
+              properties:
+                license:
+                  type: string
+                customer:
+                  type: string
+                singleCount:
+                  type: integer
+                singleUsed:
+                  type: integer
+                multiCount:
+                  type: integer
+            stats:
+              type: object
+              properties:
+                single:
+                  type: integer
+                flexible:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                      count:
+                        type: integer
+
+    ManagedStudentsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            students:
+              type: array
+              items:
+                $ref: '#/components/schemas/ManagedStudent'
+            totalCount:
+              type: integer
+            activeCount:
+              type: integer
+
+    ManagedStudent:
+      type: object
+      properties:
+        studentId:
+          type: string
+        details:
+          $ref: '#/components/schemas/StudentDetails'
+        behaviors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        lastTracked:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "VALIDATION_ERROR"
+              message: "Invalid request parameters"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "UNAUTHORIZED"
+              message: "Authentication required"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "ACCESS_DENIED"
+              message: "Insufficient permissions"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "STUDENT_NOT_FOUND"
+              message: "Student not found"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    TooManyRequests:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "RATE_LIMIT_EXCEEDED"
+              message: "Too many requests"
+            timestamp: "2024-01-15T10:30:00Z"
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests in current window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Time when rate limit resets (Unix timestamp)
+
+tags:
+  - name: Students
+    description: Student management operations
+  - name: Behaviors
+    description: Behavior tracking and management
+  - name: Responses
+    description: Response tracking and management
+  - name: Devices
+    description: Mobile app and IoT device management
+  - name: Reports
+    description: Data collection and reporting
+  - name: Users
+    description: User profile management
+  - name: Team Management
+    description: Student team member management
+  - name: License Management
+    description: License information and features
+  - name: Management
+    description: Administrative and management operations

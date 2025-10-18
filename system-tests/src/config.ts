@@ -10,7 +10,9 @@ import { Logger, LoggingLevel } from './lib/logging';
 
 const logger = new Logger(LoggingLevel.WARN)
 
-const ssm = new SSMClient({});
+const ssm = new SSMClient({
+    maxAttempts: 3 // Retry up to 3 times
+});
 
 const configFile = new ConfigFile(process.env.CONFIG_PATH ?? '../config', environment);
 export const config = configFile.config;
@@ -25,11 +27,23 @@ export async function getClientId() {
         return clientId;
     }
 
-    const result = await ssm.send(new GetParameterCommand({
-        Name: `/${environment}/regional/calc/cognito/clientid`
-    }));
-    clientId = result.Parameter.Value;
-    return clientId;
+    try {
+        logger.info('Getting Cognito client ID from SSM...');
+        const result = await ssm.send(new GetParameterCommand({
+            Name: `/${environment}/regional/calc/cognito/clientid`
+        }));
+        
+        if (!result.Parameter?.Value) {
+            throw new Error(`SSM parameter /${environment}/regional/calc/cognito/clientid not found or empty`);
+        }
+        
+        clientId = result.Parameter.Value;
+        logger.info('Cognito client ID retrieved successfully');
+        return clientId;
+    } catch (error) {
+        logger.error('Failed to get Cognito client ID:', error);
+        throw error;
+    }
 }
 
 export function getApiKey() {
@@ -71,11 +85,23 @@ export async function getQLEndpoint() {
         return qlEndpoint;
     }
 
-    const result = await ssm.send(new GetParameterCommand({
-        Name: `/${environment}/regional/calc/endpoints/appsync/url`
-    }));
-    qlEndpoint = result.Parameter.Value;
-    return qlEndpoint;
+    try {
+        logger.info('Getting GraphQL endpoint from SSM...');
+        const result = await ssm.send(new GetParameterCommand({
+            Name: `/${environment}/regional/calc/endpoints/appsync/url`
+        }));
+        
+        if (!result.Parameter?.Value) {
+            throw new Error(`SSM parameter /${environment}/regional/calc/endpoints/appsync/url not found or empty`);
+        }
+        
+        qlEndpoint = result.Parameter.Value;
+        logger.info('GraphQL endpoint retrieved successfully:', qlEndpoint);
+        return qlEndpoint;
+    } catch (error) {
+        logger.error('Failed to get GraphQL endpoint:', error);
+        throw error;
+    }
 }
 export const apiStage = 'prod';
 
