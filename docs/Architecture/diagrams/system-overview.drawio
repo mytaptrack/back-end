@@ -1,29 +1,47 @@
 <mxfile host="65bd71144e">
     <diagram name="System Overview" id="system-overview">
-        <mxGraphModel dx="364" dy="349" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="772" dy="450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="2" value="MyTapTrack System Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
-                    <mxGeometry x="314" y="40" width="200" height="30" as="geometry"/>
+                    <mxGeometry x="230" y="40" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1A1A1A;" edge="1" parent="1" source="3" target="7">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="3" value="Web Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1A1A1A;" parent="1" vertex="1">
-                    <mxGeometry x="100" y="120" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="160" y="120" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="4" value="Mobile Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1A1A1A;" parent="1" vertex="1">
-                    <mxGeometry x="250" y="120" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="310" y="120" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="5" value="IoT Devices" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1A1A1A;" parent="1" vertex="1">
-                    <mxGeometry x="400" y="120" width="120" height="60" as="geometry"/>
+                <mxCell id="16" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="6" target="8">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="6" target="9">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="6" value="API Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#1A1A1A;" parent="1" vertex="1">
                     <mxGeometry x="250" y="240" width="120" height="60" as="geometry"/>
                 </mxCell>
+                <mxCell id="19" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="7" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="7" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="7" value="GraphQL API&#10;(AppSync)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#1A1A1A;" parent="1" vertex="1">
                     <mxGeometry x="100" y="360" width="120" height="60" as="geometry"/>
                 </mxCell>
+                <mxCell id="18" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="8" target="7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="8" value="REST API&#10;(Lambda)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#1A1A1A;" parent="1" vertex="1">
                     <mxGeometry x="250" y="360" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="9" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="9" value="Device API&#10;(Lambda)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#1A1A1A;" parent="1" vertex="1">
                     <mxGeometry x="400" y="360" width="120" height="60" as="geometry"/>
@@ -32,24 +50,24 @@
                     <mxGeometry x="100" y="480" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" value="S3 Data Lake" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#1A1A1A;" parent="1" vertex="1">
-                    <mxGeometry x="250" y="480" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="250" y="570" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="12" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" style="edgeStyle=none;html=1;strokeColor=#1A1A1A;" edge="1" parent="1" source="12" target="11">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="12" value="EventBridge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#1A1A1A;" parent="1" vertex="1">
-                    <mxGeometry x="400" y="480" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="250" y="480" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="13" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#1A1A1A;" parent="1" source="3" target="6" edge="1">
+                <mxCell id="13" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#1A1A1A;strokeColor=#1A1A1A;" parent="1" source="3" target="6" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="390" y="350" as="sourcePoint"/>
                         <mxPoint x="440" y="300" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="14" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#1A1A1A;" parent="1" source="4" target="6" edge="1">
-                    <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="390" y="350" as="sourcePoint"/>
-                        <mxPoint x="440" y="300" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="15" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#1A1A1A;" parent="1" source="5" target="9" edge="1">
+                <mxCell id="14" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#1A1A1A;strokeColor=#1A1A1A;" parent="1" source="4" target="6" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="390" y="350" as="sourcePoint"/>
                         <mxPoint x="440" y="300" as="targetPoint"/>
