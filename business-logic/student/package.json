@@ -1,0 +1,25 @@
+{
+  "name": "@mytaptrack/business-logic-student",
+  "version": "1.0.0",
+  "description": "Student-specific business logic operations for MyTapTrack",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -d",
+    "test": "jest --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@mytaptrack/business-logic-core": "file:../core",
+    "@mytaptrack/types": "file:../types",
+    "moment-timezone": "^0.5.45"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.4.5",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.12"
+  },
+  "author": "mytaptrack",
+  "license": ""
+}
