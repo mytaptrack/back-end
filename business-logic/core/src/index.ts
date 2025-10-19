@@ -10,3 +10,9 @@ export * from './types/common';
 
 // Message Brokers
 export * from './message-brokers';
+
+// Authentication
+export * from './authentication';
+
+// Examples
+export * from './examples/authentication-usage';

@@ -1,3 +1,5 @@
+import { IAuthenticationProvider, AuthenticationResult, UserContext, TokenResult, AuthConfig } from '../authentication/interfaces';
+
 /**
  * Core service context interface that provides all service dependencies
  */
@@ -35,14 +37,7 @@ export interface IMessageBroker {
   unsubscribe(eventType: string): Promise<void>;
 }
 
-/**
- * Authentication provider interface
- */
-export interface IAuthenticationProvider {
-  validateToken(token: string): Promise<AuthenticationResult>;
-  getUserContext(token: string): Promise<UserContext>;
-  refreshToken(refreshToken: string): Promise<TokenResult>;
-}
+
 
 /**
  * Cache provider interface
@@ -127,26 +122,8 @@ export interface BrokerMessage {
   };
 }
 
-export interface AuthenticationResult {
-  valid: boolean;
-  userContext?: UserContext;
-  error?: string;
-}
-
-export interface UserContext {
-  userId: string;
-  email: string;
-  roles: string[];
-  permissions: string[];
-  groups: string[];
-  customAttributes: Record<string, any>;
-}
-
-export interface TokenResult {
-  accessToken: string;
-  refreshToken?: string;
-  expiresIn: number;
-}
+// Re-export authentication interfaces for convenience
+export { IAuthenticationProvider, AuthenticationResult, UserContext, TokenResult };
 
 export interface DatabaseConfig {
   provider: 'dynamodb' | 'mongodb';
@@ -162,14 +139,8 @@ export interface MessageBrokerConfig {
   eventBusName?: string;
 }
 
-export interface AuthConfig {
-  provider: 'cognito' | 'jwt' | 'oidc';
-  userPoolId?: string;
-  region?: string;
-  publicKey?: string;
-  issuer?: string;
-  audience?: string;
-}
+// Re-export AuthConfig for convenience
+export { AuthConfig };
 
 export interface CacheConfig {
   provider: 'dynamodb' | 'redis';

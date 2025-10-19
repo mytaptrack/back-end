@@ -19,7 +19,7 @@
   - Add message serialization/deserialization with proper error handling and retry logic
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 8.1, 8.2, 8.3_
 
-- [ ] 3. Implement authentication abstraction layer
+- [x] 3. Implement authentication abstraction layer
   - Create IAuthenticationProvider interface with token validation and user context extraction
   - Implement CognitoAuthenticationProvider that wraps existing Cognito functionality for AWS deployment
   - Implement JWTAuthenticationProvider for generic JWT/OIDC token validation in Docker deployment
@@ -27,7 +27,7 @@
   - Add standardized UserContext interface that normalizes user data across authentication providers
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 12.1, 12.2, 12.3, 12.4_
 
-- [ ] 4. Create service context and dependency injection system
+- [-] 4. Create service context and dependency injection system
   - Create ServiceContext interface that provides all service dependencies (data access, messaging, auth, etc.)
   - Implement ServiceContextFactory that creates appropriate context based on environment (AWS vs Docker)
   - Create configuration loading system that reads from environment variables and config files
