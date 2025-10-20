@@ -1,4 +1,5 @@
 import { IAuthenticationProvider, AuthenticationResult, UserContext, TokenResult, AuthConfig } from '../authentication/interfaces';
+import { ICacheProvider, CacheConfig } from '../cache-providers/interfaces';
 
 /**
  * Core service context interface that provides all service dependencies
@@ -39,15 +40,8 @@ export interface IMessageBroker {
 
 
 
-/**
- * Cache provider interface
- */
-export interface ICacheProvider {
-  get<T>(key: string): Promise<T | null>;
-  set<T>(key: string, value: T, ttl?: number): Promise<void>;
-  delete(key: string): Promise<void>;
-  clear(pattern?: string): Promise<void>;
-}
+// Re-export ICacheProvider for convenience
+export { ICacheProvider };
 
 /**
  * Logger interface
@@ -139,12 +133,5 @@ export interface MessageBrokerConfig {
   eventBusName?: string;
 }
 
-// Re-export AuthConfig for convenience
-export { AuthConfig };
-
-export interface CacheConfig {
-  provider: 'dynamodb' | 'redis';
-  connectionString?: string;
-  region?: string;
-  keyPrefix?: string;
-}
+// Re-export AuthConfig and CacheConfig for convenience
+export { AuthConfig, CacheConfig };
