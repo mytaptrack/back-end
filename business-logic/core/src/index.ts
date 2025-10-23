@@ -20,7 +20,11 @@ export * from './cache-providers';
 // Service Context and Dependency Injection
 export * from './service-context';
 
+// Container Services
+export * from './container-services';
+
 // Examples
 export * from './examples/authentication-usage';
 export * from './examples/service-context-usage';
 export * from './examples/cache-usage';
+export * from './examples/container-service-usage';
