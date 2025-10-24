@@ -38,6 +38,33 @@ export interface ServerConfig {
   cors?: CorsConfig;
   middleware?: MiddlewareConfig;
   security?: SecurityConfig;
+  graphql?: GraphQLConfig;
+}
+
+/**
+ * GraphQL configuration
+ */
+export interface GraphQLConfig {
+  schemaPath?: string;
+  playground?: boolean;
+  introspection?: boolean;
+  complexity?: {
+    maximumComplexity?: number;
+    scalarCost?: number;
+    objectCost?: number;
+    listFactor?: number;
+  };
+  rateLimit?: {
+    windowMs?: number;
+    maxRequests?: number;
+  };
+  logging?: {
+    logRequests?: boolean;
+    logResponses?: boolean;
+    logErrors?: boolean;
+    logSlowQueries?: boolean;
+    slowQueryThreshold?: number;
+  };
 }
 
 /**
