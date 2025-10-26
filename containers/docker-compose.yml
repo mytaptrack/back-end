@@ -1,0 +1,255 @@
+services:
+  # Load Balancer / Reverse Proxy
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: mytaptrack-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - graphql-api
+      - rest-api
+      - device-api
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # GraphQL API Service
+  graphql-api:
+    build:
+      context: ..
+      dockerfile: containers/graphql-api/Dockerfile
+    container_name: mytaptrack-graphql-api
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=graphql-api
+      - PORT=4500
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:${MONGODB_PASSWORD:-password}@mongodb:27017/mytaptrack?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:${RABBITMQ_PASSWORD:-password}@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=${JWT_ISSUER:-mytaptrack}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-mytaptrack-api}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,https://app.mytaptrack.com}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./config/production.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4500/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # REST API Service
+  rest-api:
+    build:
+      context: ..
+      dockerfile: containers/rest-api/Dockerfile
+    container_name: mytaptrack-rest-api
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=rest-api
+      - PORT=4501
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:${MONGODB_PASSWORD:-password}@mongodb:27017/mytaptrack?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:${RABBITMQ_PASSWORD:-password}@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=${JWT_ISSUER:-mytaptrack}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-mytaptrack-api}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,https://app.mytaptrack.com}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./config/production.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4501/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Device API Service
+  device-api:
+    build:
+      context: ..
+      dockerfile: containers/device-api/Dockerfile
+    container_name: mytaptrack-device-api
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=device-api
+      - PORT=4502
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:${MONGODB_PASSWORD:-password}@mongodb:27017/mytaptrack?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:${RABBITMQ_PASSWORD:-password}@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=${JWT_ISSUER:-mytaptrack}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-mytaptrack-api}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./config/production.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4502/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Data Processor Service
+  data-processor:
+    build:
+      context: ..
+      dockerfile: containers/data-processor/Dockerfile
+    container_name: mytaptrack-data-processor
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=data-processor
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:${MONGODB_PASSWORD:-password}@mongodb:27017/mytaptrack?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:${RABBITMQ_PASSWORD:-password}@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - BATCH_SIZE=${BATCH_SIZE:-10}
+      - RETRY_ATTEMPTS=${RETRY_ATTEMPTS:-3}
+      - RETRY_DELAY=${RETRY_DELAY:-5000}
+    volumes:
+      - ./config/production.yml:/app/config/config.yml:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: mytaptrack-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-password}
+      - MONGO_INITDB_DATABASE=mytaptrack
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-scripts/mongodb:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "27017:27017"
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: mytaptrack-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-password}
+      - RABBITMQ_DEFAULT_VHOST=mytaptrack
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./init-scripts/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./init-scripts/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: mytaptrack-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-password} --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - mytaptrack-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongodb_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  mytaptrack-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

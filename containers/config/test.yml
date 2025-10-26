@@ -1,0 +1,168 @@
+# Test Configuration for MyTapTrack Docker Deployment
+
+environment: docker
+stage: test
+
+# Database Configuration
+database:
+  provider: mongodb
+  mongodb:
+    connectionString: ${MONGODB_CONNECTION_STRING}
+    database: mytaptrack_test
+    collections:
+      primary: primary_data
+      data: secondary_data
+    options:
+      maxPoolSize: 5
+      minPoolSize: 1
+      maxIdleTimeMS: 10000
+      serverSelectionTimeoutMS: 2000
+      socketTimeoutMS: 15000
+      connectTimeoutMS: 5000
+      retryWrites: false
+      w: 1
+      readPreference: primary
+
+# Message Broker Configuration
+messageBroker:
+  provider: rabbitmq
+  rabbitmq:
+    connectionString: ${RABBITMQ_CONNECTION_STRING}
+    vhost: mytaptrack_test
+    exchanges:
+      events: mytaptrack.test.events
+      deadLetter: mytaptrack.test.dlx
+    queues:
+      userEvents: user.test.events
+      studentEvents: student.test.events
+      licenseEvents: license.test.events
+      reportEvents: report.test.events
+      appEvents: app.test.events
+      deviceEvents: device.test.events
+    options:
+      heartbeat: 30
+      connectionTimeout: 5000
+      channelMax: 10
+      frameMax: 0x1000
+      prefetch: 1
+
+# Authentication Configuration
+authentication:
+  provider: jwt
+  jwt:
+    publicKeyPath: ${JWT_PUBLIC_KEY_PATH}
+    issuer: ${JWT_ISSUER}
+    audience: ${JWT_AUDIENCE}
+    algorithms: ["RS256"]
+    clockTolerance: 120
+    maxAge: "1h"
+  
+# Cache Configuration
+cache:
+  provider: redis
+  redis:
+    connectionString: ${REDIS_CONNECTION_STRING}
+    keyPrefix: "mtt:test:"
+    defaultTTL: 300
+    options:
+      retryDelayOnFailover: 50
+      enableReadyCheck: true
+      maxRetriesPerRequest: 1
+      lazyConnect: true
+      keepAlive: 10000
+
+# Service Configuration
+services:
+  graphqlApi:
+    port: 4000
+    cors:
+      origins: ["http://localhost:3000"]
+      credentials: true
+      methods: ["GET", "POST", "OPTIONS"]
+      allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken", "Keep-Alive", "X-Requested-With", "If-Modified-Since"]
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 10000
+    complexity:
+      maximumComplexity: 5000
+      maximumDepth: 20
+    
+  restApi:
+    port: 4501
+    cors:
+      origins: ["http://localhost:3000"]
+      credentials: true
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken", "Keep-Alive", "X-Requested-With", "If-Modified-Since"]
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 20000
+    
+  deviceApi:
+    port: 4502
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 50000
+    timeout: 10000
+    
+  dataProcessor:
+    batchSize: ${BATCH_SIZE:-3}
+    retryAttempts: ${RETRY_ATTEMPTS:-1}
+    retryDelay: ${RETRY_DELAY:-1000}
+    deadLetterThreshold: 1
+    processingTimeout: 10000
+
+# Logging Configuration
+logging:
+  level: ${LOG_LEVEL:-warn}
+  format: json
+  timestamp: true
+  correlationId: true
+  includeStack: false
+  destinations:
+    - console
+  fields:
+    service: ${SERVICE_NAME}
+    environment: test
+    version: ${APP_VERSION:-test}
+
+# Security Configuration
+security:
+  encryption:
+    algorithm: aes-256-gcm
+    keyRotation: false
+  secrets:
+    provider: env
+  network:
+    allowedOrigins: ["*"]
+    rateLimiting: false
+    ddosProtection: false
+  
+# Health Check Configuration
+healthCheck:
+  enabled: true
+  interval: 5000
+  timeout: 1000
+  retries: 1
+  checks:
+    - database
+    - messageBroker
+    - cache
+
+# Monitoring Configuration
+monitoring:
+  metrics:
+    enabled: false
+  tracing:
+    enabled: false
+  profiling:
+    enabled: false
+
+# Test Configuration
+test:
+  mode: ${TEST_MODE:-true}
+  timeout: ${TEST_TIMEOUT:-30000}
+  parallel: ${PARALLEL_TESTS:-false}
+  mockExternalServices: true
+  cleanupAfterTests: true
+  seedTestData: true

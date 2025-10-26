@@ -1,0 +1,47 @@
+env:
+  name: dev
+  region:
+    primary: us-west-2
+    regions: us-west-2
+  domain:
+    name: localhost
+    sub:
+      api:
+        name: localhost:4501
+        path: /api/v2
+        subdomain: ''
+      device:
+        apikey: container-dev-api-key
+        appid: mytaptrack-container
+        name: localhost:4502
+        path: /device
+        subdomain: ''
+      website:
+        name: localhost:3000
+        subdomain: ''
+  endpoints:
+    graphql: "http://localhost:4500"
+    rest: "http://localhost:4501"
+    device: "http://localhost:4502"
+  database:
+    type: "mongodb"
+    connectionString: "mongodb://admin:devpassword@localhost:27018/mytaptrack_dev?authSource=admin"
+  auth:
+    type: "jwt"
+    issuer: "mytaptrack-dev"
+    audience: "mytaptrack-api-dev"
+  cache:
+    type: "redis"
+    connectionString: "redis://localhost:6379"
+  messageBroker:
+    type: "rabbitmq"
+    connectionString: "amqp://admin:devpassword@localhost:5672"
+  testing:
+    admin:
+      email: admin@container.local
+      name: Container Admin
+      password: container-admin-pass
+    nonadmin:
+      email: user@container.local
+      name: Container User
+      password: container-user-pass

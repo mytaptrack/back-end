@@ -1,7 +1,13 @@
+import { isContainerMode } from './container-config';
+
 const environment = process.env.STAGE ?? 'dev';
-process.env.PrimaryTable = `mytaptrack-${environment}-primary`;
-process.env.DataTable = `mytaptrack-${environment}-data`;
-process.env.STRONGLY_CONSISTENT_READ = 'true';
+
+// Skip AWS-specific setup in container mode
+if (!isContainerMode()) {
+    process.env.PrimaryTable = `mytaptrack-${environment}-primary`;
+    process.env.DataTable = `mytaptrack-${environment}-data`;
+    process.env.STRONGLY_CONSISTENT_READ = 'true';
+}
 
 import { ConfigFile } from '@mytaptrack/cdk';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
@@ -10,19 +16,30 @@ import { Logger, LoggingLevel } from './lib/logging';
 
 const logger = new Logger(LoggingLevel.WARN)
 
-const ssm = new SSMClient({
+// Initialize SSM client only for AWS mode
+const ssm = !isContainerMode() ? new SSMClient({
     maxAttempts: 3 // Retry up to 3 times
-});
+}) : null;
 
-const configFile = new ConfigFile(process.env.CONFIG_PATH ?? '../config', environment);
+// Use container config path in container mode
+const configPath = isContainerMode() ? './config' : (process.env.CONFIG_PATH ?? '../config');
+const configEnvironment = isContainerMode() ? 'container' : environment;
+const configFile = new ConfigFile(configPath, configEnvironment);
 export const config = configFile.config;
 
 logger.debug('Data Table: ', process.env.DataTable);
-export const data = new Dal('data');
-export const primary = new Dal('primary');
+
+// Initialize DAL only for AWS mode
+export const data = !isContainerMode() ? new Dal('data') : null;
+export const primary = !isContainerMode() ? new Dal('primary') : null;
 
 let clientId: string;
 export async function getClientId() {
+    if (isContainerMode()) {
+        // Return mock client ID for container mode
+        return 'container-test-client-id';
+    }
+
     if(clientId) {
         return clientId;
     }
@@ -52,6 +69,10 @@ export function getApiKey() {
 
 let deviceEndpoint: string;
 export async function getDeviceEndpoint() {
+    if (isContainerMode()) {
+        return 'localhost:4502';
+    }
+
     if(deviceEndpoint) {
         return deviceEndpoint;
     }
@@ -66,6 +87,10 @@ export async function getDeviceEndpoint() {
 
 let apiEndpoint: string;
 export async function getApiEndpoint() {
+    if (isContainerMode()) {
+        return 'localhost:4501';
+    }
+
     if(apiEndpoint) {
         return apiEndpoint;
     }
@@ -81,6 +106,10 @@ export async function getApiEndpoint() {
 
 let qlEndpoint: string;
 export async function getQLEndpoint() {
+    if (isContainerMode()) {
+        return 'http://localhost:4500/graphql';
+    }
+
     if(qlEndpoint) {
         return qlEndpoint;
     }

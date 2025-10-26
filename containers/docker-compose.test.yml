@@ -1,0 +1,218 @@
+services:
+  # GraphQL API Service (Testing)
+  graphql-api:
+    build:
+      context: ..
+      dockerfile: containers/graphql-api/Dockerfile
+      target: test
+    container_name: mytaptrack-graphql-api-test
+    environment:
+      - NODE_ENV=test
+      - SERVICE_NAME=graphql-api
+      - PORT=4500
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:testpassword@mongodb:27017/mytaptrack_test?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:testpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=mytaptrack-test
+      - JWT_AUDIENCE=mytaptrack-api-test
+      - CORS_ORIGINS=http://localhost:3000
+      - LOG_LEVEL=warn
+      - TEST_MODE=true
+    volumes:
+      - ./config/test.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # REST API Service (Testing)
+  rest-api:
+    build:
+      context: ..
+      dockerfile: containers/rest-api/Dockerfile
+      target: test
+    container_name: mytaptrack-rest-api-test
+    environment:
+      - NODE_ENV=test
+      - SERVICE_NAME=rest-api
+      - PORT=4501
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:testpassword@mongodb:27017/mytaptrack_test?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:testpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=mytaptrack-test
+      - JWT_AUDIENCE=mytaptrack-api-test
+      - CORS_ORIGINS=http://localhost:3000
+      - LOG_LEVEL=warn
+      - TEST_MODE=true
+    volumes:
+      - ./config/test.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # Device API Service (Testing)
+  device-api:
+    build:
+      context: ..
+      dockerfile: containers/device-api/Dockerfile
+      target: test
+    container_name: mytaptrack-device-api-test
+    environment:
+      - NODE_ENV=test
+      - SERVICE_NAME=device-api
+      - PORT=4502
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:testpassword@mongodb:27017/mytaptrack_test?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:testpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=mytaptrack-test
+      - JWT_AUDIENCE=mytaptrack-api-test
+      - LOG_LEVEL=warn
+      - TEST_MODE=true
+    volumes:
+      - ./config/test.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # Data Processor Service (Testing)
+  data-processor:
+    build:
+      context: ..
+      dockerfile: containers/data-processor/Dockerfile
+      target: test
+    container_name: mytaptrack-data-processor-test
+    environment:
+      - NODE_ENV=test
+      - SERVICE_NAME=data-processor
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:testpassword@mongodb:27017/mytaptrack_test?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:testpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - LOG_LEVEL=warn
+      - BATCH_SIZE=3
+      - RETRY_ATTEMPTS=1
+      - RETRY_DELAY=1000
+      - TEST_MODE=true
+    volumes:
+      - ./config/test.yml:/app/config/config.yml:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # MongoDB Database (Testing)
+  mongodb:
+    image: mongo:6.0
+    container_name: mytaptrack-mongodb-test
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=testpassword
+      - MONGO_INITDB_DATABASE=mytaptrack_test
+    volumes:
+      - ./init-scripts/mongodb/test-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    tmpfs:
+      - /data/db
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # RabbitMQ Message Broker (Testing)
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: mytaptrack-rabbitmq-test
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=testpassword
+      - RABBITMQ_DEFAULT_VHOST=mytaptrack_test
+    volumes:
+      - ./init-scripts/rabbitmq/test-definitions.json:/etc/rabbitmq/definitions.json:ro
+    tmpfs:
+      - /var/lib/rabbitmq
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # Redis Cache (Testing)
+  redis:
+    image: redis:7-alpine
+    container_name: mytaptrack-redis-test
+    command: redis-server
+    tmpfs:
+      - /data
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+
+  # Test Runner
+  test-runner:
+    build:
+      context: ..
+      dockerfile: containers/test-runner/Dockerfile
+    container_name: mytaptrack-test-runner
+    environment:
+      - NODE_ENV=test
+      - GRAPHQL_API_URL=http://graphql-api:4500
+      - REST_API_URL=http://rest-api:4501
+      - DEVICE_API_URL=http://device-api:4502
+      - MONGODB_CONNECTION_STRING=mongodb://admin:testpassword@mongodb:27017/mytaptrack_test?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:testpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - TEST_TIMEOUT=30000
+      - PARALLEL_TESTS=false
+    volumes:
+      - ../system-tests:/app/tests:ro
+      - ./test-results:/app/results
+    depends_on:
+      - graphql-api
+      - rest-api
+      - device-api
+      - data-processor
+    networks:
+      - mytaptrack-test-network
+    restart: "no"
+    command: npm test
+
+volumes:
+  test-results:
+    driver: local
+
+networks:
+  mytaptrack-test-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16

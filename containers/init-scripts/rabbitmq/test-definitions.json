@@ -1,0 +1,137 @@
+{
+  "rabbit_version": "3.11.0",
+  "rabbitmq_version": "3.11.0",
+  "product_name": "RabbitMQ",
+  "product_version": "3.11.0",
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "testpassword",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "mytaptrack_test"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "mytaptrack_test",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [],
+  "policies": [],
+  "queues": [
+    {
+      "name": "user.test.events",
+      "vhost": "mytaptrack_test",
+      "durable": false,
+      "auto_delete": true,
+      "arguments": {}
+    },
+    {
+      "name": "student.test.events",
+      "vhost": "mytaptrack_test",
+      "durable": false,
+      "auto_delete": true,
+      "arguments": {}
+    },
+    {
+      "name": "license.test.events",
+      "vhost": "mytaptrack_test",
+      "durable": false,
+      "auto_delete": true,
+      "arguments": {}
+    },
+    {
+      "name": "report.test.events",
+      "vhost": "mytaptrack_test",
+      "durable": false,
+      "auto_delete": true,
+      "arguments": {}
+    },
+    {
+      "name": "app.test.events",
+      "vhost": "mytaptrack_test",
+      "durable": false,
+      "auto_delete": true,
+      "arguments": {}
+    },
+    {
+      "name": "device.test.events",
+      "vhost": "mytaptrack_test",
+      "durable": false,
+      "auto_delete": true,
+      "arguments": {}
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "type": "topic",
+      "durable": false,
+      "auto_delete": true,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "destination": "user.test.events",
+      "destination_type": "queue",
+      "routing_key": "user.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "destination": "student.test.events",
+      "destination_type": "queue",
+      "routing_key": "student.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "destination": "license.test.events",
+      "destination_type": "queue",
+      "routing_key": "license.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "destination": "report.test.events",
+      "destination_type": "queue",
+      "routing_key": "report.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "destination": "app.test.events",
+      "destination_type": "queue",
+      "routing_key": "app.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.test.events",
+      "vhost": "mytaptrack_test",
+      "destination": "device.test.events",
+      "destination_type": "queue",
+      "routing_key": "device.*",
+      "arguments": {}
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 // Jest setup file to handle AWS credential issues gracefully
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 // Check if AWS credentials are available
 const hasAWSCredentials = () => {
     const fs = require('fs');

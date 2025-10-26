@@ -4,3 +4,6 @@ export * from './error-middleware';
 export * from './logging-middleware';
 export * from './rate-limiting-middleware';
 export * from './request-context-middleware';
+export * from './device-protocol-middleware';
+export * from './device-validation-middleware';
+export * from './device-response-middleware';

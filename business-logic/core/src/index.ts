@@ -28,3 +28,5 @@ export * from './examples/authentication-usage';
 export * from './examples/service-context-usage';
 export * from './examples/cache-usage';
 export * from './examples/container-service-usage';
+export * from './examples/rest-api-service-usage';
+export * from './examples/device-api-service-usage';

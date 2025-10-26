@@ -1,0 +1,258 @@
+services:
+  # Load Balancer / Reverse Proxy (Development)
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: mytaptrack-nginx-dev
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - graphql-api
+      - rest-api
+      - device-api
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # GraphQL API Service (Development)
+  graphql-api:
+    build:
+      context: ..
+      dockerfile: containers/graphql-api/Dockerfile
+      target: development
+    container_name: mytaptrack-graphql-api-dev
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=graphql-api
+      - PORT=4500
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:devpassword@mongodb:27017/mytaptrack_dev?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:devpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=mytaptrack-dev
+      - JWT_AUDIENCE=mytaptrack-api-dev
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+      - LOG_LEVEL=debug
+      - HOT_RELOAD=true
+    volumes:
+      - ../business-logic:/app/business-logic:ro
+      - ../lib:/app/lib:ro
+      - ../types:/app/types:ro
+      - ../api/src/graphql:/app/graphql:ro
+      - ./config/development.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    ports:
+      - "4500:4500"
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+    command: npm run dev
+
+  # REST API Service (Development)
+  rest-api:
+    build:
+      context: ..
+      dockerfile: containers/rest-api/Dockerfile
+      target: development
+    container_name: mytaptrack-rest-api-dev
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=rest-api
+      - PORT=4501
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:devpassword@mongodb:27017/mytaptrack_dev?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:devpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=mytaptrack-dev
+      - JWT_AUDIENCE=mytaptrack-api-dev
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+      - LOG_LEVEL=debug
+      - HOT_RELOAD=true
+    volumes:
+      - ../business-logic:/app/business-logic:ro
+      - ../lib:/app/lib:ro
+      - ../types:/app/types:ro
+      - ../api/src/v2:/app/api:ro
+      - ./config/development.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    ports:
+      - "4501:4501"
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+    command: npm run dev
+
+  # Device API Service (Development)
+  device-api:
+    build:
+      context: ..
+      dockerfile: containers/device-api/Dockerfile
+      target: development
+    container_name: mytaptrack-device-api-dev
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=device-api
+      - PORT=4502
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:devpassword@mongodb:27017/mytaptrack_dev?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:devpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - JWT_PUBLIC_KEY_PATH=/app/config/jwt-public.key
+      - JWT_ISSUER=mytaptrack-dev
+      - JWT_AUDIENCE=mytaptrack-api-dev
+      - LOG_LEVEL=debug
+      - HOT_RELOAD=true
+    volumes:
+      - ../business-logic:/app/business-logic:ro
+      - ../lib:/app/lib:ro
+      - ../types:/app/types:ro
+      - ../api/src/device:/app/device:ro
+      - ./config/development.yml:/app/config/config.yml:ro
+      - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+    ports:
+      - "4502:4502"
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+    command: npm run dev
+
+  # Data Processor Service (Development)
+  data-processor:
+    build:
+      context: ..
+      dockerfile: containers/data-processor/Dockerfile
+      target: development
+    container_name: mytaptrack-data-processor-dev
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=data-processor
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - CACHE_PROVIDER=redis
+      - MONGODB_CONNECTION_STRING=mongodb://admin:devpassword@mongodb:27017/mytaptrack_dev?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:devpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+      - LOG_LEVEL=debug
+      - BATCH_SIZE=5
+      - RETRY_ATTEMPTS=2
+      - RETRY_DELAY=3000
+      - HOT_RELOAD=true
+    volumes:
+      - ../business-logic:/app/business-logic:ro
+      - ../lib:/app/lib:ro
+      - ../types:/app/types:ro
+      - ./config/development.yml:/app/config/config.yml:ro
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+    command: npm run dev
+
+  # MongoDB Database (Development)
+  mongodb:
+    image: mongo:6.0
+    container_name: mytaptrack-mongodb-dev
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=devpassword
+      - MONGO_INITDB_DATABASE=mytaptrack_dev
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./init-scripts/mongodb/dev-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    ports:
+      - "27018:27017"
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # RabbitMQ Message Broker (Development)
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: mytaptrack-rabbitmq-dev
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=devpassword
+      - RABBITMQ_DEFAULT_VHOST=mytaptrack_dev
+    volumes:
+      - rabbitmq_dev_data:/var/lib/rabbitmq
+      - ./init-scripts/rabbitmq/dev-definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # Redis Cache (Development)
+  redis:
+    image: redis:7-alpine
+    container_name: mytaptrack-redis-dev
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # Development Tools
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mytaptrack-mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=devpassword
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=devpassword
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+  rabbitmq_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  mytaptrack-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

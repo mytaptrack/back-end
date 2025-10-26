@@ -1,0 +1,290 @@
+{
+  "rabbit_version": "3.11.0",
+  "rabbitmq_version": "3.11.0",
+  "product_name": "RabbitMQ",
+  "product_version": "3.11.0",
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "admin",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    },
+    {
+      "name": "mytaptrack_app",
+      "password_hash": "app_password",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": ""
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "mytaptrack"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "mytaptrack",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "mytaptrack_app",
+      "vhost": "mytaptrack",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "mytaptrack-cluster"
+    }
+  ],
+  "policies": [
+    {
+      "vhost": "mytaptrack",
+      "name": "ha-all",
+      "pattern": ".*",
+      "apply-to": "all",
+      "definition": {
+        "ha-mode": "all",
+        "ha-sync-mode": "automatic"
+      },
+      "priority": 0
+    }
+  ],
+  "queues": [
+    {
+      "name": "user.events",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "user.events.failed",
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "student.events",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "student.events.failed",
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "license.events",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "license.events.failed",
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "report.events",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "report.events.failed",
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "app.events",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "app.events.failed",
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "device.events",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "device.events.failed",
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "user.events.failed",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "student.events.failed",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "license.events.failed",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "report.events.failed",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "app.events.failed",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "device.events.failed",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "destination": "user.events",
+      "destination_type": "queue",
+      "routing_key": "user.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "destination": "student.events",
+      "destination_type": "queue",
+      "routing_key": "student.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "destination": "license.events",
+      "destination_type": "queue",
+      "routing_key": "license.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "destination": "report.events",
+      "destination_type": "queue",
+      "routing_key": "report.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "destination": "app.events",
+      "destination_type": "queue",
+      "routing_key": "app.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.events",
+      "vhost": "mytaptrack",
+      "destination": "device.events",
+      "destination_type": "queue",
+      "routing_key": "device.*",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "destination": "user.events.failed",
+      "destination_type": "queue",
+      "routing_key": "user.events.failed",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "destination": "student.events.failed",
+      "destination_type": "queue",
+      "routing_key": "student.events.failed",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "destination": "license.events.failed",
+      "destination_type": "queue",
+      "routing_key": "license.events.failed",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "destination": "report.events.failed",
+      "destination_type": "queue",
+      "routing_key": "report.events.failed",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "destination": "app.events.failed",
+      "destination_type": "queue",
+      "routing_key": "app.events.failed",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "destination": "device.events.failed",
+      "destination_type": "queue",
+      "routing_key": "device.events.failed",
+      "arguments": {}
+    }
+  ]
+}

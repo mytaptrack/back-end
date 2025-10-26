@@ -1,0 +1,168 @@
+# Development Configuration for MyTapTrack Docker Deployment
+
+environment: docker
+stage: development
+
+# Database Configuration
+database:
+  provider: mongodb
+  mongodb:
+    connectionString: ${MONGODB_CONNECTION_STRING}
+    database: mytaptrack_dev
+    collections:
+      primary: primary_data
+      data: secondary_data
+    options:
+      maxPoolSize: 10
+      minPoolSize: 2
+      maxIdleTimeMS: 30000
+      serverSelectionTimeoutMS: 5000
+      socketTimeoutMS: 45000
+      connectTimeoutMS: 10000
+      retryWrites: true
+      w: 1
+      readPreference: primary
+
+# Message Broker Configuration
+messageBroker:
+  provider: rabbitmq
+  rabbitmq:
+    connectionString: ${RABBITMQ_CONNECTION_STRING}
+    vhost: mytaptrack_dev
+    exchanges:
+      events: mytaptrack.dev.events
+      deadLetter: mytaptrack.dev.dlx
+    queues:
+      userEvents: user.dev.events
+      studentEvents: student.dev.events
+      licenseEvents: license.dev.events
+      reportEvents: report.dev.events
+      appEvents: app.dev.events
+      deviceEvents: device.dev.events
+    options:
+      heartbeat: 60
+      connectionTimeout: 10000
+      channelMax: 50
+      frameMax: 0x1000
+      prefetch: 5
+
+# Authentication Configuration
+authentication:
+  provider: jwt
+  jwt:
+    publicKeyPath: ${JWT_PUBLIC_KEY_PATH}
+    issuer: ${JWT_ISSUER}
+    audience: ${JWT_AUDIENCE}
+    algorithms: ["RS256", "ES256"]
+    clockTolerance: 60
+    maxAge: "8h"
+  
+# Cache Configuration
+cache:
+  provider: redis
+  redis:
+    connectionString: ${REDIS_CONNECTION_STRING}
+    keyPrefix: "mtt:dev:"
+    defaultTTL: 1800
+    options:
+      retryDelayOnFailover: 100
+      enableReadyCheck: true
+      maxRetriesPerRequest: 3
+      lazyConnect: true
+      keepAlive: 30000
+
+# Service Configuration
+services:
+  graphqlApi:
+    port: 4000
+    cors:
+      origins: ["http://localhost:3000", "http://localhost:3001", "http://localhost:8080"]
+      credentials: true
+      methods: ["GET", "POST", "OPTIONS"]
+      allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken", "Keep-Alive", "X-Requested-With", "If-Modified-Since"]
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 1000
+    complexity:
+      maximumComplexity: 2000
+      maximumDepth: 15
+    
+  restApi:
+    port: 4501
+    cors:
+      origins: ["http://localhost:3000", "http://localhost:3001", "http://localhost:8080"]
+      credentials: true
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken", "Keep-Alive", "X-Requested-With", "If-Modified-Since"]
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 2000
+    
+  deviceApi:
+    port: 4502
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 5000
+    timeout: 60000
+    
+  dataProcessor:
+    batchSize: ${BATCH_SIZE:-5}
+    retryAttempts: ${RETRY_ATTEMPTS:-2}
+    retryDelay: ${RETRY_DELAY:-3000}
+    deadLetterThreshold: 3
+    processingTimeout: 30000
+
+# Logging Configuration
+logging:
+  level: ${LOG_LEVEL:-debug}
+  format: pretty
+  timestamp: true
+  correlationId: true
+  includeStack: true
+  destinations:
+    - console
+  fields:
+    service: ${SERVICE_NAME}
+    environment: development
+    version: ${APP_VERSION:-dev}
+
+# Security Configuration
+security:
+  encryption:
+    algorithm: aes-256-gcm
+    keyRotation: false
+  secrets:
+    provider: env
+  network:
+    allowedOrigins: ["*"]
+    rateLimiting: false
+    ddosProtection: false
+  
+# Health Check Configuration
+healthCheck:
+  enabled: true
+  interval: 15000
+  timeout: 3000
+  retries: 2
+  checks:
+    - database
+    - messageBroker
+    - cache
+
+# Monitoring Configuration
+monitoring:
+  metrics:
+    enabled: true
+    port: 9090
+    path: /metrics
+  tracing:
+    enabled: true
+  profiling:
+    enabled: true
+
+# Development Features
+development:
+  hotReload: ${HOT_RELOAD:-true}
+  mockData: true
+  debugMode: true
+  verboseLogging: true
