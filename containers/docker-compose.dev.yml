@@ -200,15 +200,32 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=devpassword
       - RABBITMQ_DEFAULT_VHOST=mytaptrack_dev
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=15672
+      - RABBITMQ_VHOST=mytaptrack_dev
+      - MYTAPTRACK_APP_PASSWORD=dev_app_password
+      - ENVIRONMENT=development
     volumes:
       - rabbitmq_dev_data:/var/lib/rabbitmq
+      - ./init-scripts/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./init-scripts/rabbitmq/dev-definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./init-scripts/rabbitmq/init-rabbitmq.sh:/etc/rabbitmq/init-rabbitmq.sh:ro
+      - ./init-scripts/rabbitmq/health-check.sh:/etc/rabbitmq/health-check.sh:ro
+      - ./init-scripts/rabbitmq/monitoring-setup.sh:/etc/rabbitmq/monitoring-setup.sh:ro
+      - ./init-scripts/rabbitmq/connection-recovery.sh:/etc/rabbitmq/connection-recovery.sh:ro
+      - /var/log/rabbitmq-dev:/var/log/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
       - mytaptrack-dev-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/etc/rabbitmq/health-check.sh"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
 
   # Redis Cache (Development)
   redis:

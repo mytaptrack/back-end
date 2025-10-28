@@ -54,9 +54,33 @@
       "apply-to": "all",
       "definition": {
         "ha-mode": "all",
-        "ha-sync-mode": "automatic"
+        "ha-sync-mode": "automatic",
+        "ha-sync-batch-size": 1
       },
       "priority": 0
+    },
+    {
+      "vhost": "mytaptrack",
+      "name": "retry-policy",
+      "pattern": "\\.retry$",
+      "apply-to": "queues",
+      "definition": {
+        "message-ttl": 30000,
+        "max-length": 5000,
+        "overflow": "drop-head"
+      },
+      "priority": 5
+    },
+    {
+      "vhost": "mytaptrack",
+      "name": "failed-queue-policy",
+      "pattern": "\\.failed$",
+      "apply-to": "queues",
+      "definition": {
+        "max-length": 10000,
+        "overflow": "reject-publish"
+      },
+      "priority": 10
     }
   ],
   "queues": [
@@ -66,8 +90,8 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {
-        "x-dead-letter-exchange": "mytaptrack.dlx",
-        "x-dead-letter-routing-key": "user.events.failed",
+        "x-dead-letter-exchange": "mytaptrack.retry",
+        "x-dead-letter-routing-key": "user.events.retry",
         "x-message-ttl": 3600000
       }
     },
@@ -77,8 +101,8 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {
-        "x-dead-letter-exchange": "mytaptrack.dlx",
-        "x-dead-letter-routing-key": "student.events.failed",
+        "x-dead-letter-exchange": "mytaptrack.retry",
+        "x-dead-letter-routing-key": "student.events.retry",
         "x-message-ttl": 3600000
       }
     },
@@ -88,8 +112,8 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {
-        "x-dead-letter-exchange": "mytaptrack.dlx",
-        "x-dead-letter-routing-key": "license.events.failed",
+        "x-dead-letter-exchange": "mytaptrack.retry",
+        "x-dead-letter-routing-key": "license.events.retry",
         "x-message-ttl": 3600000
       }
     },
@@ -99,8 +123,8 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {
-        "x-dead-letter-exchange": "mytaptrack.dlx",
-        "x-dead-letter-routing-key": "report.events.failed",
+        "x-dead-letter-exchange": "mytaptrack.retry",
+        "x-dead-letter-routing-key": "report.events.retry",
         "x-message-ttl": 3600000
       }
     },
@@ -110,8 +134,8 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {
-        "x-dead-letter-exchange": "mytaptrack.dlx",
-        "x-dead-letter-routing-key": "app.events.failed",
+        "x-dead-letter-exchange": "mytaptrack.retry",
+        "x-dead-letter-routing-key": "app.events.retry",
         "x-message-ttl": 3600000
       }
     },
@@ -121,8 +145,8 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {
-        "x-dead-letter-exchange": "mytaptrack.dlx",
-        "x-dead-letter-routing-key": "device.events.failed",
+        "x-dead-letter-exchange": "mytaptrack.retry",
+        "x-dead-letter-routing-key": "device.events.retry",
         "x-message-ttl": 3600000
       }
     },
@@ -167,6 +191,72 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {}
+    },
+    {
+      "name": "user.events.retry",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "user.events.failed",
+        "x-message-ttl": 30000
+      }
+    },
+    {
+      "name": "student.events.retry",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "student.events.failed",
+        "x-message-ttl": 30000
+      }
+    },
+    {
+      "name": "license.events.retry",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "license.events.failed",
+        "x-message-ttl": 30000
+      }
+    },
+    {
+      "name": "report.events.retry",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "report.events.failed",
+        "x-message-ttl": 30000
+      }
+    },
+    {
+      "name": "app.events.retry",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "app.events.failed",
+        "x-message-ttl": 30000
+      }
+    },
+    {
+      "name": "device.events.retry",
+      "vhost": "mytaptrack",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "mytaptrack.dlx",
+        "x-dead-letter-routing-key": "device.events.failed",
+        "x-message-ttl": 30000
+      }
     }
   ],
   "exchanges": [
@@ -181,6 +271,15 @@
     },
     {
       "name": "mytaptrack.dlx",
+      "vhost": "mytaptrack",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "mytaptrack.retry",
       "vhost": "mytaptrack",
       "type": "direct",
       "durable": true,
@@ -284,6 +383,54 @@
       "destination": "device.events.failed",
       "destination_type": "queue",
       "routing_key": "device.events.failed",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.retry",
+      "vhost": "mytaptrack",
+      "destination": "user.events.retry",
+      "destination_type": "queue",
+      "routing_key": "user.events.retry",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.retry",
+      "vhost": "mytaptrack",
+      "destination": "student.events.retry",
+      "destination_type": "queue",
+      "routing_key": "student.events.retry",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.retry",
+      "vhost": "mytaptrack",
+      "destination": "license.events.retry",
+      "destination_type": "queue",
+      "routing_key": "license.events.retry",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.retry",
+      "vhost": "mytaptrack",
+      "destination": "report.events.retry",
+      "destination_type": "queue",
+      "routing_key": "report.events.retry",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.retry",
+      "vhost": "mytaptrack",
+      "destination": "app.events.retry",
+      "destination_type": "queue",
+      "routing_key": "app.events.retry",
+      "arguments": {}
+    },
+    {
+      "source": "mytaptrack.retry",
+      "vhost": "mytaptrack",
+      "destination": "device.events.retry",
+      "destination_type": "queue",
+      "routing_key": "device.events.retry",
       "arguments": {}
     }
   ]

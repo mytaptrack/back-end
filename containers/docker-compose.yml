@@ -204,10 +204,21 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-password}
       - RABBITMQ_DEFAULT_VHOST=mytaptrack
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=15672
+      - RABBITMQ_VHOST=mytaptrack
+      - MYTAPTRACK_APP_PASSWORD=${MYTAPTRACK_APP_PASSWORD:-app_secure_password}
+      - ENVIRONMENT=production
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
       - ./init-scripts/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./init-scripts/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./init-scripts/rabbitmq/init-rabbitmq.sh:/etc/rabbitmq/init-rabbitmq.sh:ro
+      - ./init-scripts/rabbitmq/health-check.sh:/etc/rabbitmq/health-check.sh:ro
+      - ./init-scripts/rabbitmq/monitoring-setup.sh:/etc/rabbitmq/monitoring-setup.sh:ro
+      - ./init-scripts/rabbitmq/connection-recovery.sh:/etc/rabbitmq/connection-recovery.sh:ro
+      - ./init-scripts/rabbitmq/docker-entrypoint.sh:/docker-entrypoint-initdb.d/init-rabbitmq.sh:ro
+      - /var/log/rabbitmq:/var/log/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -215,11 +226,11 @@ services:
       - mytaptrack-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "/etc/rabbitmq/health-check.sh"]
+      interval: 60s
+      timeout: 30s
       retries: 3
-      start_period: 40s
+      start_period: 120s
 
   # Redis Cache
   redis:
