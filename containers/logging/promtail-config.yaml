@@ -1,0 +1,227 @@
+# Promtail Configuration for MyTapTrack Container Log Collection
+# Collects logs from all MyTapTrack services and forwards to Loki
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # MyTapTrack GraphQL API logs
+  - job_name: graphql-api
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: graphql-api
+          service: mytaptrack-graphql-api
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*graphql-api*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # MyTapTrack REST API logs
+  - job_name: rest-api
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: rest-api
+          service: mytaptrack-rest-api
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*rest-api*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # MyTapTrack Device API logs
+  - job_name: device-api
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: device-api
+          service: mytaptrack-device-api
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*device-api*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # MyTapTrack Data Processor logs
+  - job_name: data-processor
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: data-processor
+          service: mytaptrack-data-processor
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*data-processor*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # MongoDB logs
+  - job_name: mongodb
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: mongodb
+          service: mytaptrack-mongodb
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*mongodb*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # RabbitMQ logs
+  - job_name: rabbitmq
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: rabbitmq
+          service: mytaptrack-rabbitmq
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*rabbitmq*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # Redis logs
+  - job_name: redis
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: redis
+          service: mytaptrack-redis
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*redis*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # Nginx proxy logs
+  - job_name: nginx
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          service: mytaptrack-nginx
+          environment: ${ENVIRONMENT:-production}
+          __path__: /var/lib/docker/containers/*nginx*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: output
+
+  # Application-specific log parsing for structured logs
+  - job_name: mytaptrack-structured
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: mytaptrack-structured
+          __path__: /var/lib/docker/containers/*mytaptrack*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            container_log: log
+            stream: stream
+            timestamp: time
+      - json:
+          source: container_log
+          expressions:
+            level: level
+            service: service
+            message: message
+            correlation_id: correlationId
+            user_id: userId
+            request_id: requestId
+            error_name: error.name
+            error_message: error.message
+            performance_operation: performance.operation
+            performance_duration: performance.duration
+      - labels:
+          level:
+          service:
+          correlation_id:
+          user_id:
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+      - output:
+          source: message

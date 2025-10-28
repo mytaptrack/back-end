@@ -32,6 +32,7 @@ services:
       - NODE_ENV=production
       - SERVICE_NAME=graphql-api
       - PORT=4500
+      - METRICS_PORT=9091
       - DATABASE_PROVIDER=mongodb
       - MESSAGE_BROKER_PROVIDER=rabbitmq
       - AUTH_PROVIDER=jwt
@@ -44,6 +45,18 @@ services:
       - JWT_AUDIENCE=${JWT_AUDIENCE:-mytaptrack-api}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,https://app.mytaptrack.com}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=json
+      - LOG_INCLUDE_STACK=true
+      - METRICS_ENABLED=true
+      - HEALTH_CHECKS_ENABLED=true
+      - HEALTH_CHECK_INTERVAL=30000
+      - HEALTH_CHECK_TIMEOUT=5000
+      - HEALTH_CHECK_RETRIES=3
+      - REQUEST_TIMEOUT=30000
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_WINDOW=60000
+      - RATE_LIMIT_MAX=100
+      - SLOW_REQUEST_THRESHOLD=1000
     volumes:
       - ./config/production.yml:/app/config/config.yml:ro
       - ./config/jwt-public.key:/app/config/jwt-public.key:ro
@@ -71,6 +84,7 @@ services:
       - NODE_ENV=production
       - SERVICE_NAME=rest-api
       - PORT=4501
+      - METRICS_PORT=9091
       - DATABASE_PROVIDER=mongodb
       - MESSAGE_BROKER_PROVIDER=rabbitmq
       - AUTH_PROVIDER=jwt
@@ -83,6 +97,18 @@ services:
       - JWT_AUDIENCE=${JWT_AUDIENCE:-mytaptrack-api}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,https://app.mytaptrack.com}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=json
+      - LOG_INCLUDE_STACK=true
+      - METRICS_ENABLED=true
+      - HEALTH_CHECKS_ENABLED=true
+      - HEALTH_CHECK_INTERVAL=30000
+      - HEALTH_CHECK_TIMEOUT=5000
+      - HEALTH_CHECK_RETRIES=3
+      - REQUEST_TIMEOUT=30000
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_WINDOW=60000
+      - RATE_LIMIT_MAX=100
+      - SLOW_REQUEST_THRESHOLD=1000
     volumes:
       - ./config/production.yml:/app/config/config.yml:ro
       - ./config/jwt-public.key:/app/config/jwt-public.key:ro
@@ -110,6 +136,7 @@ services:
       - NODE_ENV=production
       - SERVICE_NAME=device-api
       - PORT=4502
+      - METRICS_PORT=9091
       - DATABASE_PROVIDER=mongodb
       - MESSAGE_BROKER_PROVIDER=rabbitmq
       - AUTH_PROVIDER=jwt
@@ -121,6 +148,18 @@ services:
       - JWT_ISSUER=${JWT_ISSUER:-mytaptrack}
       - JWT_AUDIENCE=${JWT_AUDIENCE:-mytaptrack-api}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=json
+      - LOG_INCLUDE_STACK=true
+      - METRICS_ENABLED=true
+      - HEALTH_CHECKS_ENABLED=true
+      - HEALTH_CHECK_INTERVAL=30000
+      - HEALTH_CHECK_TIMEOUT=5000
+      - HEALTH_CHECK_RETRIES=3
+      - REQUEST_TIMEOUT=30000
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_WINDOW=60000
+      - RATE_LIMIT_MAX=200
+      - SLOW_REQUEST_THRESHOLD=2000
     volumes:
       - ./config/production.yml:/app/config/config.yml:ro
       - ./config/jwt-public.key:/app/config/jwt-public.key:ro
@@ -147,6 +186,7 @@ services:
     environment:
       - NODE_ENV=production
       - SERVICE_NAME=data-processor
+      - METRICS_PORT=9091
       - DATABASE_PROVIDER=mongodb
       - MESSAGE_BROKER_PROVIDER=rabbitmq
       - CACHE_PROVIDER=redis
@@ -154,6 +194,13 @@ services:
       - RABBITMQ_CONNECTION_STRING=amqp://admin:${RABBITMQ_PASSWORD:-password}@rabbitmq:5672
       - REDIS_CONNECTION_STRING=redis://redis:6379
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=json
+      - LOG_INCLUDE_STACK=true
+      - METRICS_ENABLED=true
+      - HEALTH_CHECKS_ENABLED=true
+      - HEALTH_CHECK_INTERVAL=30000
+      - HEALTH_CHECK_TIMEOUT=5000
+      - HEALTH_CHECK_RETRIES=3
       - BATCH_SIZE=${BATCH_SIZE:-10}
       - RETRY_ATTEMPTS=${RETRY_ATTEMPTS:-3}
       - RETRY_DELAY=${RETRY_DELAY:-5000}

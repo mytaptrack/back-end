@@ -61,6 +61,9 @@ show_usage() {
     echo "  backup      Backup databases"
     echo "  restore     Restore databases"
     echo "  shell       Open shell in service container"
+    echo "  dev         Development environment manager"
+    echo "  seed        Seed test data"
+    echo "  inspect     Inspect databases and queues"
     echo ""
     echo "Environments:"
     echo "  dev         Development environment (default)"
@@ -73,6 +76,9 @@ show_usage() {
     echo "  $0 logs dev graphql-api      # Show GraphQL API logs in dev"
     echo "  $0 shell dev mongodb         # Open MongoDB shell in dev"
     echo "  $0 backup prod               # Backup production databases"
+    echo "  $0 dev start                 # Start development environment"
+    echo "  $0 seed dev --scenarios      # Seed development data with scenarios"
+    echo "  $0 inspect dev mongodb users # Inspect user data in development"
 }
 
 # Get Docker Compose files for environment
@@ -324,6 +330,33 @@ main() {
             ;;
         "shell")
             open_shell $env $arg3
+            ;;
+        "dev")
+            if [[ $env == "dev" ]]; then
+                shift 2  # Remove 'dev' and 'dev' arguments
+                ./dev-tools/tools/dev.sh "$@"
+            else
+                print_error "Development tools only available for 'dev' environment"
+                exit 1
+            fi
+            ;;
+        "seed")
+            if [[ $env == "dev" ]]; then
+                shift 2  # Remove 'seed' and 'dev' arguments
+                ./dev-tools/tools/dev-seed.sh "$@"
+            else
+                print_error "Seeding tools only available for 'dev' environment"
+                exit 1
+            fi
+            ;;
+        "inspect")
+            if [[ $env == "dev" ]]; then
+                shift 2  # Remove 'inspect' and 'dev' arguments
+                ./dev-tools/tools/dev-inspect.sh "$@"
+            else
+                print_error "Inspection tools only available for 'dev' environment"
+                exit 1
+            fi
             ;;
         "help"|"-h"|"--help")
             show_usage

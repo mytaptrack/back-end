@@ -14,6 +14,11 @@ services:
     networks:
       - mytaptrack-dev-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # GraphQL API Service (Development)
   graphql-api:
@@ -39,15 +44,19 @@ services:
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
       - LOG_LEVEL=debug
       - HOT_RELOAD=true
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     volumes:
-      - ../business-logic:/app/business-logic:ro
-      - ../lib:/app/lib:ro
-      - ../types:/app/types:ro
-      - ../api/src/graphql:/app/graphql:ro
+      - ../business-logic:/app/business-logic:cached
+      - ../lib:/app/lib:cached
+      - ../types:/app/types:cached
+      - ../api/src/graphql:/app/graphql:cached
       - ./config/development.yml:/app/config/config.yml:ro
       - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+      - /app/node_modules
     ports:
       - "4500:4500"
+      - "9229:9229"  # Node.js debugger port
     depends_on:
       - mongodb
       - rabbitmq
@@ -55,7 +64,13 @@ services:
     networks:
       - mytaptrack-dev-network
     restart: unless-stopped
-    command: npm run dev
+    command: npm run dev:debug
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4500/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # REST API Service (Development)
   rest-api:
@@ -81,15 +96,19 @@ services:
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
       - LOG_LEVEL=debug
       - HOT_RELOAD=true
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     volumes:
-      - ../business-logic:/app/business-logic:ro
-      - ../lib:/app/lib:ro
-      - ../types:/app/types:ro
-      - ../api/src/v2:/app/api:ro
+      - ../business-logic:/app/business-logic:cached
+      - ../lib:/app/lib:cached
+      - ../types:/app/types:cached
+      - ../api/src/v2:/app/api:cached
       - ./config/development.yml:/app/config/config.yml:ro
       - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+      - /app/node_modules
     ports:
       - "4501:4501"
+      - "9230:9229"  # Node.js debugger port
     depends_on:
       - mongodb
       - rabbitmq
@@ -97,7 +116,13 @@ services:
     networks:
       - mytaptrack-dev-network
     restart: unless-stopped
-    command: npm run dev
+    command: npm run dev:debug
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4501/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Device API Service (Development)
   device-api:
@@ -122,15 +147,19 @@ services:
       - JWT_AUDIENCE=mytaptrack-api-dev
       - LOG_LEVEL=debug
       - HOT_RELOAD=true
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     volumes:
-      - ../business-logic:/app/business-logic:ro
-      - ../lib:/app/lib:ro
-      - ../types:/app/types:ro
-      - ../api/src/device:/app/device:ro
+      - ../business-logic:/app/business-logic:cached
+      - ../lib:/app/lib:cached
+      - ../types:/app/types:cached
+      - ../api/src/device:/app/device:cached
       - ./config/development.yml:/app/config/config.yml:ro
       - ./config/jwt-public.key:/app/config/jwt-public.key:ro
+      - /app/node_modules
     ports:
       - "4502:4502"
+      - "9231:9229"  # Node.js debugger port
     depends_on:
       - mongodb
       - rabbitmq
@@ -138,7 +167,13 @@ services:
     networks:
       - mytaptrack-dev-network
     restart: unless-stopped
-    command: npm run dev
+    command: npm run dev:debug
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4502/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Data Processor Service (Development)
   data-processor:
@@ -161,11 +196,16 @@ services:
       - RETRY_ATTEMPTS=2
       - RETRY_DELAY=3000
       - HOT_RELOAD=true
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     volumes:
-      - ../business-logic:/app/business-logic:ro
-      - ../lib:/app/lib:ro
-      - ../types:/app/types:ro
+      - ../business-logic:/app/business-logic:cached
+      - ../lib:/app/lib:cached
+      - ../types:/app/types:cached
       - ./config/development.yml:/app/config/config.yml:ro
+      - /app/node_modules
+    ports:
+      - "9232:9229"  # Node.js debugger port
     depends_on:
       - mongodb
       - rabbitmq
@@ -173,7 +213,13 @@ services:
     networks:
       - mytaptrack-dev-network
     restart: unless-stopped
-    command: npm run dev
+    command: npm run dev:debug
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # MongoDB Database (Development)
   mongodb:
@@ -259,12 +305,103 @@ services:
       - mytaptrack-dev-network
     restart: unless-stopped
 
+  # Redis Commander for Redis inspection
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: mytaptrack-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # Log aggregation with Loki
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: mytaptrack-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./dev-tools/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # Log viewer with Grafana
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: mytaptrack-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=devpassword
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./dev-tools/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./dev-tools/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ./dev-tools/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - loki
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # Promtail for log collection
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: mytaptrack-promtail
+    volumes:
+      - ./dev-tools/promtail-config.yaml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    networks:
+      - mytaptrack-dev-network
+    restart: unless-stopped
+
+  # Development utilities container
+  dev-tools:
+    build:
+      context: ..
+      dockerfile: containers/dev-tools/Dockerfile
+    container_name: mytaptrack-dev-tools
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://admin:devpassword@mongodb:27017/mytaptrack_dev?authSource=admin
+      - RABBITMQ_CONNECTION_STRING=amqp://admin:devpassword@rabbitmq:5672
+      - REDIS_CONNECTION_STRING=redis://redis:6379
+    volumes:
+      - ../containers/scripts:/app/scripts:cached
+      - ./dev-tools:/app/dev-tools:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-dev-network
+    restart: "no"
+    profiles:
+      - tools
+
 volumes:
   mongodb_dev_data:
     driver: local
   rabbitmq_dev_data:
     driver: local
   redis_dev_data:
+    driver: local
+  loki_data:
+    driver: local
+  grafana_data:
     driver: local
 
 networks:

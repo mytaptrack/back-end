@@ -1,0 +1,169 @@
+# Logging Configuration for MyTapTrack Container Services
+# Provides structured logging configuration for all services
+
+# Default logging configuration
+default:
+  logging:
+    level: info
+    format: json
+    timestamp: true
+    correlationId: true
+    includeStack: false
+    destinations:
+      - console
+    fields:
+      application: mytaptrack
+      version: ${SERVICE_VERSION:-1.0.0}
+      environment: ${NODE_ENV:-production}
+
+  monitoring:
+    metrics:
+      enabled: true
+      port: 9091
+      path: /metrics
+      prefix: mytaptrack
+    tracing:
+      enabled: false
+    profiling:
+      enabled: false
+
+  healthCheck:
+    enabled: true
+    interval: 30000
+    timeout: 5000
+    retries: 3
+    checks:
+      - database
+      - messageBroker
+      - cache
+      - memory
+
+# Service-specific configurations
+services:
+  graphql-api:
+    logging:
+      level: ${LOG_LEVEL:-info}
+      format: ${LOG_FORMAT:-json}
+      includeStack: ${LOG_INCLUDE_STACK:-true}
+      fields:
+        service: graphql-api
+        component: api
+    monitoring:
+      metrics:
+        enabled: ${METRICS_ENABLED:-true}
+        port: ${METRICS_PORT:-9091}
+    healthCheck:
+      interval: ${HEALTH_CHECK_INTERVAL:-30000}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-5000}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+
+  rest-api:
+    logging:
+      level: ${LOG_LEVEL:-info}
+      format: ${LOG_FORMAT:-json}
+      includeStack: ${LOG_INCLUDE_STACK:-true}
+      fields:
+        service: rest-api
+        component: api
+    monitoring:
+      metrics:
+        enabled: ${METRICS_ENABLED:-true}
+        port: ${METRICS_PORT:-9091}
+    healthCheck:
+      interval: ${HEALTH_CHECK_INTERVAL:-30000}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-5000}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+
+  device-api:
+    logging:
+      level: ${LOG_LEVEL:-info}
+      format: ${LOG_FORMAT:-json}
+      includeStack: ${LOG_INCLUDE_STACK:-true}
+      fields:
+        service: device-api
+        component: api
+    monitoring:
+      metrics:
+        enabled: ${METRICS_ENABLED:-true}
+        port: ${METRICS_PORT:-9091}
+    healthCheck:
+      interval: ${HEALTH_CHECK_INTERVAL:-30000}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-5000}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+
+  data-processor:
+    logging:
+      level: ${LOG_LEVEL:-info}
+      format: ${LOG_FORMAT:-json}
+      includeStack: ${LOG_INCLUDE_STACK:-true}
+      fields:
+        service: data-processor
+        component: processor
+    monitoring:
+      metrics:
+        enabled: ${METRICS_ENABLED:-true}
+        port: ${METRICS_PORT:-9091}
+    healthCheck:
+      interval: ${HEALTH_CHECK_INTERVAL:-30000}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-5000}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+
+# Log aggregation configuration for container orchestration
+aggregation:
+  enabled: true
+  format: json
+  fields:
+    service: true
+    version: true
+    environment: true
+    correlationId: true
+    userId: true
+    requestId: true
+  labels:
+    application: mytaptrack
+    team: platform
+    environment: ${NODE_ENV:-production}
+
+# Performance monitoring thresholds
+performance:
+  slowRequestThreshold: ${SLOW_REQUEST_THRESHOLD:-1000}
+  databaseOperationThreshold: 500
+  messageBrokerThreshold: 200
+  cacheOperationThreshold: 50
+
+# Rate limiting configuration
+rateLimiting:
+  enabled: ${RATE_LIMIT_ENABLED:-true}
+  windowMs: ${RATE_LIMIT_WINDOW:-60000}
+  maxRequests: ${RATE_LIMIT_MAX:-100}
+  keyGenerator: ip
+
+# Request timeout configuration
+timeout:
+  request: ${REQUEST_TIMEOUT:-30000}
+  database: 10000
+  messageBroker: 5000
+  cache: 1000
+
+# Memory and resource monitoring
+resources:
+  memory:
+    warningThreshold: 0.8
+    criticalThreshold: 0.9
+  diskSpace:
+    warningThreshold: 0.8
+    criticalThreshold: 0.9
+
+# Development-specific settings
+development:
+  logging:
+    level: debug
+    format: pretty
+    includeStack: true
+  monitoring:
+    metrics:
+      enabled: true
+    profiling:
+      enabled: true
+  performance:
+    slowRequestThreshold: 500

@@ -36,6 +36,9 @@ export {
   isDockerEnvironment
 } from './config';
 
+// Logging and Monitoring
+export * from './logging';
+
 // Examples
 export * from './examples/authentication-usage';
 export * from './examples/service-context-usage';
