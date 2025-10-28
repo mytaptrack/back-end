@@ -11,3 +11,62 @@ node_modules/*
 **/cdk.out/*
 
 .DS_Store
+
+# Configuration Files with Secrets
+# Protect environment-specific configuration files that may contain secrets
+config/*-prod.yml
+config/*-production.yml
+config/prod.yml
+config/production.yml
+containers/config/*-prod.yml
+containers/config/*-production.yml
+containers/config/prod.yml
+containers/config/production.yml
+
+# Allow example/template files
+!config/*.example
+!config/*.template
+!containers/config/*.example
+!containers/config/*.template
+
+# Environment Files
+.env
+.env.local
+.env.production
+.env.staging
+**/.env
+**/.env.local
+**/.env.production
+**/.env.staging
+
+# Secret Files
+secrets/
+**/secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+
+# Docker Secrets
+docker-secrets/
+**/docker-secrets/
+
+# AWS Credentials
+.aws/
+**/.aws/
+aws-credentials
+**/aws-credentials
+
+# Configuration Overrides
+config.local.yml
+config.local.yaml
+config.override.yml
+config.override.yaml
+**/config.local.yml
+**/config.local.yaml
+**/config.override.yml
+**/config.override.yaml

@@ -1,4 +1,9 @@
 # Development Configuration for MyTapTrack Docker Deployment
+#
+# ⚠️  SECURITY NOTICE ⚠️
+# This file may contain development secrets and credentials.
+# Ensure no production values are committed to version control.
+# Use environment variables for sensitive values: ${SECRET_NAME}
 
 environment: docker
 stage: development

@@ -1,5 +1,6 @@
 import { IAuthenticationProvider, AuthenticationResult, UserContext, TokenResult, AuthConfig } from '../authentication/interfaces';
 import { ICacheProvider, CacheConfig } from '../cache-providers/interfaces';
+import { UnifiedConfig } from '../config/interfaces';
 
 /**
  * Core service context interface that provides all service dependencies
@@ -54,7 +55,8 @@ export interface ILogger {
 }
 
 /**
- * Service configuration interface
+ * Service configuration interface (legacy - use UnifiedConfig instead)
+ * @deprecated Use UnifiedConfig from '../config/interfaces' instead
  */
 export interface ServiceConfig {
   environment: 'aws' | 'docker';
@@ -63,6 +65,18 @@ export interface ServiceConfig {
   authentication: AuthConfig;
   cache: CacheConfig;
   [key: string]: any;
+}
+
+/**
+ * Updated service context interface using unified configuration
+ */
+export interface ServiceContextV2 {
+  dataAccess: IDataAccessLayer;
+  messageBroker: IMessageBroker;
+  authentication: IAuthenticationProvider;
+  cache: ICacheProvider;
+  logger: ILogger;
+  config: UnifiedConfig;
 }
 
 // Supporting interfaces

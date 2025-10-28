@@ -21,12 +21,25 @@ export * from './cache-providers';
 export * from './service-context';
 
 // Container Services
-export * from './container-services';
+// export * from './container-services'; // Temporarily disabled due to missing dependencies
+
+// Configuration Management
+export { 
+  UnifiedConfig, 
+  ConfigFactory, 
+  ConfigLoader, 
+  SecretManager,
+  ConfigValidator,
+  createDefaultConfig,
+  validateEnvironmentConfig,
+  isAWSEnvironment,
+  isDockerEnvironment
+} from './config';
 
 // Examples
 export * from './examples/authentication-usage';
 export * from './examples/service-context-usage';
 export * from './examples/cache-usage';
-export * from './examples/container-service-usage';
-export * from './examples/rest-api-service-usage';
-export * from './examples/device-api-service-usage';
+// export * from './examples/container-service-usage'; // Temporarily disabled
+// export * from './examples/rest-api-service-usage'; // Temporarily disabled
+// export * from './examples/device-api-service-usage'; // Temporarily disabled

@@ -1,0 +1,149 @@
+# AWS Production Configuration for MyTapTrack
+# 
+# ⚠️  SECURITY WARNING ⚠️
+# This is an EXAMPLE configuration file. 
+# DO NOT commit actual production values to version control.
+# Copy this file to aws-prod.yml and update with real values.
+#
+# Real configuration files are ignored by .gitignore for security.
+
+environment: aws
+stage: prod
+region: ${AWS_REGION:-us-west-2}
+
+# Database Configuration
+database:
+  provider: dynamodb
+  dynamodb:
+    region: ${AWS_REGION:-us-west-2}
+    tables:
+      primary: mytaptrack-prod-primary
+      data: mytaptrack-prod-data
+
+# Message Broker Configuration
+messageBroker:
+  provider: eventbridge
+  eventbridge:
+    region: ${AWS_REGION:-us-west-2}
+    eventBusName: mytaptrack-prod-events
+    source: mytaptrack
+
+# Authentication Configuration
+authentication:
+  provider: cognito
+  cognito:
+    region: ${AWS_REGION:-us-west-2}
+    userPoolId: ${COGNITO_USER_POOL_ID}
+    clientId: ${COGNITO_CLIENT_ID}
+    issuer: https://cognito-idp.${AWS_REGION:-us-west-2}.amazonaws.com/${COGNITO_USER_POOL_ID}
+
+# Cache Configuration
+cache:
+  provider: dynamodb
+  dynamodb:
+    region: ${AWS_REGION:-us-west-2}
+    tableName: mytaptrack-prod-cache
+    ttlAttribute: ttl
+
+# Service Configuration (for local development/testing only)
+services:
+  graphqlApi:
+    port: 4000
+    cors:
+      origins: ["https://app.mytaptrack.com"]
+      credentials: true
+      methods: ["GET", "POST", "OPTIONS"]
+      allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken", "Keep-Alive", "X-Requested-With", "If-Modified-Since"]
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 1000
+    complexity:
+      maximumComplexity: 2000
+      maximumDepth: 12
+    
+  restApi:
+    port: 4501
+    cors:
+      origins: ["https://app.mytaptrack.com"]
+      credentials: true
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken", "Keep-Alive", "X-Requested-With", "If-Modified-Since"]
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 2000
+    
+  deviceApi:
+    port: 4502
+    rateLimit:
+      windowMs: 60000
+      maxRequests: 5000
+    timeout: 30000
+
+# Logging Configuration
+logging:
+  level: ${LOG_LEVEL:-info}
+  format: json
+  timestamp: true
+  correlationId: true
+  includeStack: false
+  destinations:
+    - console
+    - cloudwatch
+  fields:
+    service: mytaptrack
+    environment: aws-prod
+    version: ${APP_VERSION:-1.0.0}
+
+# Security Configuration
+security:
+  encryption:
+    algorithm: aes-256-gcm
+    keyRotation: true
+  secrets:
+    provider: aws-secrets-manager
+    awsSecretsManager:
+      region: ${AWS_REGION:-us-west-2}
+  network:
+    allowedOrigins: ["https://app.mytaptrack.com"]
+    rateLimiting: true
+    ddosProtection: true
+
+# Health Check Configuration
+healthCheck:
+  enabled: true
+  interval: 60000
+  timeout: 10000
+  retries: 3
+  checks:
+    - database
+    - messageBroker
+    - cache
+
+# Monitoring Configuration
+monitoring:
+  metrics:
+    enabled: true
+    port: 9090
+    path: /metrics
+  tracing:
+    enabled: true
+    provider: aws-xray
+  profiling:
+    enabled: false
+
+# Application Configuration
+app:
+  name: MyTapTrack
+  version: ${APP_VERSION:-1.0.0}
+  pushSnsArns:
+    android: ${ANDROID_SNS_ARN}
+    ios: ${IOS_SNS_ARN}
+  domain:
+    name: ${DOMAIN_NAME}
+    hostedZoneId: ${HOSTED_ZONE_ID}
+    subdomains:
+      api: api
+      device: device
+      website: app
+  student:
+    removeTimeout: ${STUDENT_REMOVE_TIMEOUT:-7776000000}
