@@ -1,0 +1,151 @@
+# Network Security Configuration for Docker Containers
+# This file defines network isolation, firewall rules, and security policies
+
+version: '3.8'
+
+networks:
+  # Frontend network for public-facing services
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+
+  # Backend network for internal services
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+  # Database network for data services
+  database:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+  # Message broker network
+  messaging:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+# Security policies for container communication
+security_policies:
+  # API services can communicate with backend services
+  api_to_backend:
+    - source: frontend
+      destination: backend
+      ports: [3000, 4000, 5000]
+      protocol: tcp
+
+  # Backend services can access database
+  backend_to_database:
+    - source: backend
+      destination: database
+      ports: [27017, 6379]
+      protocol: tcp
+
+  # Backend services can access messaging
+  backend_to_messaging:
+    - source: backend
+      destination: messaging
+      ports: [5672, 15672]
+      protocol: tcp
+
+  # Deny all other inter-network communication
+  default_deny:
+    action: deny
+    log: true
+
+# Firewall rules using iptables
+firewall_rules:
+  input_rules:
+    # Allow established connections
+    - "-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT"
+    # Allow loopback
+    - "-A INPUT -i lo -j ACCEPT"
+    # Allow SSH (if needed for management)
+    - "-A INPUT -p tcp --dport 22 -j ACCEPT"
+    # Allow HTTP/HTTPS
+    - "-A INPUT -p tcp --dport 80 -j ACCEPT"
+    - "-A INPUT -p tcp --dport 443 -j ACCEPT"
+    # Drop all other input
+    - "-A INPUT -j DROP"
+
+  forward_rules:
+    # Allow Docker networks
+    - "-A FORWARD -i docker0 -o docker0 -j ACCEPT"
+    # Allow established connections
+    - "-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT"
+    # Drop all other forwarding
+    - "-A FORWARD -j DROP"
+
+  output_rules:
+    # Allow all outbound (can be restricted further)
+    - "-A OUTPUT -j ACCEPT"
+
+# Container security constraints
+container_security:
+  # Default security options for all containers
+  default_security_opts:
+    - "no-new-privileges:true"
+    - "seccomp:unconfined"  # Can be restricted with custom seccomp profile
+    
+  # Read-only root filesystem where possible
+  read_only_root: true
+  
+  # Drop dangerous capabilities
+  cap_drop:
+    - ALL
+  
+  # Add only necessary capabilities
+  cap_add:
+    - CHOWN
+    - SETGID
+    - SETUID
+    - NET_BIND_SERVICE
+
+  # User namespace remapping
+  user_namespace:
+    enabled: true
+    uid_map: "1000:100000:65536"
+    gid_map: "1000:100000:65536"
+
+# Resource limits for security
+resource_limits:
+  memory_limits:
+    api_services: "512m"
+    database_services: "1g"
+    message_broker: "256m"
+    
+  cpu_limits:
+    api_services: "0.5"
+    database_services: "1.0"
+    message_broker: "0.25"
+    
+  # Prevent fork bombs
+  pids_limit: 100
+  
+  # File descriptor limits
+  ulimits:
+    nofile: 1024
+    nproc: 64

@@ -1,0 +1,538 @@
+# Docker Compose Security Configuration
+# This file extends the main docker-compose.yml with security-focused configurations
+
+version: '3.8'
+
+services:
+  # Security-hardened nginx proxy
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: mytaptrack-nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./security/nginx/security.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - frontend
+    depends_on:
+      - graphql-api
+      - rest-api
+      - device-api
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:noexec,nosuid,size=100m
+      - /var/run:noexec,nosuid,size=100m
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Security-hardened GraphQL API
+  graphql-api:
+    build:
+      context: .
+      dockerfile: containers/graphql-api/Dockerfile
+    container_name: mytaptrack-graphql-api
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - TLS_ENABLED=true
+      - RATE_LIMITING_ENABLED=true
+    volumes:
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+    networks:
+      - frontend
+      - backend
+    secrets:
+      - mytaptrack_mongodb_app_password
+      - mytaptrack_jwt_public_key
+      - mytaptrack_api_encryption_key
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "1000:1000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('https://localhost:4000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Security-hardened REST API
+  rest-api:
+    build:
+      context: .
+      dockerfile: containers/rest-api/Dockerfile
+    container_name: mytaptrack-rest-api
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - TLS_ENABLED=true
+      - RATE_LIMITING_ENABLED=true
+    volumes:
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+    networks:
+      - frontend
+      - backend
+    secrets:
+      - mytaptrack_mongodb_app_password
+      - mytaptrack_jwt_public_key
+      - mytaptrack_api_encryption_key
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "1000:1000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('https://localhost:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Security-hardened Device API
+  device-api:
+    build:
+      context: .
+      dockerfile: containers/device-api/Dockerfile
+    container_name: mytaptrack-device-api
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - AUTH_PROVIDER=jwt
+      - TLS_ENABLED=true
+      - RATE_LIMITING_ENABLED=true
+    volumes:
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+    networks:
+      - frontend
+      - backend
+    secrets:
+      - mytaptrack_mongodb_app_password
+      - mytaptrack_jwt_public_key
+      - mytaptrack_api_encryption_key
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "1000:1000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('https://localhost:5000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Security-hardened Data Processor
+  data-processor:
+    build:
+      context: .
+      dockerfile: containers/data-processor/Dockerfile
+    container_name: mytaptrack-data-processor
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PROVIDER=mongodb
+      - MESSAGE_BROKER_PROVIDER=rabbitmq
+      - TLS_ENABLED=true
+    volumes:
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+    networks:
+      - backend
+    secrets:
+      - mytaptrack_mongodb_app_password
+      - mytaptrack_rabbitmq_app_password
+      - mytaptrack_api_encryption_key
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "1000:1000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # Security-hardened MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: mytaptrack-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME_FILE=/run/secrets/mytaptrack_mongodb_root_password
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mytaptrack_mongodb_root_password
+      - MONGO_INITDB_DATABASE=mytaptrack
+    volumes:
+      - mongodb_data:/data/db
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+      - ./init-scripts/mongodb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - database
+    secrets:
+      - mytaptrack_mongodb_root_password
+      - mytaptrack_mongodb_app_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "999:999"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: >
+      mongod --tlsMode requireTLS
+             --tlsCertificateKeyFile /etc/ssl/certs/mongodb.pem
+             --tlsCAFile /etc/ssl/ca/ca.crt
+             --tlsAllowConnectionsWithoutCertificates
+             --bind_ip_all
+
+  # Security-hardened RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: mytaptrack-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER_FILE=/run/secrets/mytaptrack_rabbitmq_admin_password
+      - RABBITMQ_DEFAULT_PASS_FILE=/run/secrets/mytaptrack_rabbitmq_admin_password
+      - RABBITMQ_SSL_CACERTFILE=/etc/ssl/ca/ca.crt
+      - RABBITMQ_SSL_CERTFILE=/etc/ssl/certs/rabbitmq.crt
+      - RABBITMQ_SSL_KEYFILE=/etc/ssl/private/rabbitmq.key
+      - RABBITMQ_SSL_VERIFY=verify_peer
+      - RABBITMQ_SSL_FAIL_IF_NO_PEER_CERT=true
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+      - ./init-scripts/rabbitmq:/etc/rabbitmq/conf.d:ro
+    networks:
+      - messaging
+    secrets:
+      - mytaptrack_rabbitmq_admin_password
+      - mytaptrack_rabbitmq_app_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "999:999"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Security-hardened Redis
+  redis:
+    image: redis:7-alpine
+    container_name: mytaptrack-redis
+    command: >
+      redis-server --requirepass $(cat /run/secrets/mytaptrack_redis_password)
+                   --tls-port 6380
+                   --port 0
+                   --tls-cert-file /etc/ssl/certs/redis.crt
+                   --tls-key-file /etc/ssl/private/redis.key
+                   --tls-ca-cert-file /etc/ssl/ca/ca.crt
+                   --tls-protocols "TLSv1.2 TLSv1.3"
+    volumes:
+      - redis_data:/data
+      - ./security/certs:/etc/ssl/certs:ro
+      - ./security/certs:/etc/ssl/private:ro
+      - ./security/certs:/etc/ssl/ca:ro
+    networks:
+      - backend
+    secrets:
+      - mytaptrack_redis_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    user: "999:999"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+    healthcheck:
+      test: ["CMD", "redis-cli", "--tls", "--cert", "/etc/ssl/certs/redis.crt", "--key", "/etc/ssl/private/redis.key", "--cacert", "/etc/ssl/ca/ca.crt", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Security monitoring with Falco
+  falco:
+    image: falcosecurity/falco:latest
+    container_name: mytaptrack-falco
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock:ro
+      - /dev:/host/dev:ro
+      - /proc:/host/proc:ro
+      - /boot:/host/boot:ro
+      - /lib/modules:/host/lib/modules:ro
+      - /usr:/host/usr:ro
+      - /etc:/host/etc:ro
+      - falco_logs:/var/log/falco
+    networks:
+      - monitoring
+    environment:
+      - FALCO_GRPC_ENABLED=true
+      - FALCO_GRPC_BIND_ADDRESS=0.0.0.0:5060
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+
+  # Vulnerability scanner
+  trivy-scanner:
+    image: aquasec/trivy:latest
+    container_name: mytaptrack-trivy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - trivy_cache:/root/.cache/trivy
+      - ./security/scans:/output
+    networks:
+      - monitoring
+    command: ["server", "--listen", "0.0.0.0:4954"]
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+# Secure networks with proper isolation
+networks:
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+  database:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+  messaging:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.24.0.0/24
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    internal: true
+
+# Secure volumes
+volumes:
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/mytaptrack/mongodb
+  
+  rabbitmq_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/mytaptrack/rabbitmq
+  
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/mytaptrack/redis
+  
+  nginx_logs:
+    driver: local
+  
+  falco_logs:
+    driver: local
+  
+  trivy_cache:
+    driver: local
+
+# Docker secrets
+secrets:
+  mytaptrack_mongodb_root_password:
+    external: true
+  mytaptrack_mongodb_app_password:
+    external: true
+  mytaptrack_rabbitmq_admin_password:
+    external: true
+  mytaptrack_rabbitmq_app_password:
+    external: true
+  mytaptrack_redis_password:
+    external: true
+  mytaptrack_jwt_private_key:
+    external: true
+  mytaptrack_jwt_public_key:
+    external: true
+  mytaptrack_api_encryption_key:
+    external: true

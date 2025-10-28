@@ -1,0 +1,199 @@
+# TLS/SSL Configuration for Encrypted Communication
+# Configures encryption for all service communications
+
+version: '3.8'
+
+# TLS configuration for different services
+tls_configurations:
+  # Load balancer/proxy TLS termination
+  nginx_proxy:
+    # External TLS (client to load balancer)
+    external_tls:
+      enabled: true
+      certificate_path: "/etc/ssl/certs/mytaptrack.crt"
+      private_key_path: "/etc/ssl/private/mytaptrack.key"
+      protocols: ["TLSv1.2", "TLSv1.3"]
+      ciphers:
+        - "ECDHE-ECDSA-AES256-GCM-SHA384"
+        - "ECDHE-RSA-AES256-GCM-SHA384"
+        - "ECDHE-ECDSA-CHACHA20-POLY1305"
+        - "ECDHE-RSA-CHACHA20-POLY1305"
+        - "ECDHE-ECDSA-AES128-GCM-SHA256"
+        - "ECDHE-RSA-AES128-GCM-SHA256"
+      
+    # Internal TLS (load balancer to services)
+    internal_tls:
+      enabled: true
+      mutual_tls: true
+      ca_certificate_path: "/etc/ssl/ca/ca.crt"
+      client_certificate_path: "/etc/ssl/certs/nginx-client.crt"
+      client_key_path: "/etc/ssl/private/nginx-client.key"
+      
+  # API services TLS
+  api_services:
+    server_tls:
+      enabled: true
+      certificate_path: "/etc/ssl/certs/api-server.crt"
+      private_key_path: "/etc/ssl/private/api-server.key"
+      ca_certificate_path: "/etc/ssl/ca/ca.crt"
+      verify_client: true
+      
+    client_tls:
+      enabled: true
+      certificate_path: "/etc/ssl/certs/api-client.crt"
+      private_key_path: "/etc/ssl/private/api-client.key"
+      ca_certificate_path: "/etc/ssl/ca/ca.crt"
+      verify_server: true
+      
+  # Database TLS
+  mongodb:
+    tls_mode: "requireTLS"
+    certificate_path: "/etc/ssl/certs/mongodb.crt"
+    private_key_path: "/etc/ssl/private/mongodb.key"
+    ca_certificate_path: "/etc/ssl/ca/ca.crt"
+    client_certificate_required: true
+    
+  # Message broker TLS
+  rabbitmq:
+    ssl_options:
+      verify: "verify_peer"
+      fail_if_no_peer_cert: true
+      cacertfile: "/etc/ssl/ca/ca.crt"
+      certfile: "/etc/ssl/certs/rabbitmq.crt"
+      keyfile: "/etc/ssl/private/rabbitmq.key"
+      
+  # Redis TLS
+  redis:
+    tls_enabled: true
+    tls_cert_file: "/etc/ssl/certs/redis.crt"
+    tls_key_file: "/etc/ssl/private/redis.key"
+    tls_ca_cert_file: "/etc/ssl/ca/ca.crt"
+    tls_protocols: "TLSv1.2 TLSv1.3"
+
+# Certificate management
+certificate_management:
+  # Certificate Authority configuration
+  ca_config:
+    organization: "MyTapTrack"
+    organizational_unit: "Infrastructure"
+    country: "US"
+    validity_days: 3650
+    key_size: 4096
+    
+  # Server certificate configuration
+  server_certificates:
+    validity_days: 90
+    key_size: 2048
+    algorithm: "RSA"
+    
+    # Subject Alternative Names for services
+    sans:
+      nginx_proxy:
+        - "mytaptrack.local"
+        - "api.mytaptrack.local"
+        - "graphql.mytaptrack.local"
+        - "localhost"
+        
+      api_services:
+        - "graphql-api"
+        - "rest-api"
+        - "device-api"
+        - "localhost"
+        
+      mongodb:
+        - "mongodb"
+        - "localhost"
+        
+      rabbitmq:
+        - "rabbitmq"
+        - "localhost"
+        
+      redis:
+        - "redis"
+        - "localhost"
+        
+  # Client certificate configuration
+  client_certificates:
+    validity_days: 90
+    key_size: 2048
+    algorithm: "RSA"
+    
+# Certificate rotation
+certificate_rotation:
+  enabled: true
+  
+  # Rotation thresholds
+  rotation_threshold_days: 30  # Rotate when 30 days left
+  
+  # Rotation schedule (cron format)
+  schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+  
+  # Rotation strategy
+  strategy:
+    overlap_period: "7d"  # Keep old certificates for 7 days
+    notification_webhook: "${CERT_ROTATION_WEBHOOK_URL}"
+    
+  # ACME/Let's Encrypt integration (for production)
+  acme:
+    enabled: false
+    server: "https://acme-v02.api.letsencrypt.org/directory"
+    email: "${ACME_EMAIL}"
+    
+# TLS security policies
+security_policies:
+  # Minimum TLS version
+  min_tls_version: "1.2"
+  
+  # Cipher suite preferences
+  cipher_suite_policy: "modern"  # modern, intermediate, old
+  
+  # HSTS configuration
+  hsts:
+    enabled: true
+    max_age: 31536000  # 1 year
+    include_subdomains: true
+    preload: true
+    
+  # Certificate transparency
+  certificate_transparency:
+    enabled: true
+    sct_required: true
+    
+  # OCSP stapling
+  ocsp_stapling:
+    enabled: true
+    cache_timeout: 3600
+    
+# Monitoring and alerting
+monitoring:
+  # Certificate expiration monitoring
+  certificate_expiration:
+    enabled: true
+    warning_days: 30
+    critical_days: 7
+    
+  # TLS handshake monitoring
+  handshake_monitoring:
+    enabled: true
+    timeout_threshold: 5000  # milliseconds
+    
+  # Cipher suite usage tracking
+  cipher_tracking:
+    enabled: true
+    log_weak_ciphers: true
+    
+# Development and testing
+development:
+  # Self-signed certificate generation
+  self_signed:
+    enabled: true
+    validity_days: 365
+    
+  # Certificate validation bypass (development only)
+  skip_verification:
+    enabled: false  # Never enable in production
+    
+  # Test certificate generation
+  test_certificates:
+    generate_on_startup: true
+    cleanup_on_shutdown: true

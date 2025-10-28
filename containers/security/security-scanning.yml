@@ -1,0 +1,369 @@
+# Security Scanning and Vulnerability Assessment Configuration
+# Automated security scanning for container images and runtime
+
+version: '3.8'
+
+# Container image scanning
+image_scanning:
+  # Vulnerability scanners
+  scanners:
+    # Trivy scanner (open source)
+    trivy:
+      enabled: true
+      image: "aquasec/trivy:latest"
+      scan_types:
+        - "vuln"      # Vulnerabilities
+        - "config"    # Misconfigurations
+        - "secret"    # Secrets
+        - "license"   # License compliance
+      
+      # Severity levels to report
+      severity_levels:
+        - "CRITICAL"
+        - "HIGH"
+        - "MEDIUM"
+        - "LOW"
+        
+      # Exit codes for CI/CD integration
+      exit_code_policy:
+        critical: 1
+        high: 1
+        medium: 0
+        low: 0
+        
+    # Clair scanner
+    clair:
+      enabled: false
+      endpoint: "http://clair:6060"
+      
+    # Anchore scanner
+    anchore:
+      enabled: false
+      endpoint: "http://anchore:8228"
+      
+  # Scan policies
+  scan_policies:
+    # Base image policies
+    base_images:
+      allowed_registries:
+        - "docker.io"
+        - "gcr.io"
+        - "quay.io"
+        
+      prohibited_images:
+        - "*:latest"  # Prohibit latest tags
+        - "*alpine:*" # Example: prohibit alpine if needed
+        
+      required_labels:
+        - "maintainer"
+        - "version"
+        - "description"
+        
+    # Vulnerability policies
+    vulnerability_policies:
+      # Maximum allowed vulnerabilities by severity
+      max_vulnerabilities:
+        critical: 0
+        high: 5
+        medium: 20
+        low: 100
+        
+      # Age-based policies
+      max_vulnerability_age:
+        critical: "7d"
+        high: "30d"
+        medium: "90d"
+        
+      # CVE exceptions (temporary allowances)
+      cve_exceptions:
+        - cve: "CVE-2023-12345"
+          reason: "False positive - not applicable"
+          expires: "2024-12-31"
+          
+    # Configuration policies
+    config_policies:
+      # Dockerfile best practices
+      dockerfile_checks:
+        - "no_root_user"
+        - "no_sudo"
+        - "minimal_packages"
+        - "health_check_present"
+        - "non_privileged_port"
+        
+      # Runtime configuration
+      runtime_checks:
+        - "read_only_filesystem"
+        - "no_privileged_mode"
+        - "resource_limits_set"
+        - "security_context_set"
+
+# Runtime security scanning
+runtime_scanning:
+  # Runtime vulnerability assessment
+  runtime_scanners:
+    # Falco for runtime security monitoring
+    falco:
+      enabled: true
+      image: "falcosecurity/falco:latest"
+      
+      # Rules to monitor
+      rules:
+        - "shell_in_container"
+        - "write_below_etc"
+        - "read_sensitive_file"
+        - "outbound_connection_to_c2_servers"
+        - "modify_binary_dirs"
+        
+      # Output channels
+      outputs:
+        - type: "file"
+          file: "/var/log/falco/events.log"
+        - type: "http"
+          url: "${SECURITY_WEBHOOK_URL}"
+          
+    # Container runtime monitoring
+    runtime_monitor:
+      enabled: true
+      
+      # Process monitoring
+      process_monitoring:
+        whitelist_processes:
+          - "node"
+          - "npm"
+          - "mongod"
+          - "rabbitmq-server"
+          - "redis-server"
+          
+        blacklist_processes:
+          - "nc"
+          - "netcat"
+          - "wget"
+          - "curl"  # May be needed for health checks
+          
+      # Network monitoring
+      network_monitoring:
+        monitor_connections: true
+        allowed_outbound_ports:
+          - 80    # HTTP
+          - 443   # HTTPS
+          - 53    # DNS
+          - 5672  # RabbitMQ
+          - 27017 # MongoDB
+          - 6379  # Redis
+          
+        blocked_outbound_ports:
+          - 22    # SSH
+          - 23    # Telnet
+          - 3389  # RDP
+          
+      # File system monitoring
+      filesystem_monitoring:
+        monitor_paths:
+          - "/etc"
+          - "/usr/bin"
+          - "/usr/sbin"
+          - "/bin"
+          - "/sbin"
+          
+        ignore_paths:
+          - "/tmp"
+          - "/var/tmp"
+          - "/proc"
+          - "/sys"
+
+# Compliance scanning
+compliance_scanning:
+  # Security benchmarks
+  benchmarks:
+    # CIS Docker Benchmark
+    cis_docker:
+      enabled: true
+      version: "1.6.0"
+      
+      # Specific checks to run
+      checks:
+        - "1.1.1"  # Ensure a separate partition for containers
+        - "1.1.2"  # Ensure only trusted users are allowed to control Docker daemon
+        - "2.1"    # Ensure network traffic is restricted between containers
+        - "2.5"    # Ensure aufs storage driver is not used
+        - "4.1"    # Ensure a user for the container has been created
+        - "4.6"    # Ensure HEALTHCHECK instructions have been added
+        
+    # CIS Kubernetes Benchmark (if using Kubernetes)
+    cis_kubernetes:
+      enabled: false
+      version: "1.7.0"
+      
+    # NIST Cybersecurity Framework
+    nist_csf:
+      enabled: true
+      
+      # Framework functions to assess
+      functions:
+        - "identify"
+        - "protect"
+        - "detect"
+        - "respond"
+        - "recover"
+        
+  # Compliance reporting
+  reporting:
+    enabled: true
+    
+    # Report formats
+    formats:
+      - "json"
+      - "html"
+      - "pdf"
+      
+    # Report schedule
+    schedule: "0 2 * * 1"  # Weekly on Monday at 2 AM
+    
+    # Report storage
+    storage:
+      type: "s3"  # or "local", "gcs", "azure"
+      bucket: "${COMPLIANCE_REPORTS_BUCKET}"
+      retention_days: 365
+
+# Security automation
+automation:
+  # Automated remediation
+  auto_remediation:
+    enabled: true
+    
+    # Actions to take automatically
+    actions:
+      # Update base images
+      update_base_images:
+        enabled: true
+        schedule: "0 3 * * 2"  # Weekly on Tuesday at 3 AM
+        
+      # Patch critical vulnerabilities
+      patch_critical_vulns:
+        enabled: true
+        max_downtime: "5m"
+        
+      # Restart containers with high-risk issues
+      restart_risky_containers:
+        enabled: false  # Manual approval required
+        
+    # Approval workflows
+    approval_workflows:
+      critical_actions:
+        require_approval: true
+        approvers:
+          - "security-team@company.com"
+          - "devops-team@company.com"
+          
+  # Integration with CI/CD
+  cicd_integration:
+    # Pre-deployment scanning
+    pre_deployment:
+      enabled: true
+      
+      # Scan triggers
+      triggers:
+        - "pull_request"
+        - "merge_to_main"
+        - "release_tag"
+        
+      # Blocking policies
+      block_deployment:
+        critical_vulnerabilities: true
+        high_vulnerabilities: false
+        policy_violations: true
+        
+    # Post-deployment monitoring
+    post_deployment:
+      enabled: true
+      
+      # Monitoring duration
+      monitoring_period: "24h"
+      
+      # Rollback triggers
+      auto_rollback:
+        enabled: true
+        triggers:
+          - "critical_vulnerability_detected"
+          - "security_policy_violation"
+          - "runtime_anomaly_detected"
+
+# Notification and alerting
+notifications:
+  # Alert channels
+  channels:
+    email:
+      enabled: true
+      recipients:
+        - "security@company.com"
+        - "devops@company.com"
+        
+    slack:
+      enabled: true
+      webhook_url: "${SECURITY_SLACK_WEBHOOK}"
+      channel: "#security-alerts"
+      
+    pagerduty:
+      enabled: true
+      service_key: "${PAGERDUTY_SECURITY_KEY}"
+      
+  # Alert rules
+  alert_rules:
+    critical_vulnerability:
+      severity: "critical"
+      immediate: true
+      
+    high_vulnerability:
+      severity: "high"
+      delay: "1h"  # Batch alerts
+      
+    policy_violation:
+      severity: "warning"
+      delay: "4h"
+      
+    compliance_failure:
+      severity: "error"
+      immediate: true
+      
+# Reporting and metrics
+reporting:
+  # Security metrics dashboard
+  dashboard:
+    enabled: true
+    
+    # Key metrics to display
+    metrics:
+      - "vulnerabilities_by_severity"
+      - "compliance_score"
+      - "scan_coverage"
+      - "remediation_time"
+      - "security_incidents"
+      
+    # Dashboard refresh interval
+    refresh_interval: "5m"
+    
+  # Security reports
+  reports:
+    # Executive summary
+    executive_summary:
+      enabled: true
+      schedule: "0 9 * * 1"  # Weekly on Monday at 9 AM
+      recipients:
+        - "cto@company.com"
+        - "security-lead@company.com"
+        
+    # Technical details
+    technical_report:
+      enabled: true
+      schedule: "0 8 * * *"  # Daily at 8 AM
+      recipients:
+        - "security-team@company.com"
+        - "devops-team@company.com"
+        
+    # Compliance report
+    compliance_report:
+      enabled: true
+      schedule: "0 7 1 * *"  # Monthly on 1st at 7 AM
+      recipients:
+        - "compliance@company.com"
+        - "audit@company.com"

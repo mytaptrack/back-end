@@ -1,0 +1,313 @@
+# Rate Limiting and DDoS Protection Configuration
+# Implements multi-layer rate limiting and attack protection
+
+version: '3.8'
+
+# Load balancer level rate limiting (nginx)
+load_balancer_limits:
+  # Global rate limits
+  global_limits:
+    # Requests per second from single IP
+    requests_per_second: 100
+    # Burst capacity
+    burst_capacity: 200
+    # Connection limits per IP
+    connections_per_ip: 50
+    
+  # API endpoint specific limits
+  endpoint_limits:
+    # Authentication endpoints (more restrictive)
+    "/api/auth/login":
+      requests_per_minute: 5
+      burst_capacity: 10
+      
+    "/api/auth/register":
+      requests_per_minute: 3
+      burst_capacity: 5
+      
+    "/api/auth/reset-password":
+      requests_per_minute: 2
+      burst_capacity: 3
+      
+    # GraphQL endpoint
+    "/graphql":
+      requests_per_second: 50
+      burst_capacity: 100
+      query_complexity_limit: 1000
+      
+    # REST API endpoints
+    "/api/v2/*":
+      requests_per_second: 30
+      burst_capacity: 60
+      
+    # Device API endpoints
+    "/device/*":
+      requests_per_second: 20
+      burst_capacity: 40
+      
+  # Geographic rate limiting
+  geographic_limits:
+    # Default limits for all regions
+    default:
+      requests_per_second: 100
+      
+    # Specific region overrides
+    regions:
+      "US": 200
+      "CA": 150
+      "EU": 150
+      "AS": 100
+      
+  # User agent based limits
+  user_agent_limits:
+    # Known bots and crawlers
+    bots:
+      requests_per_minute: 10
+      burst_capacity: 20
+      
+    # Mobile applications
+    mobile_apps:
+      requests_per_second: 50
+      burst_capacity: 100
+      
+    # Web browsers
+    browsers:
+      requests_per_second: 30
+      burst_capacity: 60
+
+# Application level rate limiting (Redis-based)
+application_limits:
+  # User-based rate limiting
+  user_limits:
+    # Authenticated users
+    authenticated:
+      requests_per_minute: 1000
+      requests_per_hour: 10000
+      requests_per_day: 100000
+      
+    # Premium users (higher limits)
+    premium:
+      requests_per_minute: 2000
+      requests_per_hour: 20000
+      requests_per_day: 200000
+      
+    # API key based access
+    api_key:
+      requests_per_minute: 5000
+      requests_per_hour: 50000
+      requests_per_day: 500000
+      
+  # Feature-specific limits
+  feature_limits:
+    # Data export operations
+    data_export:
+      requests_per_hour: 5
+      concurrent_operations: 2
+      
+    # Report generation
+    report_generation:
+      requests_per_hour: 10
+      concurrent_operations: 3
+      
+    # File uploads
+    file_upload:
+      requests_per_minute: 20
+      max_file_size: "10MB"
+      concurrent_uploads: 5
+      
+    # Database queries
+    database_queries:
+      queries_per_second: 100
+      complex_queries_per_minute: 10
+      
+  # Resource-based limits
+  resource_limits:
+    # Memory usage per user session
+    memory_per_session: "50MB"
+    
+    # CPU time per request
+    cpu_time_per_request: "5s"
+    
+    # Concurrent connections per user
+    connections_per_user: 10
+
+# DDoS protection mechanisms
+ddos_protection:
+  # Traffic analysis
+  traffic_analysis:
+    enabled: true
+    
+    # Anomaly detection thresholds
+    anomaly_thresholds:
+      request_rate_increase: 500  # % increase to trigger alert
+      error_rate_increase: 200   # % increase to trigger alert
+      response_time_increase: 300 # % increase to trigger alert
+      
+    # Analysis window
+    analysis_window: "5m"
+    
+    # Action thresholds
+    action_thresholds:
+      warning: 200   # % increase for warning
+      blocking: 500  # % increase for blocking
+      
+  # IP reputation and blocking
+  ip_blocking:
+    enabled: true
+    
+    # Automatic blocking criteria
+    auto_block_criteria:
+      failed_requests_threshold: 100
+      time_window: "1m"
+      block_duration: "1h"
+      
+    # Whitelist for trusted IPs
+    whitelist:
+      - "127.0.0.1"
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
+      
+    # Blacklist for known bad actors
+    blacklist_sources:
+      - "spamhaus"
+      - "malwaredomains"
+      - "custom_blacklist"
+      
+  # Challenge mechanisms
+  challenges:
+    # CAPTCHA integration
+    captcha:
+      enabled: true
+      provider: "recaptcha"  # or "hcaptcha"
+      threshold_score: 0.5
+      
+    # JavaScript challenge
+    js_challenge:
+      enabled: true
+      complexity: "medium"
+      timeout: 10  # seconds
+      
+    # Proof of work challenge
+    proof_of_work:
+      enabled: false
+      difficulty: 4
+      
+  # Rate limiting escalation
+  escalation:
+    # Progressive penalties
+    penalties:
+      level_1:
+        trigger: "moderate_violation"
+        action: "delay_response"
+        delay: "1s"
+        
+      level_2:
+        trigger: "significant_violation"
+        action: "temporary_block"
+        duration: "5m"
+        
+      level_3:
+        trigger: "severe_violation"
+        action: "extended_block"
+        duration: "1h"
+        
+      level_4:
+        trigger: "persistent_violation"
+        action: "permanent_block"
+        manual_review_required: true
+
+# Monitoring and alerting
+monitoring:
+  # Metrics collection
+  metrics:
+    enabled: true
+    
+    # Key metrics to track
+    tracked_metrics:
+      - "requests_per_second"
+      - "blocked_requests"
+      - "rate_limit_violations"
+      - "response_times"
+      - "error_rates"
+      - "concurrent_connections"
+      
+    # Metric retention
+    retention_period: "30d"
+    
+  # Real-time alerting
+  alerts:
+    enabled: true
+    
+    # Alert conditions
+    conditions:
+      high_traffic:
+        threshold: 1000  # requests per second
+        duration: "2m"
+        
+      ddos_suspected:
+        threshold: 5000  # requests per second
+        duration: "30s"
+        
+      high_block_rate:
+        threshold: 50  # % of requests blocked
+        duration: "1m"
+        
+    # Notification channels
+    notifications:
+      email: "${ALERT_EMAIL}"
+      slack: "${SLACK_WEBHOOK_URL}"
+      pagerduty: "${PAGERDUTY_API_KEY}"
+      
+  # Logging
+  logging:
+    enabled: true
+    
+    # Log levels
+    log_levels:
+      rate_limit_violations: "warn"
+      blocks: "error"
+      ddos_attempts: "critical"
+      
+    # Log retention
+    retention_days: 90
+    
+    # Log format
+    format: "json"
+    
+    # Fields to log
+    log_fields:
+      - "timestamp"
+      - "client_ip"
+      - "user_agent"
+      - "endpoint"
+      - "rate_limit_rule"
+      - "action_taken"
+      - "request_count"
+      - "time_window"
+
+# Configuration for different environments
+environments:
+  development:
+    # Relaxed limits for development
+    global_multiplier: 10.0
+    enable_bypass: true
+    bypass_ips:
+      - "127.0.0.1"
+      - "localhost"
+      
+  testing:
+    # Moderate limits for testing
+    global_multiplier: 5.0
+    enable_bypass: false
+    
+  staging:
+    # Production-like limits
+    global_multiplier: 1.5
+    enable_bypass: false
+    
+  production:
+    # Strict production limits
+    global_multiplier: 1.0
+    enable_bypass: false
+    enhanced_monitoring: true
