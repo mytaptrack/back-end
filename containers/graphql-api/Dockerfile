@@ -1,4 +1,8 @@
 # Multi-stage build for GraphQL API service
+# Alternative base images if docker.io is having issues:
+# FROM node:18-alpine AS base
+# FROM registry.access.redhat.com/ubi8/nodejs-18:latest AS base
+# FROM mcr.microsoft.com/cbl-mariner/base/nodejs:18 AS base
 FROM node:18-alpine AS base
 
 # Install security updates and create non-root user
@@ -13,13 +17,15 @@ WORKDIR /app
 # Build stage
 FROM base AS builder
 
-# Copy package files and source
+# Copy package files first for better caching
 COPY containers/graphql-api/package*.json ./
-COPY containers/graphql-api/tsconfig.json ./
-COPY containers/graphql-api/src/ ./src/
 
 # Install dependencies
 RUN npm install
+
+# Copy source files
+COPY containers/graphql-api/tsconfig.json ./
+COPY containers/graphql-api/src/ ./src/
 
 # Build the application
 RUN npm run build
@@ -59,8 +65,8 @@ COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 # Switch to non-root user
 USER nodejs
 
-# Expose port
-EXPOSE 4500
+# Expose ports (main app and monitoring)
+EXPOSE 4500 9091
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
@@ -70,4 +76,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start application
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]

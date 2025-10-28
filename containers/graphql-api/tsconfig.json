@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -15,10 +15,19 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "allowJs": true,
-    "noEmit": false
+    "noEmit": false,
+    "baseUrl": "./",
+    "types": ["node"],
+    "paths": {
+      "@/*": ["src/*"],
+      "@shared/*": ["shared/*"],
+      "@logging/*": ["business-logic/core/src/logging/*"]
+    }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "shared/**/*",
+    "business-logic/core/src/logging/**/*"
   ],
   "exclude": [
     "node_modules",

@@ -17,6 +17,8 @@ FROM base AS builder
 COPY containers/rest-api/package*.json ./
 COPY containers/rest-api/tsconfig.json ./
 COPY containers/rest-api/src/ ./src/
+COPY containers/shared/ ./shared/
+COPY business-logic/core/src/logging/ ./business-logic/core/src/logging/
 
 # Install dependencies
 RUN npm install

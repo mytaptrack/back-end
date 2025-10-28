@@ -17,6 +17,8 @@ FROM base AS builder
 COPY containers/data-processor/package*.json ./
 COPY containers/data-processor/tsconfig.json ./
 COPY containers/data-processor/src/ ./src/
+COPY containers/shared/ ./shared/
+COPY business-logic/core/src/logging/ ./business-logic/core/src/logging/
 
 # Install dependencies
 RUN npm install

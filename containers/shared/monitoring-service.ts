@@ -16,7 +16,7 @@ import {
   timeoutMiddleware,
   rateLimitMiddleware,
   HealthCheckFactory
-} from '../../business-logic/core/src/logging';
+} from '../business-logic/core/src/logging';
 
 /**
  * Monitoring service for container applications
