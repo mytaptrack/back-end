@@ -1,0 +1,53 @@
+{
+  "name": "@mytaptrack/database-scripts",
+  "version": "1.0.0",
+  "description": "Database initialization, migration, and management scripts for MyTapTrack containerization",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watch",
+    "test:coverage": "NODE_ENV=test jest --coverage",
+    "test:ci": "NODE_ENV=test jest --ci --coverage --watchAll=false",
+    "dev:seed": "NODE_ENV=development node dist/seed-test-data.js",
+    "dev:validate": "NODE_ENV=development node dist/database-schema-validator.js",
+    "dev:backup": "NODE_ENV=development node dist/database-backup-restore.js backup",
+    "migrate": "node dist/migrate-dynamodb-to-mongodb.js",
+    "validate": "node dist/database-schema-validator.js",
+    "backup": "node dist/database-backup-restore.js backup",
+    "restore": "node dist/database-backup-restore.js restore",
+    "list-backups": "node dist/database-backup-restore.js list",
+    "seed": "node dist/seed-test-data.js",
+    "create-indexes": "node dist/create-indexes.js"
+  },
+  "bin": {
+    "migrate-dynamodb-to-mongodb": "./dist/migrate-dynamodb-to-mongodb.js",
+    "database-schema-validator": "./dist/database-schema-validator.js",
+    "database-backup-restore": "./dist/database-backup-restore.js",
+    "seed-test-data": "./dist/seed-test-data.js",
+    "create-indexes": "./dist/create-indexes.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.450.0",
+    "@aws-sdk/lib-dynamodb": "^3.450.0",
+    "dotenv": "^16.3.0",
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.10.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "mongodb",
+    "dynamodb",
+    "migration",
+    "backup",
+    "database",
+    "containerization"
+  ],
+  "author": "MyTapTrack Team",
+  "license": "MIT"
+}

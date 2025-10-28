@@ -1,0 +1,1 @@
+{"version":3,"file":"lookups.d.ts","sourceRoot":"","sources":["lookups.ts"],"names":[],"mappings":"AACA,MAAM,WAAW,UAAU;IACvB,GAAG,EAAE,MAAM,CAAC;IACZ,OAAO,EAAE,MAAM,CAAC;CACnB;AAED,MAAM,WAAW,eAAe;IAC5B,YAAY,EAAE,MAAM,CAAC;IACrB,OAAO,EAAE,MAAM,CAAC;CACnB"}
