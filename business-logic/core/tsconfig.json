@@ -19,13 +19,14 @@
   "include": ["src/**/*"],
   "exclude": [
     "node_modules", 
-    "dist", 
+    "dist/**/*", 
     "**/*.test.ts", 
     "**/*.spec.ts",
     "src/container-services/device-api-service.ts",
     "src/container-services/device-event-handlers.ts",
     "src/container-services/event-handlers/license-event-handlers.ts",
     "src/container-services/event-handlers/student-event-handlers.ts",
+    "src/container-services/event-handlers/notification-event-handlers.ts",
     "src/examples/container-service-usage.ts",
     "src/examples/rest-api-service-usage.ts",
     "src/examples/device-api-service-usage.ts"

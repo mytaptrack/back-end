@@ -3,6 +3,7 @@ import { typesV2 } from '@mytaptrack/types';
 import { EventBridgeEvent } from 'aws-lambda';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+// import { createLambdaServiceContext } from '@mytaptrack/business-logic-core';
 // import { SendEmailCommand } from '@aws-sdk/client-sesv2';
 
 const s3 = new S3Client();

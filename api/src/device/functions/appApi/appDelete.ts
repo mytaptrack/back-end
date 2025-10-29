@@ -2,6 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { LambdaAppsyncQueryClient, WebUtils, getTokenSegments, v2 } from '@mytaptrack/lib';
 import { AppRetrieveDataPostRequest, GraphQLAppInput, QLAppDeviceConfiguration } from '@mytaptrack/types';
 import { getTokenKey } from "./token-utils";
+// import { AppOperations, createLambdaServiceContext } from '@mytaptrack/business-logic-app';
 
 export const eventHandler = WebUtils.lambdaWrapper(handler);
 

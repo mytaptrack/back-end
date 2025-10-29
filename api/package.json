@@ -6,6 +6,10 @@
         "deploy": "cdk deploy --all",
         "codebuild": "npx samtsc --deploy-only",
         "build": "cdk synth",
+        "build:webpack": "webpack --mode=production",
+        "build:analyze": "webpack --mode=production --analyze",
+        "bundle:monitor": "node scripts/monitor-bundle-sizes.js analyze",
+        "bundle:compare": "node scripts/monitor-bundle-sizes.js compare",
         "package": "npx samtsc --package",
         "prepackage-cdk": "rm -rf cdk.out",
         "package-cdk": "cdk deploy --no-execute --change-set-name pipeline-deployment --require-approval never",
@@ -39,6 +43,13 @@
         "@aws-sdk/lib-dynamodb": "^3.391.0",
         "@aws-sdk/s3-request-presigner": "^3.400.0",
         "@lumigo/tracer": "^1.85.0",
+        "@mytaptrack/business-logic-core": "file:../business-logic/core",
+        "@mytaptrack/business-logic-user": "file:../business-logic/user",
+        "@mytaptrack/business-logic-student": "file:../business-logic/student",
+        "@mytaptrack/business-logic-device": "file:../business-logic/device",
+        "@mytaptrack/business-logic-app": "file:../business-logic/app",
+        "@mytaptrack/business-logic-license": "file:../business-logic/license",
+        "@mytaptrack/business-logic-report": "file:../business-logic/report",
         "@mytaptrack/cdk": "file:../cdk",
         "@mytaptrack/get-ssl-certificate": "^2.3.4",
         "@mytaptrack/lib": "file:../lib",
@@ -76,6 +87,9 @@
         "ts-jest": "^29.1.0",
         "ts-loader": "^9.2.6",
         "typescript": "^5.0.4",
-        "url": "^0.11.0"
+        "url": "^0.11.0",
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4",
+        "webpack-bundle-analyzer": "^4.10.1"
     }
 }

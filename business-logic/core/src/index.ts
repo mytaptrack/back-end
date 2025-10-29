@@ -37,7 +37,10 @@ export {
 } from './config';
 
 // Logging and Monitoring
-export * from './logging';
+export { LambdaLogger } from './logging/lambda-logger';
+
+// Lambda Utilities
+export * from './lambda/service-context-factory';
 
 // Examples
 export * from './examples/authentication-usage';
