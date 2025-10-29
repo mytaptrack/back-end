@@ -3,7 +3,36 @@
   "version": "1.0.0",
   "description": "Core business logic interfaces, types, and error classes for MyTapTrack",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./interfaces": {
+      "types": "./dist/interfaces/index.d.ts",
+      "import": "./dist/interfaces/index.js",
+      "require": "./dist/interfaces/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js",
+      "require": "./dist/errors/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js",
+      "require": "./dist/config/index.js"
+    },
+    "./lambda": {
+      "types": "./dist/lambda/index.d.ts",
+      "import": "./dist/lambda/index.js",
+      "require": "./dist/lambda/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc -d",
     "test": "jest --passWithNoTests",

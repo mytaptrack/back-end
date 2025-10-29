@@ -1,0 +1,1524 @@
+{
+  "timestamp": "2025-10-29T12:31:17.782Z",
+  "reports": [
+    {
+      "bundler": "webpack",
+      "timestamp": "2025-10-29T12:30:39.716Z",
+      "results": [
+        {
+          "path": "109.js",
+          "uncompressedSize": 1600,
+          "compressedSize": 739,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.0030517578125,
+            "functionPercentage": 0.010172526041666668
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.007047653198242188,
+            "functionPercentage": 0.004698435465494792
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "574.js",
+          "uncompressedSize": 19756,
+          "compressedSize": 5722,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.03768157958984375,
+            "functionPercentage": 0.12560526529947916
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.05456924438476563,
+            "functionPercentage": 0.036379496256510414
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "610.js",
+          "uncompressedSize": 3569,
+          "compressedSize": 1544,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.0068073272705078125,
+            "functionPercentage": 0.022691090901692707
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.0147247314453125,
+            "functionPercentage": 0.009816487630208334
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "631.js",
+          "uncompressedSize": 14193,
+          "compressedSize": 3762,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.027070999145507812,
+            "functionPercentage": 0.09023666381835938
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.035877227783203125,
+            "functionPercentage": 0.02391815185546875
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "724.js",
+          "uncompressedSize": 54841,
+          "compressedSize": 17441,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.10460090637207031,
+            "functionPercentage": 0.34866968790690106
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.16633033752441406,
+            "functionPercentage": 0.1108868916829427
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "756.js",
+          "uncompressedSize": 6211,
+          "compressedSize": 2667,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.011846542358398438,
+            "functionPercentage": 0.03948847452799479
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.025434494018554688,
+            "functionPercentage": 0.016956329345703125
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "78.js",
+          "uncompressedSize": 61941,
+          "compressedSize": 16668,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.11814308166503906,
+            "functionPercentage": 0.3938102722167968
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.15895843505859375,
+            "functionPercentage": 0.1059722900390625
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "782.js",
+          "uncompressedSize": 6063,
+          "compressedSize": 2182,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.011564254760742188,
+            "functionPercentage": 0.038547515869140625
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.020809173583984375,
+            "functionPercentage": 0.013872782389322916
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "789.js",
+          "uncompressedSize": 5693,
+          "compressedSize": 1969,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.010858535766601562,
+            "functionPercentage": 0.03619511922200521
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.018777847290039062,
+            "functionPercentage": 0.012518564860026043
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "819.js",
+          "uncompressedSize": 1354,
+          "compressedSize": 710,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.002582550048828125,
+            "functionPercentage": 0.008608500162760416
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.006771087646484375,
+            "functionPercentage": 0.004514058430989584
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "858.js",
+          "uncompressedSize": 54752,
+          "compressedSize": 17411,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.10443115234375,
+            "functionPercentage": 0.3481038411458333
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.1660442352294922,
+            "functionPercentage": 0.11069615681966145
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "88.js",
+          "uncompressedSize": 47319,
+          "compressedSize": 15396,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.09025382995605469,
+            "functionPercentage": 0.3008460998535156
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.14682769775390625,
+            "functionPercentage": 0.09788513183593751
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "919.js",
+          "uncompressedSize": 12427,
+          "compressedSize": 3711,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.023702621459960938,
+            "functionPercentage": 0.0790087381998698
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.03539085388183594,
+            "functionPercentage": 0.023593902587890625
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "931.js",
+          "uncompressedSize": 49171,
+          "compressedSize": 15496,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 0.09378623962402344,
+            "functionPercentage": 0.3126207987467448
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 0.1477813720703125,
+            "functionPercentage": 0.09852091471354166
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/audioPut.js",
+          "uncompressedSize": 5198418,
+          "compressedSize": 1013593,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.91519546508789,
+            "functionPercentage": 99.1519546508789
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 9.666376113891602,
+            "functionPercentage": 19.332752227783203
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/dataPut.js",
+          "uncompressedSize": 4974119,
+          "compressedSize": 934011,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.48737907409668,
+            "functionPercentage": 94.8737907409668
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 8.90742301940918,
+            "functionPercentage": 17.81484603881836
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/firmwarePost.js",
+          "uncompressedSize": 5030801,
+          "compressedSize": 953540,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.595491409301758,
+            "functionPercentage": 95.95491409301758
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 9.093666076660156,
+            "functionPercentage": 18.187332153320312
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/timeGet.js",
+          "uncompressedSize": 4971288,
+          "compressedSize": 932980,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.481979370117188,
+            "functionPercentage": 94.81979370117188
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 8.897590637207031,
+            "functionPercentage": 17.795181274414062
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/wifiPing.js",
+          "uncompressedSize": 4971256,
+          "compressedSize": 932940,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.481918334960938,
+            "functionPercentage": 94.81918334960938
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 8.897209167480469,
+            "functionPercentage": 17.794418334960938
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/appApi/appDelete.js",
+          "uncompressedSize": 4992042,
+          "compressedSize": 939283,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.521564483642578,
+            "functionPercentage": 31.738548278808594
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 8.957700729370117,
+            "functionPercentage": 5.971800486246745
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/appApi/appTokenRetrieve.js",
+          "uncompressedSize": 4994379,
+          "compressedSize": 939984,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.526021957397461,
+            "functionPercentage": 31.7534065246582
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 8.964385986328125,
+            "functionPercentage": 5.97625732421875
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/ensureResponseUpdateStatus.js",
+          "uncompressedSize": 5008683,
+          "compressedSize": 941725,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.553304672241211,
+            "functionPercentage": 47.766523361206055
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 8.980989456176758,
+            "functionPercentage": 8.980989456176758
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/notesNotification.js",
+          "uncompressedSize": 4972141,
+          "compressedSize": 933373,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.483606338500977,
+            "functionPercentage": 47.41803169250488
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 8.901338577270508,
+            "functionPercentage": 8.901338577270508
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/patternEventNotification.js",
+          "uncompressedSize": 5001073,
+          "compressedSize": 939526,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.538789749145508,
+            "functionPercentage": 47.69394874572754
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 8.960018157958984,
+            "functionPercentage": 8.960018157958984
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/singleEventNotification.js",
+          "uncompressedSize": 5006044,
+          "compressedSize": 941203,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.548271179199219,
+            "functionPercentage": 47.741355895996094
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 8.976011276245117,
+            "functionPercentage": 8.976011276245117
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/iot/handlers/click.js",
+          "uncompressedSize": 4971217,
+          "compressedSize": 932931,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": true,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 3145728,
+            "percentage": 9.481843948364258,
+            "functionPercentage": 158.0307324727376
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 3145728,
+            "percentage": 8.897123336791992,
+            "functionPercentage": 29.65707778930664
+          },
+          "functionType": "device/functions/iot",
+          "status": "FUNCTION_WARNING"
+        },
+        {
+          "path": "device/functions/processing/device-identity-reset.js",
+          "uncompressedSize": 4971320,
+          "compressedSize": 932968,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.482040405273438,
+            "functionPercentage": 31.606801350911457
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 8.897476196289062,
+            "functionPercentage": 5.931650797526042
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/server/getAuthConfig.js",
+          "uncompressedSize": 4972201,
+          "compressedSize": 933358,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.483720779418945,
+            "functionPercentage": 31.61240259806315
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 8.901195526123047,
+            "functionPercentage": 5.934130350748698
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateApps.js",
+          "uncompressedSize": 4973317,
+          "compressedSize": 933781,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.485849380493164,
+            "functionPercentage": 23.71462345123291
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 8.905229568481445,
+            "functionPercentage": 4.452614784240723
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateNotes.js",
+          "uncompressedSize": 4972861,
+          "compressedSize": 933729,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.484979629516602,
+            "functionPercentage": 23.712449073791504
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 8.904733657836914,
+            "functionPercentage": 4.452366828918457
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateReports.js",
+          "uncompressedSize": 5002708,
+          "compressedSize": 940163,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.541908264160156,
+            "functionPercentage": 23.85477066040039
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 8.966093063354492,
+            "functionPercentage": 4.483046531677246
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateSources.js",
+          "uncompressedSize": 4972592,
+          "compressedSize": 933567,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.484466552734375,
+            "functionPercentage": 23.711166381835938
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 8.903188705444336,
+            "functionPercentage": 4.451594352722168
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateTeam.js",
+          "uncompressedSize": 4972775,
+          "compressedSize": 933630,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.48481559753418,
+            "functionPercentage": 23.71203899383545
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 8.903789520263672,
+            "functionPercentage": 4.451894760131836
+          },
+          "functionType": "migration",
+          "status": "OK"
+        }
+      ],
+      "summary": {
+        "total": 33,
+        "critical": 0,
+        "warnings": 0,
+        "functionWarnings": 1,
+        "ok": 32
+      },
+      "functionTypes": {
+        "default": {
+          "count": 18,
+          "totalSize": 20268832,
+          "avgSize": 1126046.2222222222
+        },
+        "device/functions/api": {
+          "count": 5,
+          "totalSize": 25145882,
+          "avgSize": 5029176.4
+        },
+        "device/functions/events": {
+          "count": 4,
+          "totalSize": 19987941,
+          "avgSize": 4996985.25
+        },
+        "device/functions/iot": {
+          "count": 1,
+          "totalSize": 4971217,
+          "avgSize": 4971217
+        },
+        "migration": {
+          "count": 5,
+          "totalSize": 24894253,
+          "avgSize": 4978850.6
+        }
+      },
+      "limits": {
+        "uncompressed": 262144000,
+        "compressed": 52428800,
+        "targetUncompressed": 52428800,
+        "targetCompressed": 10485760
+      },
+      "functionTypeThresholds": {
+        "device/functions/api": 5242880,
+        "device/functions/events": 10485760,
+        "device/functions/iot": 3145728,
+        "migration": 20971520,
+        "default": 15728640
+      }
+    },
+    {
+      "bundler": "esbuild",
+      "timestamp": "2025-10-29T12:31:17.776Z",
+      "results": [
+        {
+          "path": "device/functions/api/audioPut.js",
+          "uncompressedSize": 4900160,
+          "compressedSize": 830243,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.3463134765625,
+            "functionPercentage": 93.463134765625
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 7.917814254760742,
+            "functionPercentage": 15.835628509521484
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/dataPut.js",
+          "uncompressedSize": 4890396,
+          "compressedSize": 826444,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.327690124511719,
+            "functionPercentage": 93.27690124511719
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 7.881584167480468,
+            "functionPercentage": 15.763168334960936
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/firmwarePost.js",
+          "uncompressedSize": 4891513,
+          "compressedSize": 827114,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.32982063293457,
+            "functionPercentage": 93.2982063293457
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 7.88797378540039,
+            "functionPercentage": 15.77594757080078
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/timeGet.js",
+          "uncompressedSize": 4887602,
+          "compressedSize": 825545,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.32236099243164,
+            "functionPercentage": 93.2236099243164
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 7.873010635375977,
+            "functionPercentage": 15.746021270751953
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/api/wifiPing.js",
+          "uncompressedSize": 4887578,
+          "compressedSize": 825464,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 5242880,
+            "percentage": 9.322315216064453,
+            "functionPercentage": 93.22315216064453
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 5242880,
+            "percentage": 7.872238159179687,
+            "functionPercentage": 15.744476318359373
+          },
+          "functionType": "device/functions/api",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/appApi/appDelete.js",
+          "uncompressedSize": 4910744,
+          "compressedSize": 832451,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.366500854492188,
+            "functionPercentage": 31.22166951497396
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 7.938871383666993,
+            "functionPercentage": 5.292580922444661
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/appApi/appTokenRetrieve.js",
+          "uncompressedSize": 4912872,
+          "compressedSize": 833111,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.370559692382812,
+            "functionPercentage": 31.235198974609375
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 7.945165634155274,
+            "functionPercentage": 5.296777089436849
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/ensureResponseUpdateStatus.js",
+          "uncompressedSize": 4896002,
+          "compressedSize": 828316,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.338382720947266,
+            "functionPercentage": 46.69191360473633
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 7.899436950683595,
+            "functionPercentage": 7.899436950683595
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/notesNotification.js",
+          "uncompressedSize": 4888463,
+          "compressedSize": 825927,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.324003219604492,
+            "functionPercentage": 46.62001609802246
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 7.876653671264648,
+            "functionPercentage": 7.876653671264648
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/patternEventNotification.js",
+          "uncompressedSize": 4888911,
+          "compressedSize": 826076,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.324857711791992,
+            "functionPercentage": 46.62428855895996
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 7.878074645996095,
+            "functionPercentage": 7.878074645996095
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/events/singleEventNotification.js",
+          "uncompressedSize": 4893539,
+          "compressedSize": 827560,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 10485760,
+            "percentage": 9.333684921264648,
+            "functionPercentage": 46.66842460632324
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 10485760,
+            "percentage": 7.8922271728515625,
+            "functionPercentage": 7.8922271728515625
+          },
+          "functionType": "device/functions/events",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/iot/handlers/click.js",
+          "uncompressedSize": 4887536,
+          "compressedSize": 825394,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": true,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 3145728,
+            "percentage": 9.322235107421875,
+            "functionPercentage": 155.37058512369794
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 3145728,
+            "percentage": 7.871570587158202,
+            "functionPercentage": 26.238568623860676
+          },
+          "functionType": "device/functions/iot",
+          "status": "FUNCTION_WARNING"
+        },
+        {
+          "path": "device/functions/processing/device-identity-reset.js",
+          "uncompressedSize": 4887628,
+          "compressedSize": 825537,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.322410583496094,
+            "functionPercentage": 31.074701944986977
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 7.872934341430664,
+            "functionPercentage": 5.248622894287109
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "device/functions/server/getAuthConfig.js",
+          "uncompressedSize": 4888511,
+          "compressedSize": 825798,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 15728640,
+            "percentage": 9.324094772338867,
+            "functionPercentage": 31.080315907796223
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 15728640,
+            "percentage": 7.875423431396484,
+            "functionPercentage": 5.250282287597656
+          },
+          "functionType": "default",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateApps.js",
+          "uncompressedSize": 4889607,
+          "compressedSize": 826300,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.32618522644043,
+            "functionPercentage": 23.315463066101074
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 7.880210876464844,
+            "functionPercentage": 3.940105438232422
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateNotes.js",
+          "uncompressedSize": 4889139,
+          "compressedSize": 826215,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.325292587280273,
+            "functionPercentage": 23.313231468200684
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 7.879400253295898,
+            "functionPercentage": 3.939700126647949
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateReports.js",
+          "uncompressedSize": 4890236,
+          "compressedSize": 826628,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.327384948730469,
+            "functionPercentage": 23.318462371826172
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 7.883338928222656,
+            "functionPercentage": 3.941669464111328
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateSources.js",
+          "uncompressedSize": 4888878,
+          "compressedSize": 826037,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.32479476928711,
+            "functionPercentage": 23.311986923217773
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 7.877702713012695,
+            "functionPercentage": 3.9388513565063477
+          },
+          "functionType": "migration",
+          "status": "OK"
+        },
+        {
+          "path": "migration/migrateTeam.js",
+          "uncompressedSize": 4889119,
+          "compressedSize": 826215,
+          "uncompressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 262144000,
+            "targetLimit": 52428800,
+            "functionThreshold": 20971520,
+            "percentage": 9.325254440307617,
+            "functionPercentage": 23.313136100769043
+          },
+          "compressedLimits": {
+            "exceedsAWS": false,
+            "exceedsTarget": false,
+            "exceedsFunction": false,
+            "awsLimit": 52428800,
+            "targetLimit": 10485760,
+            "functionThreshold": 20971520,
+            "percentage": 7.879400253295898,
+            "functionPercentage": 3.939700126647949
+          },
+          "functionType": "migration",
+          "status": "OK"
+        }
+      ],
+      "summary": {
+        "total": 19,
+        "critical": 0,
+        "warnings": 0,
+        "functionWarnings": 1,
+        "ok": 18
+      },
+      "functionTypes": {
+        "device/functions/api": {
+          "count": 5,
+          "totalSize": 24457249,
+          "avgSize": 4891449.8
+        },
+        "default": {
+          "count": 4,
+          "totalSize": 19599755,
+          "avgSize": 4899938.75
+        },
+        "device/functions/events": {
+          "count": 4,
+          "totalSize": 19566915,
+          "avgSize": 4891728.75
+        },
+        "device/functions/iot": {
+          "count": 1,
+          "totalSize": 4887536,
+          "avgSize": 4887536
+        },
+        "migration": {
+          "count": 5,
+          "totalSize": 24446979,
+          "avgSize": 4889395.8
+        }
+      },
+      "limits": {
+        "uncompressed": 262144000,
+        "compressed": 52428800,
+        "targetUncompressed": 52428800,
+        "targetCompressed": 10485760
+      },
+      "functionTypeThresholds": {
+        "device/functions/api": 5242880,
+        "device/functions/events": 10485760,
+        "device/functions/iot": 3145728,
+        "migration": 20971520,
+        "default": 15728640
+      }
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "bundler_choice",
+      "priority": "high",
+      "title": "Use esbuild for better bundle sizes",
+      "description": "esbuild produces bundles that are 2.2 MB smaller on average",
+      "impact": "bundle_size"
+    }
+  ]
+}

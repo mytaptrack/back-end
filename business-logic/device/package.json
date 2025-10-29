@@ -3,7 +3,26 @@
   "version": "1.0.0",
   "description": "Device-specific business logic operations for MyTapTrack",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./operations": {
+      "types": "./dist/operations/index.d.ts",
+      "import": "./dist/operations/index.js",
+      "require": "./dist/operations/index.js"
+    },
+    "./validation": {
+      "types": "./dist/validation/index.d.ts",
+      "import": "./dist/validation/index.js",
+      "require": "./dist/validation/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc -d",
     "test": "jest --passWithNoTests",

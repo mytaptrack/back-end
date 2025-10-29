@@ -8,3 +8,4 @@
 /.build
 **/.DS_Store
 cdk.context.json
+dist-esbuild

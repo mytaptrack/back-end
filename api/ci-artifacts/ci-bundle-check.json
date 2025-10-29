@@ -1,0 +1,342 @@
+{
+  "timestamp": "2025-10-29T12:31:28.148Z",
+  "config": {
+    "strictMode": false,
+    "failOnWarnings": false,
+    "maxBundleSize": 52428800,
+    "reportPath": "./bundle-size-report.json",
+    "artifactPath": "./ci-artifacts"
+  },
+  "checks": [
+    {
+      "bundler": "webpack",
+      "directory": "/Users/nikody/src/mytaptrack/back-end/api/dist",
+      "passed": true,
+      "violations": [],
+      "warnings": [],
+      "bundles": [
+        {
+          "path": "109.js",
+          "size": 1600,
+          "sizeFormatted": "1.56 KB",
+          "status": "ok"
+        },
+        {
+          "path": "574.js",
+          "size": 19756,
+          "sizeFormatted": "19.29 KB",
+          "status": "ok"
+        },
+        {
+          "path": "610.js",
+          "size": 3569,
+          "sizeFormatted": "3.49 KB",
+          "status": "ok"
+        },
+        {
+          "path": "631.js",
+          "size": 14193,
+          "sizeFormatted": "13.86 KB",
+          "status": "ok"
+        },
+        {
+          "path": "724.js",
+          "size": 54841,
+          "sizeFormatted": "53.56 KB",
+          "status": "ok"
+        },
+        {
+          "path": "756.js",
+          "size": 6211,
+          "sizeFormatted": "6.07 KB",
+          "status": "ok"
+        },
+        {
+          "path": "78.js",
+          "size": 61941,
+          "sizeFormatted": "60.49 KB",
+          "status": "ok"
+        },
+        {
+          "path": "782.js",
+          "size": 6063,
+          "sizeFormatted": "5.92 KB",
+          "status": "ok"
+        },
+        {
+          "path": "789.js",
+          "size": 5693,
+          "sizeFormatted": "5.56 KB",
+          "status": "ok"
+        },
+        {
+          "path": "819.js",
+          "size": 1354,
+          "sizeFormatted": "1.32 KB",
+          "status": "ok"
+        },
+        {
+          "path": "858.js",
+          "size": 54752,
+          "sizeFormatted": "53.47 KB",
+          "status": "ok"
+        },
+        {
+          "path": "88.js",
+          "size": 47319,
+          "sizeFormatted": "46.21 KB",
+          "status": "ok"
+        },
+        {
+          "path": "919.js",
+          "size": 12427,
+          "sizeFormatted": "12.14 KB",
+          "status": "ok"
+        },
+        {
+          "path": "931.js",
+          "size": 49171,
+          "sizeFormatted": "48.02 KB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/audioPut.js",
+          "size": 5198418,
+          "sizeFormatted": "4.96 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/dataPut.js",
+          "size": 4974119,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/firmwarePost.js",
+          "size": 5030801,
+          "sizeFormatted": "4.8 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/timeGet.js",
+          "size": 4971288,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/wifiPing.js",
+          "size": 4971256,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/appApi/appDelete.js",
+          "size": 4992042,
+          "sizeFormatted": "4.76 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/appApi/appTokenRetrieve.js",
+          "size": 4994379,
+          "sizeFormatted": "4.76 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/ensureResponseUpdateStatus.js",
+          "size": 5008683,
+          "sizeFormatted": "4.78 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/notesNotification.js",
+          "size": 4972141,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/patternEventNotification.js",
+          "size": 5001073,
+          "sizeFormatted": "4.77 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/singleEventNotification.js",
+          "size": 5006044,
+          "sizeFormatted": "4.77 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/iot/handlers/click.js",
+          "size": 4971217,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/processing/device-identity-reset.js",
+          "size": 4971320,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/server/getAuthConfig.js",
+          "size": 4972201,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateApps.js",
+          "size": 4973317,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateNotes.js",
+          "size": 4972861,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateReports.js",
+          "size": 5002708,
+          "sizeFormatted": "4.77 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateSources.js",
+          "size": 4972592,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateTeam.js",
+          "size": 4972775,
+          "sizeFormatted": "4.74 MB",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "bundler": "esbuild",
+      "directory": "/Users/nikody/src/mytaptrack/back-end/api/dist-esbuild",
+      "passed": true,
+      "violations": [],
+      "warnings": [],
+      "bundles": [
+        {
+          "path": "device/functions/api/audioPut.js",
+          "size": 4900160,
+          "sizeFormatted": "4.67 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/dataPut.js",
+          "size": 4890396,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/firmwarePost.js",
+          "size": 4891513,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/timeGet.js",
+          "size": 4887602,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/api/wifiPing.js",
+          "size": 4887578,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/appApi/appDelete.js",
+          "size": 4910744,
+          "sizeFormatted": "4.68 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/appApi/appTokenRetrieve.js",
+          "size": 4912872,
+          "sizeFormatted": "4.69 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/ensureResponseUpdateStatus.js",
+          "size": 4896002,
+          "sizeFormatted": "4.67 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/notesNotification.js",
+          "size": 4888463,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/patternEventNotification.js",
+          "size": 4888911,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/events/singleEventNotification.js",
+          "size": 4893539,
+          "sizeFormatted": "4.67 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/iot/handlers/click.js",
+          "size": 4887536,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/processing/device-identity-reset.js",
+          "size": 4887628,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "device/functions/server/getAuthConfig.js",
+          "size": 4888511,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateApps.js",
+          "size": 4889607,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateNotes.js",
+          "size": 4889139,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateReports.js",
+          "size": 4890236,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateSources.js",
+          "size": 4888878,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        },
+        {
+          "path": "migration/migrateTeam.js",
+          "size": 4889119,
+          "sizeFormatted": "4.66 MB",
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}
