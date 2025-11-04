@@ -1,78 +1,76 @@
 import {
-    EventDal, IoTClickType, MttEventType, ProcessButtonRequest, WebError, 
-    WebUtils, getStudentPrimaryKey, moment 
+    WebError, WebUtils
 } from '@mytaptrack/lib';
 import {
     QLReportData, QLReportDataInput, QLReportService
 } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { StudentConfigStorage } from '@mytaptrack/lib';
+import { ReportOperations } from '@mytaptrack/business-logic-report';
+import { createLambdaServiceContext, BusinessLogicError, ValidationError, NotFoundError, AccessDeniedError } from '@mytaptrack/business-logic-core';
 
 interface AppSyncParams {
   studentId: string;
   data: QLReportDataInput;
 }
 
-const dataDal = new Dal('data');
+// All business logic has been moved to ReportOperations in the business logic layer
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<QLReportData | QLReportService> {
-    console.log('Recovery Data', context.arguments);
-    
-    const data = context.arguments.data;
-    const studentId = context.arguments.studentId;
-    if(!data.source) {
-        data.source = {
-            device: 'website',
-            rater: context.identity.username
-        }
-    }
+    const serviceContext = await createLambdaServiceContext();
+    try {
+        const data = context.arguments.data;
+        const studentId = context.arguments.studentId;
+        const userId = context.identity.username;
 
-    if (data.behavior || data.service) {
-        const student = await dataDal.get<StudentConfigStorage>(getStudentPrimaryKey(studentId), 'behaviors, responses, services');
-
-        console.debug('student', student);
-        const studentBehavior = student.behaviors?.find(x => x.id == data.behavior) ??
-            student.responses?.find(x => x.id == data.behavior) ??
-            student.services?.find(x => x.id == data.service);
-
-        if(!studentBehavior) {
-            throw new WebError('Could not find behavior');
-        }
-
-        let notStopped = data.duration != undefined;
-        
-        console.log('Constructing message');
-        const message = {
+        serviceContext.logger.info('Processing report data submission', { 
             studentId,
-            behaviorId: data.behavior,
-            dateEpoc: data.dateEpoc? moment(data.dateEpoc).toDate().getTime() : moment().toDate().getTime(),
+            userId,
+            hasBehavior: !!data.behavior,
+            hasService: !!data.service
+        });
+
+        // Set default source if not provided
+        if (!data.source) {
+            data.source = {
+                device: 'website',
+                rater: userId
+            };
+        }
+
+        // Transform data to match business logic interface
+        const transformedData = {
+            behavior: data.behavior,
+            service: data.service,
+            dateEpoc: data.dateEpoc,
             abc: data.abc,
             intensity: data.intensity,
-            clickType: data.isManual? IoTClickType.manual : IoTClickType.clickCount,
-            remainingLife: 1500,
-            notStopped,
             duration: data.duration,
-            isDuration: studentBehavior.isDuration,
-            source: data.source ?? {
-                device: 'website',
-                rater: context.identity.username
-            },
-            remove: data.deleted? true : false,
-            redoDurations: data.redoDurations
-        } as ProcessButtonRequest;
+            isManual: data.isManual,
+            deleted: !!data.deleted, // Convert QLDeleteDetails to boolean
+            redoDurations: data.redoDurations,
+            source: data.source
+        };
 
-        console.log('sending message to sqs');
-        await EventDal.sendEvents('website', [{
-            type: MttEventType.trackEvent,
-            data: message
-        }]);
-    } else {
-        throw new WebError('Cannot determine the type of item tracked', 400);
+        // Delegate business logic to ReportOperations
+        const result = await ReportOperations.submitReportData({
+            studentId,
+            data: transformedData,
+            userId
+        }, serviceContext);
+
+        return result;
+    } catch (error) {
+        serviceContext.logger.error('Failed to submit report data', { 
+            error: error.message,
+            studentId: context.arguments.studentId,
+            userId: context.identity.username
+        });
+        if (error instanceof ValidationError || error instanceof NotFoundError || 
+            error instanceof AccessDeniedError || error instanceof BusinessLogicError) {
+            throw new WebError(error.message);
+        }
+        throw new WebError('Failed to submit report data');
     }
-
-    return context.arguments.data as any;
 }

@@ -1,18 +1,8 @@
-import {
-    StudentConfigStorage,
-    StudentPiiStorage,
-    UserPrimaryStorage,
-    UserTeamInviteStorage,
-    WebUtils, getStudentPrimaryKey, getUserPrimaryKey, getUserStudentSummaryKey, moment
-} from '@mytaptrack/lib';
-import {
-    MttAppSyncContext
-} from '@mytaptrack/cdk';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { AccessLevel, QLStudentSummary, UserSummaryStatus } from '@mytaptrack/types';
-
-const dataDal = new Dal('data');
-const primaryDal = new Dal('primary');
+import { WebUtils } from '@mytaptrack/lib';
+import { MttAppSyncContext } from '@mytaptrack/cdk';
+import { QLStudentSummary, UserSummaryStatus } from '@mytaptrack/types';
+import { UserOperations } from '@mytaptrack/business-logic-user';
+import { createLambdaServiceContext, BusinessLogicError, NotFoundError } from '@mytaptrack/business-logic-core';
 
 interface Params {
     studentId: string;
@@ -22,74 +12,45 @@ interface Params {
 export const handler = WebUtils.lambdaWrapper(handleEvent);
 
 export async function handleEvent(context: MttAppSyncContext<Params, never, never, {}>): Promise<QLStudentSummary> {
-    console.log('Processing updating app');
-    const userId = context.identity.username;
-    const studentId = context.arguments.studentId;
+    const serviceContext = await createLambdaServiceContext();
+    
+    try {
+        const userId = context.identity.username;
+        const { studentId, status } = context.arguments;
 
-    const user = await primaryDal.get<UserPrimaryStorage>(getUserPrimaryKey(userId));
-
-    const userTeamKey = getUserStudentSummaryKey(context.arguments.studentId, userId);
-    const emailTeamKey = getUserStudentSummaryKey(context.arguments.studentId, user.details.email);
-    const [studentInvite, emailInvite] = await Promise.all([
-        dataDal.get<UserTeamInviteStorage>(userTeamKey),
-        dataDal.get<UserTeamInviteStorage>(emailTeamKey)
-    ]);
-
-    if(studentInvite) {
-        if(studentInvite.status == UserSummaryStatus.RemovalPending) {
-            throw new Error('Student invite not found');
-        }
-
-        console.info('Updating user student invite');
-        await dataDal.update({
-            key: userTeamKey,
-            updateExpression: 'SET #status = :status',
-            attributeNames: {
-                '#status': 'status'
-            },
-            attributeValues: {
-                ':status': context.arguments.status
-            }
+        serviceContext.logger.info('Processing user invite update', { 
+            userId, 
+            studentId, 
+            status 
         });
-    } 
-    if(emailInvite) {
-        if(emailInvite.status == UserSummaryStatus.RemovalPending) {
-            throw new Error('Student invite not found');
-        }
 
-        console.log('Handling email invite');
-        await dataDal.put({
-            ...emailInvite,
-            ...userTeamKey,
-            pksk: `${userTeamKey.pk}#${userTeamKey.sk}`,
-            userId: userId,
+        // Use user business logic service to handle invite
+        const result = await UserOperations.handleUserInvite(
+            studentId,
+            status,
+            userId,
+            serviceContext
+        );
+
+        serviceContext.logger.info('User invite processed successfully', { 
+            userId, 
+            studentId, 
+            status 
+        });
+
+        return result;
+    } catch (error) {
+        serviceContext.logger.error('Failed to process user invite', {
+            error: error.message,
+            userId: context.identity.username,
+            studentId: context.arguments.studentId,
             status: context.arguments.status
         });
 
-        console.log('Removing invite');
-        await dataDal.delete(emailTeamKey);
-    } 
-    
-    if(!emailInvite && !studentInvite) {
-        throw new Error('Student invite not found');
+        if (error instanceof BusinessLogicError || error instanceof NotFoundError) {
+            throw error;
+        }
+
+        throw new BusinessLogicError('Failed to process user invite', serviceContext.config.correlationId);
     }
-
-    const pii = await primaryDal.get<StudentPiiStorage>(getStudentPrimaryKey(studentId));
-
-    return {
-        studentId: studentId,
-        details: {
-            firstName: pii.firstName,
-            lastName: pii.lastName,
-            nickname: pii.nickname,
-            schoolId: pii.schoolStudentId
-        },
-        tracking: {
-            service: (studentInvite ?? emailInvite).restrictions.service != AccessLevel.none,
-            behavior: (studentInvite ?? emailInvite).restrictions.behavior != AccessLevel.none,
-        },
-        lastTracked: '',
-        awaitingResponse: false,
-        alertCount: 0
-    };
 }

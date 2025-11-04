@@ -1,6 +1,7 @@
 import { IAuthenticationProvider, AuthenticationResult, UserContext, TokenResult, AuthConfig } from '../authentication/interfaces';
 import { ICacheProvider, CacheConfig } from '../cache-providers/interfaces';
 import { UnifiedConfig } from '../config/interfaces';
+import { IEmailService } from './email-service';
 
 /**
  * Core service context interface that provides all service dependencies
@@ -12,6 +13,7 @@ export interface ServiceContext {
   cache: ICacheProvider;
   logger: ILogger;
   config: ServiceConfig;
+  emailService?: IEmailService;
 }
 
 /**
@@ -77,6 +79,7 @@ export interface ServiceContextV2 {
   cache: ICacheProvider;
   logger: ILogger;
   config: UnifiedConfig;
+  emailService?: IEmailService;
 }
 
 // Supporting interfaces

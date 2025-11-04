@@ -24,9 +24,7 @@
 
 import {
   ServiceContextFactory,
-  ServiceLifecycleManager,
   DependencyContainer,
-  ServiceConfig,
   ServiceContext,
   IBusinessService
 } from '../index';

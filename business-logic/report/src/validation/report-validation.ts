@@ -1,5 +1,16 @@
-import { ValidationResult, ValidationError } from '@mytaptrack/business-logic-core';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
+
+// Define validation types locally since they're not exported from core
+interface ValidationError {
+  field: string;
+  message: string;
+  code: string;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+}
 
 /**
  * Report validation functions

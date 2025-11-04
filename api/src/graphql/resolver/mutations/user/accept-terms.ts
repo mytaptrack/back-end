@@ -1,27 +1,38 @@
-import {
-    WebUtils, getUserPrimaryKey, moment
-} from '@mytaptrack/lib';
-import {
-    MttAppSyncContext
-} from '@mytaptrack/cdk';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-
-const dataDal = new Dal('data');
-const primaryDal = new Dal('primary');
+import { WebUtils } from '@mytaptrack/lib';
+import { MttAppSyncContext } from '@mytaptrack/cdk';
+import { UserOperations } from '@mytaptrack/business-logic-user';
+import { 
+    createLambdaServiceContext, 
+    BusinessLogicError, 
+    ValidationError, 
+    NotFoundError, 
+    AccessDeniedError 
+} from '@mytaptrack/business-logic-core';
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
 export async function handleEvent(context: MttAppSyncContext<{}, never, never, never>): Promise<boolean> {
-    console.log('Processing updating app');
-    const userId = context.identity.username;
+    const serviceContext = await createLambdaServiceContext();
+    
+    try {
+        const userId = context.identity.username;
 
-    await dataDal.update({
-        key: getUserPrimaryKey(userId),
-        updateExpression: 'SET terms = :terms',
-        attributeValues: {
-            ':terms': moment().toISOString()
+        serviceContext.logger.info('Processing user terms acceptance', { userId });
+
+        // Delegate all business logic to UserOperations
+        const result = await UserOperations.acceptTerms(userId, serviceContext);
+
+        return result;
+    } catch (error) {
+        serviceContext.logger.error('Failed to accept terms', {
+            error: error.message,
+            userId: context.identity.username
+        });
+        
+        if (error instanceof ValidationError || error instanceof NotFoundError || 
+            error instanceof AccessDeniedError || error instanceof BusinessLogicError) {
+            throw new Error(error.message);
         }
-    });
-
-    return true;
+        throw new Error('Failed to accept terms');
+    }
 }

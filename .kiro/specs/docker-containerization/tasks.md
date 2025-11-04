@@ -164,7 +164,7 @@
   - Optimize import patterns to ensure Lambda functions only include necessary code paths
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 21. Create comprehensive testing framework
+- [x] 21. Create comprehensive testing framework
   - Implement integration tests that validate business logic works identically in both AWS and Docker environments
   - Create container integration tests using Docker Compose test environment
   - Add end-to-end tests that verify complete workflows across all container services
@@ -172,7 +172,233 @@
   - Create test utilities for mocking external dependencies and simulating various failure scenarios
   - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-- [ ] 22. Create deployment documentation and guides
+- [-] 22. Port GraphQL mutation resolvers to use containerized business logic services
+  - [x] 22.1 Port `api/src/graphql/resolver/mutations/app/update.ts` to use app business logic service
+    - Replace direct AWS service calls with app business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.2 Port `api/src/graphql/resolver/mutations/license/change-license.ts` to use license business logic service
+    - Replace direct AWS service calls with license business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.3 Port `api/src/graphql/resolver/mutations/license/free-license.ts` to use license business logic service
+    - Replace direct AWS service calls with license business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.4 Port `api/src/graphql/resolver/mutations/license/license-updated.ts` to use license business logic service
+    - Replace direct AWS service calls with license business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.5 Port `api/src/graphql/resolver/mutations/report/data.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.6 Port `api/src/graphql/resolver/mutations/report/date-inclusion.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.7 Port `api/src/graphql/resolver/mutations/report/notes.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.8 Port `api/src/graphql/resolver/mutations/report/process.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.9 Port `api/src/graphql/resolver/mutations/report/queue-management.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.10 Port `api/src/graphql/resolver/mutations/report/reprocess-events.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.11 Port `api/src/graphql/resolver/mutations/report/schedule.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.12 Port `api/src/graphql/resolver/mutations/snapshot/save.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.13 Port `api/src/graphql/resolver/mutations/student/notifications/delete-notifications.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.14 Port `api/src/graphql/resolver/mutations/student/service/update-definition/data.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.15 Port `api/src/graphql/resolver/mutations/student/service/update-definition/primary.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.16 Port `api/src/graphql/resolver/mutations/student/update-info/data.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.17 Port `api/src/graphql/resolver/mutations/student/update-info/delete.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods`
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.18 Port `api/src/graphql/resolver/mutations/student/update-info/schedules.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.19 Port `api/src/graphql/resolver/mutations/support/email.ts` to use core business logic service
+    - Replace direct AWS service calls with core business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.20 Port `api/src/graphql/resolver/mutations/user/accept-terms.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.21 Port `api/src/graphql/resolver/mutations/user/dashboard.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.22 Port `api/src/graphql/resolver/mutations/user/info.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 22.23 Port `api/src/graphql/resolver/mutations/user/invite.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+
+- [ ] 23. Port GraphQL query resolvers to use containerized business logic services
+  - [x] 23.1 Port `api/src/graphql/resolver/query/getDeviceQRCode.ts` to use device business logic service
+    - Replace direct AWS service calls with device business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 23.2 Port `api/src/graphql/resolver/query/getDeviceTrackTerm.ts` to use device business logic service
+    - Replace direct AWS service calls with device business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 23.3 Port `api/src/graphql/resolver/query/getData/data.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [-] 23.4 Port `api/src/graphql/resolver/query/getData/excel.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 23.5 Port `api/src/graphql/resolver/query/getData/notes.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.6 Port `api/src/graphql/resolver/query/getDevices/app.ts` to use app business logic service
+    - Replace direct AWS service calls with app business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.7 Port `api/src/graphql/resolver/query/getDevices/apps-for-device.ts` to use device business logic service
+    - Replace direct AWS service calls with device business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.8 Port `api/src/graphql/resolver/query/getDevices/apps-for-license.ts` to use license business logic service
+    - Replace direct AWS service calls with license business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.9 Port `api/src/graphql/resolver/query/getDevices/apps.ts` to use app business logic service
+    - Replace direct AWS service calls with app business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.10 Port `api/src/graphql/resolver/query/getDevices/appToken.ts` to use app business logic service
+    - Replace direct AWS service calls with app business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.11 Port `api/src/graphql/resolver/query/getDevices/devices.ts` to use device business logic service
+    - Replace direct AWS service calls with device business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.12 Port `api/src/graphql/resolver/query/getDevices/track-for-dsn.ts` to use device business logic service
+    - Replace direct AWS service calls with device business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.13 Port `api/src/graphql/resolver/query/getGlobalServiceReport/data.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.14 Port `api/src/graphql/resolver/query/getLicenses/data.ts` to use license business logic service
+    - Replace direct AWS service calls with license business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.15 Port `api/src/graphql/resolver/query/getLicenses/stats.ts` to use license business logic service
+    - Replace direct AWS service calls with license business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.16 Port `api/src/graphql/resolver/query/getServerSettings/data.ts` to use core business logic service
+    - Replace direct AWS service calls with core business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.17 Port `api/src/graphql/resolver/query/getSnapshot/get.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.18 Port `api/src/graphql/resolver/query/getSnapshot/list.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.19 Port `api/src/graphql/resolver/query/getStudent/data-sources.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.20 Port `api/src/graphql/resolver/query/getStudent/data.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.21 Port `api/src/graphql/resolver/query/getStudent/find-students.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.22 Port `api/src/graphql/resolver/query/getStudent/get-students.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.23 Port `api/src/graphql/resolver/query/getStudent/subscriptions.ts` to use student business logic service
+    - Replace direct AWS service calls with student business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.24 Port `api/src/graphql/resolver/query/getUsers/current.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.25 Port `api/src/graphql/resolver/query/getUsers/manage.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 23.26 Port `api/src/graphql/resolver/query/getUsers/payment-session.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+
+- [ ] 24. Port GraphQL subscription, type, and authorization resolvers to use containerized business logic services
+  - [ ] 24.1 Port `api/src/graphql/resolver/subscriptions/report/notes.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 24.2 Port `api/src/graphql/resolver/types/app-storage.ts` to use app business logic service
+    - Replace direct AWS service calls with app business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 24.3 Port `api/src/graphql/resolver/types/reports.ts` to use report business logic service
+    - Replace direct AWS service calls with report business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 24.4 Port `api/src/graphql/resolver/types/track-storage.ts` to use device business logic service
+    - Replace direct AWS service calls with device business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 24.5 Port `api/src/graphql/resolver/authorization/check_access.ts` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 24.6 Port `api/src/graphql/resolver/authorization/user-id-match.js` to use user business logic service
+    - Replace direct AWS service calls with user business logic service methods
+    - Update resolver to use service context for dependency injection
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+
+- [ ] 25. Create deployment documentation and guides
   - Write comprehensive deployment guide for setting up Docker containerized environment
   - Create configuration reference documentation for all environment variables and config options
   - Document migration procedures for moving from AWS to Docker deployment

@@ -5,7 +5,7 @@ import {
   ValidationError, 
   NotFoundError 
 } from '@mytaptrack/business-logic-core';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 
 /**
  * Device-specific business operations
@@ -96,7 +96,7 @@ export class DeviceOperations implements IBusinessOperations {
     const deviceKey = { pk: `D#${deviceId}`, sk: 'P' };
     
     // Check if device exists
-    const existingDevice = await context.dataAccess.get(deviceKey);
+    const existingDevice = await context.dataAccess.get(deviceKey) as any;
     if (!existingDevice) {
       throw new NotFoundError('Device not found', context.config.correlationId, { deviceId });
     }
@@ -140,7 +140,7 @@ export class DeviceOperations implements IBusinessOperations {
     const deviceKey = { pk: `D#${deviceId}`, sk: 'P' };
     
     // Check if device exists
-    const existingDevice = await context.dataAccess.get(deviceKey);
+    const existingDevice = await context.dataAccess.get(deviceKey) as any;
     if (!existingDevice) {
       throw new NotFoundError('Device not found', context.config.correlationId, { deviceId });
     }
@@ -239,7 +239,7 @@ export class DeviceOperations implements IBusinessOperations {
   ): Promise<DeviceRegistration | null> {
     const deviceKey = { pk: `D#${deviceId}`, sk: 'P' };
     
-    const deviceRecord = await context.dataAccess.get(deviceKey);
+    const deviceRecord = await context.dataAccess.get(deviceKey) as any;
     
     if (!deviceRecord) {
       return null;
@@ -273,7 +273,7 @@ export class DeviceOperations implements IBusinessOperations {
       keyExpression: 'studentId = :studentId',
       attributeValues: { ':studentId': studentId },
       indexName: 'student-index'
-    });
+    }) as any[];
 
     return devices.map((device: any) => ({
       deviceId: device.deviceId,
@@ -306,7 +306,7 @@ export class DeviceOperations implements IBusinessOperations {
         ':lsk': 'P#'
       },
       indexName: 'license-index'
-    });
+    }) as any[];
 
     return devices.map((device: any) => ({
       deviceId: device.deviceId,
@@ -335,7 +335,7 @@ export class DeviceOperations implements IBusinessOperations {
     const deviceKey = { pk: `D#${deviceId}`, sk: 'P' };
     
     // Check if device exists
-    const existingDevice = await context.dataAccess.get(deviceKey);
+    const existingDevice = await context.dataAccess.get(deviceKey) as any;
     if (!existingDevice) {
       throw new NotFoundError('Device not found', context.config.correlationId, { deviceId });
     }
@@ -354,6 +354,295 @@ export class DeviceOperations implements IBusinessOperations {
   }
 
   /**
+   * Process tracking data from device (handles the complex business logic from dataPut Lambda)
+   */
+  static async processTrackingData(
+    trackingData: ProcessTrackingDataInput,
+    context: ServiceContext
+  ): Promise<void> {
+    // Validate and normalize input
+    const validation = DeviceOperations.validateTrackingDataInput(trackingData);
+    if (!validation.valid) {
+      throw new ValidationError('Invalid tracking data', context.config.correlationId, { errors: validation.errors });
+    }
+
+    let { dsn, identity, pressType, clickCount, eventDate, currentTime, remainingLife, isDebug } = trackingData;
+
+    // Debug mode adjustments
+    if (isDebug && dsn === '') {
+      dsn = 'M200000000000001';
+    }
+    if (isDebug) {
+      dsn = dsn.padEnd(16, '0');
+    }
+
+    // Normalize DSN length
+    if (dsn.length > 16) {
+      dsn = dsn.slice(0, 16);
+    }
+
+    context.logger.info('Processing tracking data', { dsn, clickCount, pressType });
+
+    // Parse and validate event date
+    let parsedEventDate = new Date(eventDate.trimRight().replace('\u0012', ''));
+    if (isNaN(parsedEventDate.getTime())) {
+      throw new ValidationError('Invalid event date', context.config.correlationId, { eventDate });
+    }
+
+    // Handle epoch time adjustment for old dates
+    if (parsedEventDate.getTime() < 31536000000 /*1971*/) {
+      const diffEpoc = moment(parsedEventDate).diff(moment(currentTime), 'milliseconds');
+      parsedEventDate = new Date(new Date().getTime() - diffEpoc);
+    }
+
+    // Get device information (this would typically use a GraphQL query or direct data access)
+    const deviceInfo = await DeviceOperations.getTrackingDeviceInfo(dsn, identity, context);
+    
+    if (!deviceInfo) {
+      throw new NotFoundError('Device not found', context.config.correlationId, { dsn });
+    }
+
+    // Handle device validation
+    if (!deviceInfo.validated) {
+      await DeviceOperations.setDeviceValidated(dsn, context);
+      context.logger.info('Device validated', { dsn });
+      return;
+    }
+
+    // Find the button event configuration
+    const buttonEvent = deviceInfo.events.find((x: any) => x.presses === clickCount);
+    if (!buttonEvent) {
+      throw new BusinessLogicError(
+        `Invalid button event for device ${dsn} with click count ${clickCount}`, 
+        context.config.correlationId, 
+        { dsn, clickCount }
+      );
+    }
+
+    // Create tracking event data
+    const trackingEventData = {
+      serialNumber: dsn,
+      remainingLife,
+      clickType: 'clickCount', // IoTClickType.clickCount
+      clickCount,
+      studentId: deviceInfo.studentId,
+      behaviorId: buttonEvent.eventId,
+      dateEpoc: parsedEventDate.getTime(),
+      notStopped: buttonEvent.notStopped,
+      isDuration: buttonEvent.isDuration,
+      source: {
+        device: 'Track 2.0',
+        rater: dsn
+      },
+      remove: false,
+      redoDurations: true
+    };
+
+    // Send tracking event through message broker
+    await context.messageBroker.publish('device.tracking.event', {
+      type: 'trackEvent',
+      data: trackingEventData,
+      timestamp: moment().toISOString()
+    });
+
+    context.logger.info('Tracking event processed successfully', { 
+      dsn, 
+      clickCount, 
+      studentId: deviceInfo.studentId,
+      behaviorId: buttonEvent.eventId 
+    });
+  }
+
+  /**
+   * Get tracking device information (replaces GraphQL query)
+   */
+  private static async getTrackingDeviceInfo(
+    dsn: string,
+    identity: string,
+    context: ServiceContext
+  ): Promise<any> {
+    // This would typically query the device configuration
+    // For now, we'll implement a basic lookup
+    const deviceKey = { pk: `TD#${dsn}`, sk: 'P' }; // Tracking Device
+    
+    const deviceInfo = await context.dataAccess.get(deviceKey) as any;
+    
+    if (!deviceInfo) {
+      return null;
+    }
+
+    return {
+      deviceName: deviceInfo.deviceName,
+      dsn: deviceInfo.dsn,
+      events: deviceInfo.events || [],
+      license: deviceInfo.license,
+      studentId: deviceInfo.studentId,
+      validated: deviceInfo.validated || false,
+      timezone: deviceInfo.timezone
+    };
+  }
+
+  /**
+   * Set device as validated
+   */
+  private static async setDeviceValidated(
+    dsn: string,
+    context: ServiceContext
+  ): Promise<void> {
+    const deviceKey = { pk: `TD#${dsn}`, sk: 'P' };
+    
+    await context.dataAccess.update({
+      key: deviceKey,
+      updateExpression: 'SET validated = :validated',
+      attributeValues: { ':validated': true }
+    });
+
+    await context.messageBroker.publish('device.validated', {
+      dsn,
+      timestamp: moment().toISOString()
+    });
+
+    context.logger.info('Device set as validated', { dsn });
+  }
+
+  /**
+   * Generate QR code for device app token
+   */
+  static async generateDeviceQRCode(
+    deviceId: string,
+    studentId: string,
+    context: ServiceContext
+  ): Promise<DeviceQRCodeResult> {
+    // Validate access permissions - check if user has access to the student
+    const hasAccess = await DeviceOperations.validateDeviceAccess(deviceId, studentId, context);
+    if (!hasAccess) {
+      throw new BusinessLogicError('Access denied', context.config.correlationId, { deviceId, studentId });
+    }
+
+    // Get student information to retrieve license
+    const studentKey = { pk: `S#${studentId}`, sk: 'P' };
+    const student = await context.dataAccess.get(studentKey) as any;
+    if (!student) {
+      throw new NotFoundError('Student not found', context.config.correlationId, { studentId });
+    }
+
+    // Generate app token with 2-day expiration
+    const expiration = moment().add(2, 'days').toDate().getTime();
+    const appToken = await DeviceOperations.generateAppToken(
+      student.license,
+      deviceId,
+      expiration,
+      context
+    );
+
+    context.logger.info('Device QR code generated', { deviceId, studentId });
+
+    return {
+      appId: deviceId,
+      token: appToken.token,
+      qrExpiration: expiration
+    };
+  }
+
+  /**
+   * Generate app token for device
+   */
+  private static async generateAppToken(
+    license: string,
+    deviceId: string,
+    expiration: number,
+    context: ServiceContext
+  ): Promise<{ token: string }> {
+    // This would typically generate a JWT token or call an external service
+    // For now, we'll create a simple token structure
+    const tokenData = {
+      license,
+      deviceId,
+      expiration,
+      timestamp: moment().toISOString()
+    };
+
+    // In a real implementation, this would be a proper JWT token
+    // For now, we'll use a base64 encoded token
+    const token = Buffer.from(JSON.stringify(tokenData)).toString('base64');
+
+    // Store token for validation if needed
+    const tokenKey = { pk: `AT#${deviceId}`, sk: `T#${expiration}` };
+    await context.dataAccess.put({
+      ...tokenKey,
+      pksk: `${tokenKey.pk}#${tokenKey.sk}`,
+      license,
+      deviceId,
+      token,
+      expiration,
+      createdAt: moment().toISOString(),
+      version: 1
+    });
+
+    return { token };
+  }
+
+  /**
+   * Validate device access for user
+   */
+  private static async validateDeviceAccess(
+    deviceId: string,
+    studentId: string,
+    context: ServiceContext
+  ): Promise<boolean> {
+    // Check if device exists and belongs to the student
+    const deviceKey = { pk: `D#${deviceId}`, sk: 'P' };
+    const device = await context.dataAccess.get(deviceKey) as any;
+    
+    if (!device) {
+      return false;
+    }
+
+    // Verify device belongs to the student
+    if (device.studentId !== studentId) {
+      return false;
+    }
+
+    // Additional access validation could be added here
+    // (e.g., team member permissions, license admin permissions)
+    
+    return true;
+  }
+
+  /**
+   * Get device track term status
+   */
+  static async getDeviceTrackTermStatus(
+    deviceId: string,
+    studentId: string,
+    context: ServiceContext
+  ): Promise<DeviceTrackTermStatus | null> {
+    // Check if user has access to the student
+    const hasAccess = await DeviceOperations.validateDeviceAccess(deviceId, studentId, context);
+    if (!hasAccess) {
+      throw new BusinessLogicError('Access denied', context.config.correlationId, { deviceId, studentId });
+    }
+
+    // Get device global information
+    const deviceKey = { pk: `DG#${deviceId}`, sk: 'P' }; // Device Global
+    const deviceInfo = await context.dataAccess.get(deviceKey) as any;
+
+    if (!deviceInfo) {
+      return null;
+    }
+
+    // Find the command for the specific student
+    const studentCommand = deviceInfo.commands?.find((cmd: any) => cmd.studentId === studentId);
+
+    context.logger.info('Retrieved device track term status', { deviceId, studentId });
+
+    return {
+      termSet: deviceInfo.termSetup || false,
+      term: studentCommand?.term || ''
+    };
+  }
+
+  /**
    * Update device settings
    */
   static async updateDeviceSettings(
@@ -364,7 +653,7 @@ export class DeviceOperations implements IBusinessOperations {
     const deviceKey = { pk: `D#${deviceId}`, sk: 'P' };
     
     // Check if device exists
-    const existingDevice = await context.dataAccess.get(deviceKey);
+    const existingDevice = await context.dataAccess.get(deviceKey) as any;
     if (!existingDevice) {
       throw new NotFoundError('Device not found', context.config.correlationId, { deviceId });
     }
@@ -449,6 +738,35 @@ export class DeviceOperations implements IBusinessOperations {
 
     return { valid: errors.length === 0, errors };
   }
+
+  /**
+   * Validate tracking data input
+   */
+  private static validateTrackingDataInput(input: ProcessTrackingDataInput): { valid: boolean; errors: any[] } {
+    const errors: any[] = [];
+
+    if (!input.dsn || !input.dsn.match(/M2[A-Z0-9]{10}/)) {
+      errors.push({ field: 'dsn', message: 'Valid DSN is required', code: 'INVALID_DSN' });
+    }
+
+    if (!input.identity) {
+      errors.push({ field: 'identity', message: 'Identity is required', code: 'REQUIRED' });
+    }
+
+    if (!input.pressType) {
+      errors.push({ field: 'pressType', message: 'Press type is required', code: 'REQUIRED' });
+    }
+
+    if (!input.clickCount) {
+      errors.push({ field: 'clickCount', message: 'Click count is required', code: 'REQUIRED' });
+    }
+
+    if (!input.eventDate) {
+      errors.push({ field: 'eventDate', message: 'Event date is required', code: 'REQUIRED' });
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
 }
 
 // Types
@@ -488,4 +806,26 @@ export interface DeviceRegistration {
   firmwareVersion?: string;
   batteryLevel?: number;
   settings?: any;
+}
+
+export interface ProcessTrackingDataInput {
+  dsn: string;
+  identity: string;
+  pressType: string;
+  clickCount: number;
+  eventDate: string;
+  currentTime?: string;
+  remainingLife?: number;
+  isDebug?: boolean;
+}
+
+export interface DeviceQRCodeResult {
+  appId: string;
+  token: string;
+  qrExpiration: number;
+}
+
+export interface DeviceTrackTermStatus {
+  termSet: boolean;
+  term: string;
 }

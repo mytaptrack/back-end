@@ -5,6 +5,7 @@ import {
   ValidationError, 
   NotFoundError 
 } from '@mytaptrack/business-logic-core';
+import { AccessDeniedError } from '@mytaptrack/business-logic-core/dist/errors/service-errors';
 import { 
   LicenseDetails, 
   LicenseDisplayTags 
@@ -390,6 +391,334 @@ export class LicenseOperations implements IBusinessOperations {
   }
 
   /**
+   * Change license (cancel or full cancel)
+   */
+  static async changeLicense(
+    request: ChangeLicenseRequest,
+    context: ServiceContext
+  ): Promise<LicenseDetails> {
+    const { license, userId, fullCancel, cancel } = request;
+    
+    // Get existing license
+    const licenseDetails = await LicenseOperations.getLicenseById(license, context);
+    if (!licenseDetails) {
+      throw new NotFoundError('License not found', context.config.correlationId, { license });
+    }
+
+    if (fullCancel) {
+      await LicenseOperations.performFullCancellation(license, userId, licenseDetails, context);
+    } else if (cancel) {
+      await LicenseOperations.performCancellation(license, licenseDetails, context);
+    }
+
+    // Return updated license details
+    return await LicenseOperations.getLicenseById(license, context) || licenseDetails;
+  }
+
+  /**
+   * Perform full license cancellation
+   */
+  private static async performFullCancellation(
+    license: string,
+    userId: string,
+    licenseDetails: LicenseDetails,
+    context: ServiceContext
+  ): Promise<void> {
+    // Cancel Stripe subscription if exists
+    if (licenseDetails.stripe?.id) {
+      await LicenseOperations.cancelStripeSubscription(licenseDetails, context);
+    }
+
+    // Delete all license-related data
+    const deleteOperations = [];
+
+    // Query and delete data table records
+    const dataQueries = [
+      { lpk: `${license}#R` },
+      { lpk: `${license}#S` },
+      { lpk: `${license}#DA` },
+      { lpk: `${license}#T` },
+      { lpk: `L#${license}` }
+    ];
+
+    for (const query of dataQueries) {
+      const records = await context.dataAccess.query({
+        keyExpression: 'lpk = :lpk',
+        attributeValues: { ':lpk': query.lpk },
+        projectionExpression: 'pk, sk',
+        indexName: 'license-index'
+      });
+      
+      for (const record of records) {
+        deleteOperations.push(context.dataAccess.delete({ pk: record.pk, sk: record.sk }));
+      }
+    }
+
+    // Query and delete primary table records
+    const primaryQueries = [
+      { lpk: `${license}#S` },
+      { lpk: `${license}#AG` }
+    ];
+
+    for (const query of primaryQueries) {
+      const records = await context.dataAccess.query({
+        keyExpression: 'lpk = :lpk',
+        attributeValues: { ':lpk': query.lpk },
+        projectionExpression: 'pk, sk',
+        indexName: 'license-index'
+      });
+      
+      for (const record of records) {
+        deleteOperations.push(context.dataAccess.delete({ pk: record.pk, sk: record.sk }));
+      }
+    }
+
+    // Delete license record
+    deleteOperations.push(context.dataAccess.delete({ pk: 'L', sk: `P#${license}` }));
+
+    // Remove license from user
+    deleteOperations.push(context.dataAccess.update({
+      key: { pk: `U#${userId}`, sk: 'P' },
+      updateExpression: 'REMOVE license, licenseDetails'
+    }));
+
+    // Execute all delete operations
+    await Promise.all(deleteOperations);
+
+    // Publish event
+    await context.messageBroker.publish('license.fully.cancelled', {
+      license,
+      userId,
+      timestamp: moment().toISOString()
+    });
+
+    context.logger.info('License fully cancelled', { license, userId });
+  }
+
+  /**
+   * Perform license cancellation (downgrade to free)
+   */
+  private static async performCancellation(
+    license: string,
+    licenseDetails: LicenseDetails,
+    context: ServiceContext
+  ): Promise<void> {
+    // Check if license can be cancelled
+    if (licenseDetails.singleUsed > 2) {
+      throw new ValidationError('There are too many active students, please remove all except 2', context.config.correlationId);
+    }
+
+    // Cancel Stripe subscription if exists
+    if (licenseDetails.stripe?.id) {
+      await LicenseOperations.cancelStripeSubscription(licenseDetails, context);
+    }
+
+    // Update license to free tier
+    const licenseKey = { pk: 'L', sk: `P#${license}` };
+    await context.dataAccess.update({
+      key: licenseKey,
+      updateExpression: 'SET #details.#features.#personal = :false, #details.#features.#free = :true, #details.#singleCount = :singleCount',
+      attributeNames: {
+        '#details': 'details',
+        '#features': 'features',
+        '#personal': 'personal',
+        '#free': 'free',
+        '#singleCount': 'singleCount'
+      },
+      attributeValues: {
+        ':false': false,
+        ':true': true,
+        ':singleCount': 2
+      }
+    });
+
+    // Publish event
+    await context.messageBroker.publish('license.cancelled', {
+      license,
+      timestamp: moment().toISOString()
+    });
+
+    context.logger.info('License cancelled and downgraded to free', { license });
+  }
+
+  /**
+   * Create a free license for a user
+   */
+  static async createFreeLicense(
+    request: CreateFreeLicenseRequest,
+    context: ServiceContext
+  ): Promise<LicenseDetails> {
+    const { userId, userEmail, userState } = request;
+    
+    // Get user to check if they already have a license
+    const userKey = { pk: `U#${userId}`, sk: 'P' };
+    const user = await context.dataAccess.get(userKey);
+    
+    if (!user) {
+      throw new NotFoundError('User not found', context.config.correlationId, { userId });
+    }
+    
+    // If user already has a license, return it
+    if (user.license) {
+      const existingLicense = await LicenseOperations.getLicenseById(user.license, context);
+      if (existingLicense) {
+        context.logger.info('User already has license', { userId, license: user.license });
+        return existingLicense;
+      }
+    }
+    
+    // Generate new license ID
+    const licenseId = moment().format('YYYYMMDD') + LicenseOperations.generateShortId();
+    
+    // Create free license
+    const freeLicenseData: CreateLicenseInput = {
+      license: licenseId,
+      customer: `PER-${userState?.trim() || 'UNKNOWN'}-${userId?.trim()}`,
+      singleCount: 2,
+      singleUsed: 0,
+      multiCount: 0,
+      admins: [userEmail.toLowerCase().trim()],
+      emailDomain: '',
+      expiration: '2099-01-01',
+      start: moment().format('YYYY-MM-DD'),
+      tags: { devices: [] },
+      features: {
+        snapshot: false,
+        snapshotConfig: {
+          low: '@frown',
+          medium: '@meh',
+          high: '@smile',
+          measurements: [
+            { name: '@smile', order: 0 },
+            { name: '@meh', order: 1 },
+            { name: '@frown', order: 2 }
+          ]
+        },
+        dashboard: true,
+        browserTracking: true,
+        download: false,
+        duration: false,
+        manage: false,
+        supportChanges: false,
+        schedule: false,
+        devices: true,
+        behaviorTargets: false,
+        response: false,
+        emailTextNotifications: true,
+        manageStudentTemplates: false,
+        manageResponses: false,
+        abc: false,
+        notifications: false,
+        appGroups: false,
+        documents: false,
+        intervalWBaseline: false,
+        displayTags: [],
+        serviceTracking: false,
+        behaviorTracking: true,
+        serviceProgress: false,
+        personal: 'free' as any
+      },
+      abcCollections: [],
+      studentTemplates: [],
+      appTemplates: []
+    };
+    
+    // Create the license
+    const license = await LicenseOperations.createLicense(freeLicenseData, context);
+    
+    // Update user with license
+    await context.dataAccess.update({
+      key: userKey,
+      updateExpression: 'SET license = :license',
+      attributeValues: { ':license': licenseId }
+    });
+    
+    // Publish user license assigned event
+    await context.messageBroker.publish('user.license.assigned', {
+      userId,
+      license: licenseId,
+      licenseType: 'free',
+      timestamp: moment().toISOString()
+    });
+    
+    context.logger.info('Free license created and assigned to user', { userId, license: licenseId });
+    return license;
+  }
+
+  /**
+   * Get license details for a user
+   */
+  static async getLicenseForUser(
+    request: GetLicenseForUserRequest,
+    context: ServiceContext
+  ): Promise<LicenseDetails> {
+    const { userId, requestingUserId } = request;
+    
+    // Get user configuration
+    const userKey = { pk: `U#${userId}`, sk: 'P' };
+    const user = await context.dataAccess.get(userKey, 'license');
+    
+    if (!user) {
+      throw new NotFoundError('User not found', context.config.correlationId, { userId });
+    }
+    
+    if (!user.license) {
+      throw new NotFoundError('User has no license assigned', context.config.correlationId, { userId });
+    }
+    
+    // Check if requesting user has permission to view this license
+    // For now, we'll allow users to view their own license or if they're in the same license
+    if (userId !== requestingUserId) {
+      const requestingUserKey = { pk: `U#${requestingUserId}`, sk: 'P' };
+      const requestingUser = await context.dataAccess.get(requestingUserKey, 'license');
+      
+      if (!requestingUser || requestingUser.license !== user.license) {
+        throw new AccessDeniedError('Insufficient permissions to view this license', context.config.correlationId, { 
+          userId, 
+          requestingUserId 
+        });
+      }
+    }
+    
+    // Get license details
+    const licenseDetails = await LicenseOperations.getLicenseById(user.license, context);
+    
+    if (!licenseDetails) {
+      throw new NotFoundError('License not found', context.config.correlationId, { license: user.license });
+    }
+    
+    context.logger.info('License details retrieved for user', { userId, license: user.license });
+    return licenseDetails;
+  }
+
+  /**
+   * Cancel Stripe subscription
+   */
+  private static async cancelStripeSubscription(
+    licenseDetails: LicenseDetails,
+    context: ServiceContext
+  ): Promise<void> {
+    try {
+      // This would typically use a Stripe service or external API call
+      // For now, we'll publish an event that can be handled by a Stripe service
+      await context.messageBroker.publish('stripe.subscription.cancel', {
+        subscriptionId: licenseDetails.stripe.id,
+        timestamp: moment().toISOString()
+      });
+
+      context.logger.info('Stripe subscription cancellation requested', { 
+        subscriptionId: licenseDetails.stripe.id 
+      });
+    } catch (error) {
+      context.logger.error('Failed to cancel Stripe subscription', { 
+        error: error.message,
+        subscriptionId: licenseDetails.stripe.id 
+      });
+      throw new BusinessLogicError('Failed to cancel subscription', context.config.correlationId);
+    }
+  }
+
+  /**
    * Validate create license input
    */
   private static validateCreateLicenseInput(input: CreateLicenseInput): { valid: boolean; errors: any[] } {
@@ -408,6 +737,13 @@ export class LicenseOperations implements IBusinessOperations {
     }
 
     return { valid: errors.length === 0, errors };
+  }
+
+  /**
+   * Generate short ID for license
+   */
+  private static generateShortId(): string {
+    return Math.random().toString(36).substring(2, 15).replace(/\-/g, '');
   }
 
   /**
@@ -455,4 +791,22 @@ export interface UpdateLicenseInput {
   emailDomain?: string;
   expiration?: string;
   features?: any;
+}
+
+export interface ChangeLicenseRequest {
+  license: string;
+  userId: string;
+  fullCancel?: boolean;
+  cancel?: boolean;
+}
+
+export interface GetLicenseForUserRequest {
+  userId: string;
+  requestingUserId: string;
+}
+
+export interface CreateFreeLicenseRequest {
+  userId: string;
+  userEmail: string;
+  userState?: string;
 }

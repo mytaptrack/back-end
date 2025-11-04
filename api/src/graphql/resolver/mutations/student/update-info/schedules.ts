@@ -1,84 +1,48 @@
-import { Dal } from "@mytaptrack/lib/dist/v2/dals/dal";
-import { ActivityGroupEx, getStudentSchedulePrimaryKey, moment, ScheduleDal, SchedulePiiStorage, ScheduleStorage } from '@mytaptrack/lib';
-import { ActivityGroupDetails, QLStudentUpdateInput } from "@mytaptrack/types";
-import shortUUID from "short-uuid";
-
-const primary = new Dal('primary');
-const data = new Dal('data');
-
-function constructPiiName(name: string, names: { name: string, id: string}[]) {
-    let item = names.find(x => x.name == name);
-    if(!item) {
-        item = {
-            name,
-            id: shortUUID().toString()
-        };
-        names.push(item);
-    }
-    return item.id;
-}
-
-function constructPiiNames(schedule: ActivityGroupDetails, names: { name: string, id: string}[]) {
-    schedule.activities.forEach(x => {
-        x.title = constructPiiName(x.title, names);
-    });
-}
+import { QLStudentUpdateInput } from "@mytaptrack/types";
+import { StudentOperations } from '@mytaptrack/business-logic-student';
+import { createLambdaServiceContext, BusinessLogicError, ValidationError, NotFoundError } from '@mytaptrack/business-logic-core';
 
 export async function processSchedules(student: QLStudentUpdateInput) {
-    console.info('Getting existing schedules');
-    const schedules = await ScheduleDal.getSchedules(student.studentId!, 0);
-    const input = student.scheduleCategories!;
+    const serviceContext = await createLambdaServiceContext();
+    
+    try {
+        if (!student.studentId || !student.license || !student.scheduleCategories) {
+            throw new ValidationError('Missing required fields for schedule processing', serviceContext.config.correlationId, {
+                hasStudentId: !!student.studentId,
+                hasLicense: !!student.license,
+                hasScheduleCategories: !!student.scheduleCategories
+            });
+        }
 
-    console.info('Processing schedule deletes');
-    const deletePromises = Promise.all(schedules?.filter(x => !input.find(y => y.name == x.name && y.schedules.length > 0))
-        .map(async s => {
-            const key = getStudentSchedulePrimaryKey(student.studentId, s.name);
-            await Promise.all([
-                data.delete(key),
-                primary.delete(key)
-            ]);
-        }) ?? []);
+        serviceContext.logger.info('Processing student schedules', { 
+            studentId: student.studentId,
+            scheduleCount: student.scheduleCategories.length
+        });
 
-    console.info('Processing schedule updates');
-    const updatePromises = Promise.all(input
-        .map(async s => {
-            const scheduleKey = getStudentSchedulePrimaryKey(student.studentId!, s.name);
-            const existingPii = await primary.get<SchedulePiiStorage>(scheduleKey);
-            const names: { name: string, id: string}[] = existingPii?.names ?? [];
-            for(let version of s.schedules) {
-                constructPiiNames(version, names);
-            }
+        // Use student business logic service to process schedules
+        await StudentOperations.processSchedules(
+            student.studentId,
+            student.license,
+            student.scheduleCategories,
+            serviceContext
+        );
 
-            console.log('Processing existing schedule', s.name);
+        serviceContext.logger.info('Student schedules processed successfully', { 
+            studentId: student.studentId,
+            scheduleCount: student.scheduleCategories.length
+        });
 
-            const schedules = s.schedules.map(v => ({
-                ...v,
-                time: moment(v.startDate!).toDate().getTime()
-            } as ActivityGroupEx));
-            schedules.sort((a, b) => a.time - b.time);
+    } catch (error) {
+        serviceContext.logger.error('Failed to process student schedules', {
+            error: error.message,
+            studentId: student.studentId,
+            stack: error.stack
+        });
 
-            await Promise.all([
-                data.put<ScheduleStorage>({
-                    ...scheduleKey,
-                    pksk: `${scheduleKey.pk}#${scheduleKey.sk}`,
-                    studentId: student.studentId!,
-                    tsk: scheduleKey.sk,
-                    license: student.license,
-                    schedules,
-                    latest: schedules[schedules.length - 1],
-                    version: 1
-                }),
-                primary.put<SchedulePiiStorage>({
-                    ...scheduleKey,
-                    pksk: `${scheduleKey.pk}#${scheduleKey.sk}`,
-                    studentId: student.studentId!,
-                    tsk: scheduleKey.sk,
-                    license: student.license,
-                    names,
-                    version: 1
-                })
-            ])
-        }));
-
-    await Promise.all([updatePromises, deletePromises]);
+        if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof BusinessLogicError) {
+            throw error;
+        }
+        
+        throw new Error(`Failed to process student schedules: ${error.message}`);
+    }
 }

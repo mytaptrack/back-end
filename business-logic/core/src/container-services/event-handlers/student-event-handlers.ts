@@ -1,6 +1,6 @@
 import { EventProcessor } from '../event-processor';
 import { BrokerMessage, ServiceContext } from '../../interfaces/service-context';
-import { StudentOperations } from '@mytaptrack/business-logic-student';
+// import { StudentOperations } from '@mytaptrack/business-logic-student';
 import { ServiceUnavailableError } from '../../errors/service-errors';
 
 /**

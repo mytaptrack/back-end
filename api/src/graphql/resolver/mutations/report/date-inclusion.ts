@@ -1,79 +1,63 @@
 import {
-    DataDal, Moment, TeamDal, WebError, WebUtils, generateDataKey, moment 
+    WebError, WebUtils
 } from '@mytaptrack/lib';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { StudentConfigStorage } from '@mytaptrack/lib';
+import { ReportOperations } from '@mytaptrack/business-logic-report';
+import { createLambdaServiceContext, BusinessLogicError, ValidationError, NotFoundError, AccessDeniedError } from '@mytaptrack/business-logic-core';
 
 interface AppSyncParams {
-  studentId: string;
-  input: {
-    startDate: number;
-    endDate: number;
-    exclude: string[];
-    include: string[];
-  }
+    studentId: string;
+    input: {
+        startDate: number;
+        endDate: number;
+        exclude: string[];
+        include: string[];
+    }
 }
 
-const dataDal = new Dal('data');
+// All business logic has been moved to ReportOperations in the business logic layer
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<boolean> {
-    console.log('Handling Exclude and include event', context.arguments);
-    
-    const { studentId, input } = context.arguments;
+    const serviceContext = await createLambdaServiceContext();
+    try {
+        const { studentId, input } = context.arguments;
+        const userId = context.identity.username;
+        const license = context.stash?.permissions?.license;
 
-    const excludeDates: Moment[] = input.exclude.filter(x => x? true : false).map(x => moment(x, 'MM/DD/yyyy'));
-    const includeDates: Moment[] = input.include.filter(x => x? true : false).map(x => moment(x, 'MM/DD/yyyy'));
-    const allDates = ([] as Moment[]).concat(excludeDates, includeDates);
-    allDates.sort((a, b) => a.diff(b));
-
-    let onDate = moment(input.startDate);
-    let endDate = moment(input.endDate);
-    if(onDate.isAfter(endDate)) {
-        throw new WebError('Start date is after end date', 400);
-    }
-
-    if(onDate.weekday() != 0) {
-        // Add excludes and includes from before start
-    }
-    const endOfPeriod = endDate.clone().endOf('week');
-    if(!endDate.isSame(endOfPeriod, 'day')) {
-        // Add excludes and includes from after end
-    }
-    endDate = endDate.add(-1, 'second');
-
-    console.info('Processing dates', onDate.toDate(), endDate.toDate());
-    while(onDate.isBefore(endDate, 'day')) {
-        const date = onDate.clone();
-
-        console.info('Checking if data exists', date.toDate());
-        if(!await DataDal.checkDataExist(studentId, date)) {
-            console.info('Data does not exist, creating empty report', date.toDate());
-            await DataDal.saveEmptyReport(studentId, context.stash.permissions.license, date);
-        }
-
-        console.info('Getting excluded and included dates');
-        const excludeDays = excludeDates.filter(x => x.isSame(date, 'week'));
-        const includeDays = includeDates.filter(x => x.isSame(date, 'week'));
-
-        console.info('Updating data', date.toDate());
-        const pk = `S#${context.arguments.studentId}#R`;
-        const sk = date.toDate().getTime() + '#D';
-        await dataDal.update({
-            key: { pk, sk },
-            updateExpression: 'SET excludeDays = :excludeDays, includeDays = :includeDays',
-            attributeValues: {
-                ':excludeDays': excludeDays.map(d => d.format('MM/DD/yyyy')),
-                ':includeDays': includeDays.map(d => d.format('MM/DD/yyyy'))
-            }
+        serviceContext.logger.info('Processing report date inclusion/exclusion', {
+            studentId,
+            userId,
+            license,
+            startDate: input.startDate,
+            endDate: input.endDate,
+            excludeCount: input.exclude?.length || 0,
+            includeCount: input.include?.length || 0
         });
 
-        onDate = onDate.add(1, 'week');
-    }
+        // Delegate all business logic to ReportOperations
+        await ReportOperations.updateDateInclusions({
+            studentId,
+            startDate: input.startDate,
+            endDate: input.endDate,
+            excludeDates: input.exclude || [],
+            includeDates: input.include || [],
+            license,
+            userId
+        }, serviceContext);
 
-    console.info('Processing complete');
-    return true;
+        return true;
+    } catch (error) {
+        serviceContext.logger.error('Failed to update date inclusions', {
+            error: error.message,
+            studentId: context.arguments.studentId,
+            userId: context.identity.username
+        });
+        if (error instanceof ValidationError || error instanceof NotFoundError ||
+            error instanceof AccessDeniedError || error instanceof BusinessLogicError) {
+            throw new WebError(error.message);
+        }
+        throw new WebError('Failed to update date inclusions');
+    }
 }

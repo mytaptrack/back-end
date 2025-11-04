@@ -1,19 +1,15 @@
 
-import { AccessLevel, QLReportData, QLReportDataSource, QLReportDetails, QLReportService } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { StudentReportStorage } from '../../types/reports';
-import { AppPiiGlobal, DevicePiiGlobalStorage, LookupDal, Moment, UserDataStorage, UserPrimaryStorage, WebError, WebUtils, generateDeviceGlobalKey, getAppGlobalKey, getStudentPrimaryKey, getUserPrimaryKey, moment } from '@mytaptrack/lib';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { utils, WorkSheet, write } from 'xlsx';
-
-const dataDal = new Dal('data');
-const primaryDal = new Dal('primary');
+import { WebUtils } from '@mytaptrack/lib';
+import { ReportOperations } from '@mytaptrack/business-logic-report';
+import { createLambdaServiceContext, BusinessLogicError, ValidationError, NotFoundError } from '@mytaptrack/business-logic-core';
+import { utils, write } from 'xlsx';
 
 interface Params {
     studentId: string;
     startDate: string;
     endDate: string;
-    timezone: string;
+    timezone?: string;
     reportType: string;
 }
 

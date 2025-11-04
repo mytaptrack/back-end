@@ -1,4 +1,19 @@
-import { ValidationResult, ValidationErrorDetail } from '@mytaptrack/business-logic-core';
+/**
+ * Validation result interface
+ */
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationErrorDetail[];
+}
+
+/**
+ * Validation error detail interface
+ */
+export interface ValidationErrorDetail {
+  field: string;
+  message: string;
+  code: string;
+}
 
 /**
  * User validation functions
