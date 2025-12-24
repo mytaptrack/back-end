@@ -1,4 +1,4 @@
-import { AccessLevel, QLReportData, QLReportDataSource, QLReportDetails, QLReportService } from '@mytaptrack/types';
+import { AccessLevel, QLGetDataInput, QLReportData, QLReportDataSource, QLReportDetails, QLReportService } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { StudentReportStorage } from '../../types/reports';
 import { AppPiiGlobal, DevicePiiGlobalStorage, LookupDal, Moment, UserDataStorage, UserPrimaryStorage, WebUtils, generateDeviceGlobalKey, getAppGlobalKey, getStudentPrimaryKey, getUserPrimaryKey, moment } from '@mytaptrack/lib';
@@ -7,16 +7,6 @@ import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 const dataDal = new Dal('data');
 const primaryDal = new Dal('primary');
 
-interface Params {
-    studentId: string;
-    startDate: string;
-    endDate: string;
-    scope: {
-        behavior: boolean;
-        service: boolean;
-    }
-}
-
 interface StashData {
     start: number;
     end: number;
@@ -24,12 +14,13 @@ interface StashData {
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
-async function handleEvent(context: MttAppSyncContext<Params, never, never, StashData>) {
+async function handleEvent(context: MttAppSyncContext<QLGetDataInput, never, never, StashData>) {
     const startDate: Moment = moment(context.arguments.startDate);
     const endDate: Moment = moment(context.arguments.endDate);
-    const scope = context.arguments.scope;
     const restrictions = context.stash.permissions.student;
     const license = context.stash.permissions.license;
+    const serviceScope = context.info.selectionSetList.indexOf('services') >= 0;
+    const behaviorScope = context.info.selectionSetList.indexOf('data') >= 0;
     
     console.log('Start:', startDate, ', end:', endDate);
     const pk = `S#${context.arguments.studentId}#R`;
@@ -72,7 +63,7 @@ async function handleEvent(context: MttAppSyncContext<Params, never, never, Stas
 
     console.log('Processing reports ', reports?.length);
     reports.forEach(resp => {
-        if(scope.service && (restrictions.serviceData == AccessLevel.read || restrictions.serviceData == AccessLevel.admin)) {
+        if(serviceScope && (restrictions.serviceData == AccessLevel.read || restrictions.serviceData == AccessLevel.admin)) {
             resp.services?.forEach(item => {
                 if(item.deleted) {
                     return;
@@ -93,7 +84,7 @@ async function handleEvent(context: MttAppSyncContext<Params, never, never, Stas
                 })
             });
         }
-        if(scope.behavior) {
+        if(behaviorScope) {
             resp.data?.forEach(item => {
                 if(restrictions.behaviors && !restrictions.behaviors.find(x => x == item.behavior)) {
                     return;

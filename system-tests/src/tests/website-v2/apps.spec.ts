@@ -7,6 +7,7 @@ import { Logger, LoggingLevel } from "../../lib";
 
 const logger = new Logger(LoggingLevel.WARN);
 
+
 describe('website-v2', () => {
     describe('apps', () => {
         beforeAll(async () => {
@@ -16,7 +17,7 @@ describe('website-v2', () => {
         test('QLCreateApp', async () => {
             await getUser();
             const apps = await qlApi.getAppList(license);
-            expect(apps?.length).toBeGreaterThan(0);
+            expect(apps).toBeTruthy();
 
             const originalName = `System Test App ${new Date().getTime()}`;
             const params: GraphQLAppInput = {

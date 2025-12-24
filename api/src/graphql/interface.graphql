@@ -21,7 +21,7 @@ type Query {
     getStudentSources(studentId: String): StudentDataSources @aws_iam @aws_cognito_user_pools
     findStudent(license: String, firstName: String, lastName: String): [StudentSummary] @aws_iam @aws_cognito_user_pools
 
-    getData(studentId: String!, startDate: String!, endDate: String!, scope: ReportScope!): ReportDetails @aws_iam @aws_cognito_user_pools
+    getData(studentId: String!, startDate: String!, endDate: String!): ReportDetails @aws_iam @aws_cognito_user_pools
     getNotes(studentId: String!, startDate: String!, endDate: String!): [StudentNote] @aws_iam @aws_cognito_user_pools
 
     listSnapshots(studentId: String!): SnapshotReports @aws_iam @aws_cognito_user_pools
@@ -29,6 +29,14 @@ type Query {
 
     getSubscriptionsForStudent(studentId: String!): [QLStudentSubscriptionConfig] @aws_iam @aws_cognito_user_pools
     getServerSettings: ServerSettings
+
+    # Missing REST API functionality
+    getManageStudents(license: String!): ManageStudentGetResponse @aws_iam @aws_cognito_user_pools
+    getManageStats(license: String!): LicenseStats @aws_iam @aws_cognito_user_pools
+    getLicenseDetails(license: String!): LicenseDetails @aws_iam @aws_cognito_user_pools
+    getStudentTeam(studentId: String!): [TeamMember] @aws_iam @aws_cognito_user_pools
+    getDevicesForStudent(studentId: String!): [StudentDevice] @aws_iam @aws_cognito_user_pools
+    getStudentSettings(studentId: String!): StudentDashboardSettings @aws_iam @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -64,6 +72,20 @@ type Mutation {
     emailSupport(input: EmailSupportInput): Boolean @aws_iam @aws_cognito_user_pools
 
     updateInvite(studentId: String, status: String): StudentSummary @aws_iam @aws_cognito_user_pools
+
+    # Missing REST API functionality
+    updateManageAbc(abcCollections: [AbcCollectionInput]!): Boolean @aws_iam @aws_cognito_user_pools
+    deleteManageApp(studentId: String, dsn: String!): Boolean @aws_iam @aws_cognito_user_pools
+    updateStudentTeamMember(studentId: String!, teamMember: TeamMemberInput!): TeamMember @aws_iam @aws_cognito_user_pools
+    deleteStudentTeamMember(studentId: String!, userId: String!): Boolean @aws_iam @aws_cognito_user_pools
+    updateStudentApp(request: StudentAppInput!): StudentDevice @aws_iam @aws_cognito_user_pools
+    deleteStudentApp(studentId: String!, dsn: String!): Boolean @aws_iam @aws_cognito_user_pools
+    updateStudentSettings(studentId: String!, settings: StudentSettingsInput!, overwriteStudent: Boolean): StudentDashboardSettings @aws_iam @aws_cognito_user_pools
+    updateReportsData(studentId: String!, behaviorId: String!, eventDate: String!, abc: ReportDataAbcInput, intensity: Int): ReportData @aws_iam @aws_cognito_user_pools
+    deleteReportsData(studentId: String!, behaviorId: String!, date: String!): Boolean @aws_iam @aws_cognito_user_pools
+    updateExcludeDate(studentId: String!, date: String!, action: String!): Boolean @aws_iam @aws_cognito_user_pools
+    deleteReportSchedule(studentId: String!, date: String!): Boolean @aws_iam @aws_cognito_user_pools
+    createNotes(studentId: String!, date: String!): StudentNote @aws_iam @aws_cognito_user_pools
 }
 
 type Subscription {

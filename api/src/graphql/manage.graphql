@@ -1,0 +1,168 @@
+# Manage API Types
+
+type ManageStudentGetResponse @aws_iam @aws_cognito_user_pools {
+    students: [StudentSummary]!
+}
+
+type MobileDevice @aws_iam @aws_cognito_user_pools {
+    device: DeviceInfo!
+    assignments: [DeviceAssignment]!
+}
+
+type DeviceInfo @aws_iam @aws_cognito_user_pools {
+    id: String!
+    name: String!
+    type: String
+    tags: [String]
+}
+
+type DeviceAssignment @aws_iam @aws_cognito_user_pools {
+    studentId: String!
+    studentName: String!
+    assignedDate: String
+}
+
+type TeamMember @aws_iam @aws_cognito_user_pools {
+    userId: String!
+    email: String!
+    name: String!
+    restrictions: AccessRestrictions
+    status: String
+    version: Int
+}
+
+type AccessRestrictions @aws_iam @aws_cognito_user_pools {
+    info: String
+    data: String
+    schedules: String
+    devices: String
+    team: String
+    comments: String
+    behavior: String
+    abc: String
+    milestones: String
+    reports: String
+    notifications: String
+    documents: String
+    service: String
+    serviceData: String
+    serviceGoals: String
+    serviceSchedule: String
+}
+
+type StudentDevice @aws_iam @aws_cognito_user_pools {
+    deviceId: String!
+    deviceName: String!
+    dsn: String
+    isApp: Boolean
+    events: [DeviceEvent]
+    textAlerts: Boolean
+}
+
+type DeviceEvent @aws_iam @aws_cognito_user_pools {
+    eventId: String!
+    track: Boolean
+    order: Int
+}
+
+# Input Types
+
+input ManageAppInput @aws_iam @aws_cognito_user_pools {
+    deviceId: String!
+    name: String!
+    license: String!
+    reassign: Boolean
+    tags: [String]
+}
+
+input TeamMemberInput @aws_iam @aws_cognito_user_pools {
+    studentId: String!
+    userId: String
+    email: String
+    name: String
+    restrictions: AccessRestrictionsInput
+    status: String
+    version: Int
+    sendEmail: Boolean
+    details: TeamMemberDetailsInput
+}
+
+input AccessRestrictionsInput @aws_iam @aws_cognito_user_pools {
+    info: String
+    data: String
+    schedules: String
+    devices: String
+    team: String
+    comments: String
+    behavior: String
+    abc: String
+    milestones: String
+    reports: String
+    notifications: String
+    documents: String
+    service: String
+    serviceData: String
+    serviceGoals: String
+    serviceSchedule: String
+}
+
+input TeamMemberDetailsInput @aws_iam @aws_cognito_user_pools {
+    name: String!
+    email: String!
+}
+
+input StudentAppInput @aws_iam @aws_cognito_user_pools {
+    studentId: String!
+    deviceId: String!
+    deviceName: String!
+    dsn: String
+    studentName: String!
+    textAlerts: Boolean
+    events: [DeviceEventInput]
+    groups: [String]
+}
+
+input DeviceEventInput @aws_iam @aws_cognito_user_pools {
+    eventId: String!
+    track: Boolean
+    order: Int
+}
+
+input StudentSettingsInput @aws_iam @aws_cognito_user_pools {
+    autoExcludeDays: [Int]
+    chartType: String
+    measurementUnit: String
+    showExcludedChartGaps: Boolean
+    antecedents: [String]
+    responses: [String]
+    devices: [String]
+    behaviors: [BehaviorSettingInput]
+    summary: SummarySettingsInput
+    velocity: VelocitySettingsInput
+}
+
+input BehaviorSettingInput @aws_iam @aws_cognito_user_pools {
+    id: String!
+    frequency: String
+    duration: DurationSettingInput
+}
+
+input DurationSettingInput @aws_iam @aws_cognito_user_pools {
+    avg: String
+    sum: String
+    min: String
+    max: String
+}
+
+input SummarySettingsInput @aws_iam @aws_cognito_user_pools {
+    after150: String
+    after45: String
+    calculationType: String
+    showTargets: Boolean
+    averageDays: Int
+}
+
+input VelocitySettingsInput @aws_iam @aws_cognito_user_pools {
+    enabled: Boolean
+    trackedEvent: String
+}

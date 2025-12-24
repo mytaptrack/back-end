@@ -72,6 +72,8 @@ export async function handleEvent(event: MttAppSyncContext<QueryParams, never, n
             keys.push(key);
         }
     });
+
+    console.debug('Checking inbound graphql info');
     const hasBehaviors = event.info.selectionSetList.find(x => x == 'behaviors');
     const behaviorKeys = hasBehaviors? ', behaviorLookup' : ''
     const abcKeys = event.info.selectionSetList.find(x => x == 'abc')? ', abc' : ''
@@ -88,7 +90,7 @@ export async function handleEvent(event: MttAppSyncContext<QueryParams, never, n
     const accessBehaviors = event.stash.permissions?.student?.behaviors;
  
     return filteredStudents.map(conf => {
-        console.info("Processing student", conf.studentId);
+        console.log("Processing student", conf.studentId);
         const pii = studentPiis.find(piiVal => conf.studentId == piiVal.studentId);
         const sconf = configs.find(sc => conf.studentId == sc.studentId)
 

@@ -4,7 +4,6 @@ import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { LicenseAppConfigStorage, getAppGlobalV2Key } from '../../types';
 import { generateToken, getTokenKey } from '../../../../v2/student/devices/app/token-utils';
 import { v4 as uuid } from 'uuid';
-import { AppDal } from '../../../../../../lib/src/v2/dals/app-dal';
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
@@ -22,8 +21,9 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
     const deviceId = context.arguments.deviceId;
     const expiration = context.arguments.expiration;
 
-    console.info('Getting apps for ', license);
+    console.info('Getting apps for ', license, deviceId);
     const globalKey = getAppGlobalV2Key(license, deviceId);
+    console.info('Device key', JSON.stringify(globalKey));
 
     const [deviceConfig] = await Promise.all([
         data.get<LicenseAppConfigStorage>(globalKey)

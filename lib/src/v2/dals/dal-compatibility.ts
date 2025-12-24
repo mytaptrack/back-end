@@ -110,7 +110,7 @@ export class CompatibleDal {
     return this.legacyDal.batchGet<T>(keys, projection, attributeNames);
   }
 
-  async scan<T>(input: ScanInput): Promise<{ items: T; token: any }> {
+  async scan<T>(input: ScanInput): Promise<{ items: T[]; token: any }> {
     if (this.isAbstractionEnabled()) {
       return this.abstractedDal!.scan<T>(input);
     }

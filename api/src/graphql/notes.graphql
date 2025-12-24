@@ -14,6 +14,8 @@ type StudentNote @aws_iam @aws_cognito_user_pools {
     date: String
     source: StudentNoteSource
     note: String!
+    notes: String
+    lastUpdate: Long
 }
 
 input StudentNoteSourceInput @aws_iam @aws_cognito_user_pools {

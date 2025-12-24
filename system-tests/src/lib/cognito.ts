@@ -1,12 +1,51 @@
 import { AuthFlowType, CognitoIdentityProviderClient, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider';
-import { config, getClientId } from '../config';
+import { config, getClientId, getApiEndpoint } from '../config';
 import { TestUserConfig } from '@mytaptrack/cdk';
 import { Logger, LoggingLevel } from './logging';
+import { httpRequest } from './httpClient';
 
 const logger = new Logger(LoggingLevel.ERROR);
 let clientId: string;
+let cachedToken: string | null = null;
 
 export async function login(user?: TestUserConfig) {
+    // Use direct Redis token retrieval in local mode
+    if (process.env.USE_LOCAL === 'true') {
+        if (cachedToken) {
+            return cachedToken;
+        }
+
+        logger.info('Local mode: retrieving token from Redis');
+        
+        if(!user) {
+            user = config.env.testing.admin;
+        }
+
+        try {
+            const Redis = require('ioredis');
+            const redis = new Redis({
+                host: process.env.REDIS_HOST || 'localhost',
+                port: parseInt(process.env.REDIS_PORT || '6379')
+            });
+
+            const userId = user.email.replace('@', '-at-');
+            const token = await redis.get(`token:${userId}`);
+            
+            await redis.quit();
+
+            if (!token) {
+                throw new Error(`No token found in Redis for user ${userId}. Run 'npm run envSetup' first.`);
+            }
+
+            cachedToken = `Bearer ${token}`;
+            logger.info('Token retrieved from Redis successfully');
+            return cachedToken;
+        } catch (error) {
+            logger.error('Failed to retrieve token from Redis:', error);
+            throw error;
+        }
+    }
+
     const client = new CognitoIdentityProviderClient({
         maxAttempts: 3 // Retry up to 3 times
     });

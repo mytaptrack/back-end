@@ -1,6 +1,8 @@
 import { 
     WebUtils, generateDataKey, moment, Moment, StudentConfigStorage, getStudentPrimaryKey, 
-    ProcessServiceRequest, ProcessButtonRequest, EventDal, MttEventType, ProcessButtonRequestExtended, UserStudentTeam, LambdaAppsyncQueryClient 
+    ProcessServiceRequest, ProcessButtonRequest, EventDal, MttEventType, ProcessButtonRequestExtended, UserStudentTeam, LambdaAppsyncQueryClient,
+    MttLogger,
+    LoggingLevel
 } from '@mytaptrack/lib';
 import {
     AccessLevel,
@@ -10,12 +12,8 @@ import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { ReportDataStorage, ReportServiceDataStorage, StudentReportStorage } from '../../types/reports';
 import { SQSEvent } from 'aws-lambda';
 
-const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);
-
-interface AppSyncParams {
-    studentId: string;
-    data: QLReportData | QLReportService;
-}
+const logger = new MttLogger('Data-Processing', LoggingLevel.debug);
+const appsync = process.env.appsyncUrl ? new LambdaAppsyncQueryClient(process.env.appsyncUrl) : null;
 
 const dataDal = new Dal('data');
 const primaryDal = new Dal('primary');
@@ -28,7 +26,7 @@ interface ReportPackage {
 export const handler = WebUtils.lambdaWrapper(handleEvent);
 
 export async function handleEvent(event: SQSEvent) {
-    console.log('Handling event', event);
+    logger.info('Handling event', event);
     let reportPackage: ReportPackage | undefined;
     for(let i = 0; i < event.Records.length; i++) {
         const r = event.Records[i];
@@ -37,14 +35,14 @@ export async function handleEvent(event: SQSEvent) {
             reportPackage = undefined;
         }
         if(!input.dateEpoc) {
-            console.log('No date error:', input);
+            logger.log('No date error:', input);
         } else {
             reportPackage = await processData(input, input.studentId, reportPackage);
         }
     }
 }
 
-async function processData(dataInput: ProcessServiceRequest | ProcessButtonRequest, studentId: string, previousReport?: ReportPackage): Promise<ReportPackage | undefined> {
+export async function processData(dataInput: ProcessServiceRequest | ProcessButtonRequest, studentId: string, previousReport?: ReportPackage): Promise<ReportPackage | undefined> {
     const data = dataInput as ProcessButtonRequest;
     const service = dataInput as ProcessServiceRequest;
 
@@ -55,29 +53,32 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
         .startOf('week');
     
     const weekStartEpoc = weekStart.toDate().getTime();
-    console.info('Getting data from dynamo', studentId, weekStartEpoc);
+    logger.info('Getting data from dynamo', studentId, weekStartEpoc);
 
+    logger.log(`Getting student ${studentId} and reports for ${weekStartEpoc}`);
     const reportKey = generateDataKey(studentId, weekStartEpoc);
+    logger.log('DB Key', JSON.stringify(reportKey));
     let [report, student] = await Promise.all([
         previousReport? Promise.resolve(previousReport.report) : dataDal.get<StudentReportStorage>(reportKey),
         dataDal.get<StudentConfigStorage>(getStudentPrimaryKey(studentId))
     ]);
 
     if(!student) {
-        console.error('Cannot retrieve student', dataInput);
+        logger.error('Cannot retrieve student', dataInput);
         WebUtils.setError(new Error('Could not find student'));
         return previousReport;
     }
     if(!student.license) {
-        console.error('Student does not have a license', dataInput);
+        logger.error('Student does not have a license', dataInput);
         WebUtils.setError(new Error('Student does not have a license'));
         return previousReport;
     }
 
+    logger.info('Finding student behavior');
     const behavior = student?.behaviors?.find(x => x.id == data.behaviorId) ??
         student?.responses?.find(x => x.id == data.behaviorId);
     if(service.serviceId || behavior?.isDuration) {
-        console.info('Evaluating duration info');
+        logger.info('Evaluating duration info');
         if(data.duration != undefined) {
             delete data.notStopped;
         } else {
@@ -85,6 +86,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
         }
     }
 
+    logger.debug('Constructing report data message');
     const reportData: ReportDataStorage = data.behaviorId? {
         dateEpoc: data.dateEpoc,
         behavior: data.behaviorId,
@@ -113,29 +115,30 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
             report.data = [];
         }
         report.data.sort((a, b) => ((a.dateEpoc - b.dateEpoc) * 10000000000) + a.source?.rater.localeCompare(b.source?.rater));
+        logger.info('Deduping report');
         const reportDedupeData: ReportDataStorage[] = [];
         for(let i = 0; i < report.data.length; i++) {
             const be = report.data[i];
             if(reportDedupeData.find(x => x.dateEpoc == be.dateEpoc && x.source?.rater == be.source?.rater)) {
-                console.info('Removing duplicate entry');
+                logger.info('Removing duplicate entry');
             } else {
                 reportDedupeData.push(be);
             }
         }
         if(reportDedupeData.length != report.data.length) {
-            console.info('Setting dedupe data')
+            logger.info('Setting dedupe data')
             report.data = reportDedupeData;
         }
     }
 
-    console.debug('Processing report', report? true : false, student? true : false);
+    logger.debug('Processing report', report? true : false, student? true : false);
     if(behavior && report) {
         if(behavior.isDuration && data.redoDurations) {
-            console.info('Rebuilding durations', report.data.length);
+            logger.info('Rebuilding durations', report.data.length);
             // Duration resorting
             const behaviorEvents = report.data.filter(x => x.behavior == behavior.id);
             
-            console.info('Building legacy events', behaviorEvents.length);
+            logger.info('Building legacy events', behaviorEvents.length);
             behaviorEvents.forEach(x => {
                 if(x.duration != undefined) {
                     behaviorEvents.push({
@@ -145,72 +148,72 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                 }
             });
 
-            console.log('Legacy events built', behaviorEvents.length);
+            logger.log('Legacy events built', behaviorEvents.length);
 
             const existingIndex = behaviorEvents.findIndex(x => x.dateEpoc == reportData.dateEpoc);
             if(existingIndex >= 0) {
-                console.info('Replacing existing event', existingIndex);
+                logger.info('Replacing existing event', existingIndex);
                 behaviorEvents[existingIndex] = reportData;
             } else {
-                console.info('Adding new event');
+                logger.info('Adding new event');
                 behaviorEvents.push(reportData);
             }
-            console.debug('behaviorEvents', behaviorEvents);
+            logger.debug('behaviorEvents', behaviorEvents);
 
-            console.info('Sorting events by date');
+            logger.info('Sorting events by date');
             behaviorEvents.sort((a, b) => a.dateEpoc - b.dateEpoc);
             lastEvent = undefined;
             for(let i = 0; i < behaviorEvents.length; i++) {
                 const event = behaviorEvents[i];
-                console.debug('event', i, event);
+                logger.debug('event', i, event);
                 if(event.deleted) {
-                    console.info('Skipping deleted event');
+                    logger.info('Skipping deleted event');
                     continue;
                 }
 
                 if(lastEvent) {
-                    console.info('Completing duration for index', i);
+                    logger.info('Completing duration for index', i);
                     lastEvent.duration = event.dateEpoc - lastEvent.dateEpoc;
                     lastEvent.notStopped = false;
                     behaviorEvents.splice(i, 1);
                     i--;
                     lastEvent = null;
                 } else {
-                    console.info('Setting event as start duration', i);
+                    logger.info('Setting event as start duration', i);
                     lastEvent = event;
                     delete lastEvent.duration;
                     lastEvent.notStopped = true;
                 }
             }
 
-            console.info('Rebuilding data');
+            logger.info('Rebuilding data');
             report.data = [
                 ...report.data.filter(x => x.behavior != behavior.id),
                 ...behaviorEvents
             ];
-            console.info('sorting data', report.data.length);
+            logger.info('sorting data', report.data.length);
             report.data.sort((a, b) => a.dateEpoc - b.dateEpoc);
         } else if(behavior.isDuration) {
-            console.info('Processing current model duration start', dayStartEpoc, ', end', dayEndEpoc);
+            logger.info('Processing current model duration start', dayStartEpoc, ', end', dayEndEpoc);
             const reportDatas = [...report.data].sort((a, b) => b.dateEpoc - a.dateEpoc);
             const lastData = reportDatas.find(d => 
                 dayStartEpoc <= d.dateEpoc && d.dateEpoc <= dayEndEpoc &&
                 d.behavior == data.behaviorId && 
                 d.dateEpoc == data.dateEpoc);
 
-            console.info('Last data found', lastData? true : false);
+            logger.info('Last data found', lastData? true : false);
             if(lastData) {
-                console.log('Existing data found');
-                console.debug('Existing', lastData.dateEpoc, ' New', data.dateEpoc);
+                logger.log('Existing data found');
+                logger.debug('Existing', lastData.dateEpoc, ' New', data.dateEpoc);
                 if(lastData.dateEpoc == data.dateEpoc) {
                     if(data.remove) {
-                        console.info('Removing data');
+                        logger.info('Removing data');
                         lastData.deleted = {
                             by: data.source.rater,
                             date: moment().toISOString()
                         }
                     } else {
-                        console.info('Setting data values')
+                        logger.info('Setting data values')
                         lastData.notStopped = data.notStopped;
                         lastData.duration = data.duration;
                         if(data.remove && !lastData.deleted) {
@@ -221,7 +224,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                         }
                     }
                 } else if(lastData.notStopped) {
-                    console.info('Setting duration and removing not stopped');
+                    logger.info('Setting duration and removing not stopped');
                     lastData.duration = data.dateEpoc - lastData.dateEpoc;
                     lastData.abc = data.abc;
                     lastData.intensity = data.intensity;
@@ -233,7 +236,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                     }
                     delete lastData.notStopped;
                 } else {
-                    console.info('Adding data as no existing found');
+                    logger.info('Adding data as no existing found');
                     report.data.push({
                         ...reportData,
                         notStopped: true,
@@ -241,7 +244,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                     });
                 }
             } else {
-                console.info('Adding data as new measurement to report');
+                logger.info('Adding data as new measurement to report');
                 report.data.push({
                     ...reportData,
                     notStopped: true,
@@ -249,7 +252,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                 });
             }
         } else {
-            console.info('Processing event data');
+            logger.info('Processing event data');
             const lastData = report.data.find(d => {
                 if(d.behavior == data.behaviorId && d.dateEpoc == data.dateEpoc) {
                     if(d.source.rater == data.source.rater) {
@@ -258,7 +261,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                 }
             });
             if(lastData) {
-                console.log('Existing event data found');
+                logger.log('Existing event data found');
                 if(data.remove && !lastData.deleted) {
                     lastData.deleted = {
                         by: data.source.rater,
@@ -293,9 +296,9 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
             }
         });
 
-        console.info('Returning report data');
+        logger.info('Returning report data');
         if(reportData) {
-            console.info('Sending event to event bus');
+            logger.info('Sending event to event bus');
             await EventDal.sendEvents('report-processing', [{
                 type: MttEventType.reportProcessEvent,
                 data: {
@@ -338,18 +341,18 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
         serviceProgress: service.progress
     } : undefined;
     if(service.serviceId && report) {
-        console.info('Processing service');
+        logger.info('Processing service');
         const lastData = report.services?.find(d => d.service == service.serviceId && d.dateEpoc <= service.dateEpoc && (d.dateEpoc == service.dateEpoc || d.source.rater == service.source.rater));
         if(lastData) {
-            console.info('Previous data found');
+            logger.info('Previous data found');
             if(lastData.dateEpoc == service.dateEpoc) {
-                console.info('Setting service information as event is same event');
+                logger.info('Setting service information as event is same event');
                 lastData.notStopped = service.notStopped;
                 lastData.duration = service.duration;
                 lastData.modifications = service.modifications;
                 lastData.serviceProgress = service.progress;
             } else if(lastData.notStopped) {
-                console.info('Setting not stopped data');
+                logger.info('Setting not stopped data');
                 lastData.duration = data.dateEpoc - lastData.dateEpoc;
                 lastData.serviceProgress = service.progress;
                 lastData.modifications = service.modifications;
@@ -361,7 +364,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                 }
                 delete lastData.notStopped;
             } else {
-                console.info('Adding new data to report');
+                logger.info('Adding new data to report');
                 report.services.push({
                     ...reportService,
                     notStopped: reportService.notStopped? true : false,
@@ -369,7 +372,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
                 });
             }
         } else {
-            console.info('Adding new data to report');
+            logger.info('Adding new data to report');
             report.services.push({
                 ...reportService,
                 notStopped: true,
@@ -390,7 +393,7 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
     }
 
     if(!report) {
-        console.info('Creating new report');
+        logger.info('Creating new report');
         const newReport: StudentReportStorage = {
             ...reportKey,
             pksk: `${reportKey.pk}#${reportKey.sk}`,
@@ -429,7 +432,14 @@ async function processData(dataInput: ProcessServiceRequest | ProcessButtonReque
 }
 
 async function notifyTeam(studentId: string, reportData: QLReportData) {
-    console.info('Notifying team');
+    logger.info('Notifying team');
+    
+    // Skip AppSync notifications in local mode
+    if (!appsync) {
+        logger.info('Skipping team notifications (local mode)');
+        return;
+    }
+    
     const team = await dataDal.query<UserStudentTeam>({
         keyExpression: 'studentId = :studentId and begins_with(tsk, :tsk)',
         indexName: MttIndexes.student,
@@ -439,57 +449,62 @@ async function notifyTeam(studentId: string, reportData: QLReportData) {
         }
     });
 
-    console.info('Processing team notifications', team.length);
+    logger.info('Processing team notifications', team.length);
+    
     await Promise.all(team.map(async t => {
         if(!(t.restrictions.data == AccessLevel.admin || t.restrictions.data == AccessLevel.read)) {
             return;
         }
-        await appsync.query(`
-            mutation studentDataChange($input: ReportEventDataInput!) {
-                studentDataChange(input: $input) {
-                    userId
-                    studentId
-                    behavior
-                    dateEpoc
-                    deleted {
-                        by
-                        date
-                    }
-                    duration
-                    isManual
-                    modifications
-                    notStopped
-                    progress {
-                        measurements {
-                        name
-                        value
+        if(process.env.USE_LOCAL == 'true') {
+
+        } else {
+            await appsync.query(`
+                mutation studentDataChange($input: ReportEventDataInput!) {
+                    studentDataChange(input: $input) {
+                        userId
+                        studentId
+                        behavior
+                        dateEpoc
+                        deleted {
+                            by
+                            date
                         }
-                        progress
-                    }
-                    redoDurations
-                    reported
-                    score
-                    service
-                    serviceProgress {
-                        measurements {
-                        name
-                        value
+                        duration
+                        isManual
+                        modifications
+                        notStopped
+                        progress {
+                            measurements {
+                            name
+                            value
+                            }
+                            progress
                         }
-                        progress
+                        redoDurations
+                        reported
+                        score
+                        service
+                        serviceProgress {
+                            measurements {
+                            name
+                            value
+                            }
+                            progress
+                        }
+                        source {
+                            rater
+                            device
+                        }
                     }
-                    source {
-                        rater
-                        device
-                    }
+                }`,
+            { 
+                input: {
+                    ...reportData,
+                    studentId: t.studentId,
+                    userId: t.userId
                 }
-            }`,
-        { 
-            input: {
-                ...reportData,
-                studentId: t.studentId,
-                userId: t.userId
-            }
-        }, 'studentDataChange')
+            }, 'studentDataChange');
+        }
     }));
 }
 
@@ -497,41 +512,41 @@ async function processBehavior(reportKey: DalKey, data: ProcessButtonRequest, re
     if(!report.data) {
         report.data = [];
     }
-    console.info('Handling behavior data processing');
+    logger.info('Handling behavior data processing');
     const reportData = report.data.find(d => d.behavior == data.behaviorId && d.dateEpoc == data.dateEpoc && d.source.rater == data.source.rater);
 
     if(reportData) {
-        console.log('Data already exists');
+        logger.log('Data already exists');
         if(data.abc) {
-            console.info('Setting abc data');
+            logger.info('Setting abc data');
             reportData.abc = data.abc;
         }
         if(data.intensity) {
-            console.info('Setting intensity data');
+            logger.info('Setting intensity data');
             reportData.intensity = data.intensity;
         }
         if(data.remove) {
-            console.warn('Setting delete data');
+            logger.warn('Setting delete data');
             reportData.deleted = {
                 by: data.source.rater,
                 date: moment().toISOString()
             }
         }
         if(data.duration != undefined) {
-            console.info('Setting duration data');
+            logger.info('Setting duration data');
             reportData.duration = data.duration;
             delete reportData.notStopped;
         }
         if(data.isManual != undefined) {
-            console.info('Setting isManual data');
+            logger.info('Setting isManual data');
             reportData.isManual = data.isManual;
         }
         if(data.notStopped != undefined) {
-            console.info('Setting notStopped data');
+            logger.info('Setting notStopped data');
             reportData.notStopped = data.notStopped;
         }
     } else {
-        console.info('Adding new data');
+        logger.info('Adding new data');
         report.data.push({
             dateEpoc: data.dateEpoc,
             behavior: data.behaviorId,
@@ -563,41 +578,41 @@ async function processService(reportKey: DalKey, service: ProcessServiceRequest,
     if(!report.services) {
         report.services = [];
     }
-    console.log('Processing service data');
+    logger.log('Processing service data');
     const reportData = report.services.find(d => d.service == service.serviceId && d.dateEpoc == service.dateEpoc && d.source.rater == service.source.rater);
 
     if(reportData) {
-        console.info('Processing update to existing data');
+        logger.info('Processing update to existing data');
         if(service.modifications) {
-            console.info('Setting notStopped data');
+            logger.info('Setting notStopped data');
             reportData.modifications = service.modifications;
         }
         if(service.remove) {
-            console.info('Setting deleted data');
+            logger.info('Setting deleted data');
             reportData.deleted = {
                 by: service.deviceId,
                 date: moment().toDate().toISOString()
             }
         }
         if(service.duration != undefined) {
-            console.info('Setting duration data');
+            logger.info('Setting duration data');
             reportData.duration = service.duration;
             delete reportData.notStopped;
         } else {
-            console.info('Removing duration data');
+            logger.info('Removing duration data');
             delete reportData.duration;
             reportData.notStopped = true;
         }
         if(service.isManual != undefined) {
-            console.info('Setting isManual data');
+            logger.info('Setting isManual data');
             reportData.isManual = service.isManual;
         }
         if(service.progress != undefined) {
-            console.info('Setting progress data');
+            logger.info('Setting progress data');
             reportData.serviceProgress = service.progress;
         }
     } else {
-        console.info('Adding new data');
+        logger.info('Adding new data');
         report.services.push({
             dateEpoc: service.dateEpoc,
             service: service.serviceId,

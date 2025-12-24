@@ -14,6 +14,44 @@ export interface QLAppToken {
     token: string;
 }
 
+export interface QLAppTokenResponse {
+    token: string;
+    expiration: number;
+}
+
+export interface QLDeviceEvent {
+    eventId: string;
+    track: boolean;
+    order: number;
+}
+
+export interface QLStudentDevice {
+    deviceId: string;
+    deviceName: string;
+    dsn?: string;
+    isApp: boolean;
+    textAlerts: boolean;
+    events: QLDeviceEvent[];
+}
+
+export interface QLManageAppDevice {
+    id: string;
+    name: string;
+    type: string;
+    tags: string[];
+}
+
+export interface QLManageAppAssignment {
+    studentId: string;
+    studentName: string;
+    assignedDate: string;
+}
+
+export interface QLManageApp {
+    device: QLManageAppDevice;
+    assignments: QLManageAppAssignment[];
+}
+
 export interface GraphQLAppBehaviorItemEx extends GraphQLAppBehaviorItem {
     isDuration: boolean;
     notStopped?: boolean;

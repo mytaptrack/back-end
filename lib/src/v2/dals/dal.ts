@@ -12,7 +12,17 @@ import {
 } from '../types/database-abstraction';
 import { DatabaseProviderFactory, DatabaseConfigurationManager } from '../utils/database-factory';
 
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions: { removeUndefinedValues: true } });
+const clientConfig: any = {};
+if (process.env.DYNAMODB_ENDPOINT) {
+    clientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+    // Skip authentication for local DynamoDB
+    clientConfig.credentials = {
+        accessKeyId: 'local',
+        secretAccessKey: 'local'
+    };
+}
+
+const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient(clientConfig), { marshallOptions: { removeUndefinedValues: true } });
 
 const consistentRead = process.env.STRONGLY_CONSISTENT_READ == 'true';
 
@@ -32,7 +42,7 @@ export interface ScanInput {
     attributeValues?: Record<string, any>;
     projectionExpression?: string;
     indexName?: MttIndexes;
-    token: any;
+    token?: any;
 }
 
 export interface UpdateInput {
@@ -296,19 +306,44 @@ export class Dal {
         return results;
     }
 
-    async scan<T>(input: ScanInput): Promise<{ items: T, token: any }> {
-        const results = await dynamodb.send(new ScanCommand({
-            TableName: this.tableName,
-            FilterExpression: input.filterExpression,
-            ExpressionAttributeNames: input.attributeNames,
-            ExpressionAttributeValues: input.attributeValues,
-            ProjectionExpression: input.projectionExpression,
-            ExclusiveStartKey: input.token
-        }));
-        return {
-            items: results.Items as any,
-            token: results.LastEvaluatedKey
-        };
+    async scan<T>(input: ScanInput): Promise<{ items: T[], token: any }> {
+        if(input.token == undefined) {
+            const retval: T[] = [];
+            let token = undefined;
+            do {
+                const results = await dynamodb.send(new ScanCommand({
+                    TableName: this.tableName,
+                    FilterExpression: input.filterExpression,
+                    ExpressionAttributeNames: input.attributeNames,
+                    ExpressionAttributeValues: input.attributeValues,
+                    ProjectionExpression: input.projectionExpression,
+                    ExclusiveStartKey: token
+                }));
+
+                if(results.Items) {
+                    retval.push(...(results.Items! as any));
+                }
+                token = results.LastEvaluatedKey;
+            } while(token);
+
+            return {
+                items: retval!,
+                token: undefined
+            };
+        } else {
+            const results = await dynamodb.send(new ScanCommand({
+                TableName: this.tableName,
+                FilterExpression: input.filterExpression,
+                ExpressionAttributeNames: input.attributeNames,
+                ExpressionAttributeValues: input.attributeValues,
+                ProjectionExpression: input.projectionExpression,
+                ExclusiveStartKey: input.token
+            }));
+            return {
+                items: results.Items! as any,
+                token: results.LastEvaluatedKey
+            };            
+        }
     }
 
     async send<T>(input: any) {

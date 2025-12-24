@@ -1,5 +1,5 @@
 import moment from "moment";
-import { data, primary, license } from '../../config';
+import { data, primary, license, config } from '../../config';
 import { AccessLevel, QLStudent, QLUser, UserSummaryStatus } from "@mytaptrack/types";
 import { qlApi } from "../../lib/api-ql";
 import { wait, Logger, LoggingLevel } from "../../lib";
@@ -9,8 +9,13 @@ const logger = new Logger(LoggingLevel.INFO);
 let user: QLUser;
 
 export async function cleanUp(student: QLStudent) {
+    logger.info('Deleting student data');
     await data.delete({ pk: `S#${student.studentId}`, sk: 'P'});
+
+    logger.info('Deleting student primary');
     await primary.delete({ pk: `S#${student.studentId}`, sk: 'P'});
+
+    logger.info('Deleting user student record');
     await data.delete({ pk: `U#${user.id!}`, sk: `S#${student.studentId}#S`})
 }
 
@@ -184,24 +189,28 @@ export async function testSupportChanges(student: QLStudent) {
         }
     ];
 
+    logger.info('Adding milestones to student');
     await qlApi.updateStudent({
         studentId: student.studentId!,
         license: student.license!,
         milestones: student.milestones,
     });
 
+    logger.info('Getting student');
     const student2 = await qlApi.getStudent(student.studentId!, student.license!);
     expect(student2.milestones?.length).toBe(1);
     expect(student2.milestones![0].title).toBe('System Test Milestone');
     expect(student2.milestones![0].description).toBe('System Test Milestone Description');
     expect(student2.milestones![0].date).toBe(moment().format('YYYY-MM-DD'));
 
+    logger.info('Removing milestone from student');
     await qlApi.updateStudent({
         studentId: student.studentId!,
         license: student.license!,
         milestones: [],
     });
 
+    logger.info('Getting student again');
     const student3 = await qlApi.getStudent(student.studentId!, student.license!);
     expect(student3.milestones?.length).toBe(0);
 }
@@ -271,16 +280,21 @@ export async function testBehavior(student: QLStudent) {
 }
 
 export async function testTeam(studentResponse: QLStudent) {
+    logger.info('Getting getUsersForLicense');
     const licenseUsers = await qlApi.getUsersForLicense(license);
+    logger.info('License users', JSON.stringify(licenseUsers));
     const studentTeam = licenseUsers.users.filter(x => x.students.find(y => y.studentId == studentResponse.studentId));
+    logger.info('Student team', JSON.stringify(studentTeam));
     expect(studentTeam.length).toBe(1);
     expect(studentTeam[0].students.find(x => x.studentId == studentResponse.studentId)!.teamStatus).toBe(UserSummaryStatus.Verified);
 
+    logger.info('Updating user with student');
+    const nonAdminEmail = config.env.testing.nonadmin.email;
     await qlApi.updateUser({
-        id: 'demo@mytaptrack.com',
+        id: nonAdminEmail,
         firstName: 'Demo',
         lastName: 'User',
-        email: 'demo@mytaptrack.com',
+        email: nonAdminEmail,
         name: 'Demo User',
         students: [
             {
@@ -312,18 +326,19 @@ export async function testTeam(studentResponse: QLStudent) {
     });
 
     const licenseUsers2 = await qlApi.getUsersForLicense(license);
+    logger.info('licenseUsers2', JSON.stringify(licenseUsers2));
     const studentTeam2 = licenseUsers2.users.filter(x => x.students.find(y => y.studentId == studentResponse.studentId));
     logger.debug('Student Team:', JSON.stringify(studentTeam2));
     expect(studentTeam2.length).toBe(2);
-    const demoUser = studentTeam2.find(x => x.email == 'demo@mytaptrack.com')!;
+    const demoUser = studentTeam2.find(x => x.email == nonAdminEmail)!;
     expect(demoUser).toBeTruthy();
     expect(demoUser.students.find(x => x.studentId == studentResponse.studentId)?.teamStatus).toBe(UserSummaryStatus.PendingApproval);
 
     await qlApi.updateUser({
-        id: 'demo@mytaptrack.com',
+        id: nonAdminEmail,
         firstName: 'Demo',
         lastName: 'User',
-        email: 'demo@mytaptrack.com',
+        email: nonAdminEmail,
         name: 'Demo User',
         students: [
             {
@@ -357,12 +372,26 @@ export async function testTeam(studentResponse: QLStudent) {
     const licenseUsers3 = await qlApi.getUsersForLicense(studentResponse.license!);
     const studentTeam3 = licenseUsers3.users.filter(x => x.students.find(y => y.studentId == studentResponse.studentId));
     expect(studentTeam3.length).toBe(1);
-    const demoUser2 = studentTeam3.find(x => x.email == 'demo@mytaptrack.com')!;
+    const demoUser2 = studentTeam3.find(x => x.email == nonAdminEmail)!;
     expect(demoUser2).toBeFalsy();
 }
 
 export async function testAbc(studentResponse: QLStudent) {
 
+    // Update license to include abc collection for testing
+    logger.info('Setting up license abc collection');
+    await qlApi.changeLicense({
+        license: studentResponse.license!,
+        abcCollections: [{
+            name: "System Test Abc",
+            antecedents: ["a1", "a2", "a3"],
+            consequences: ["c1", "c2", "c3"],
+            tags: [],
+            overwrite: null
+        }]
+    });
+
+    logger.info('Adding abc data to the student');
     await qlApi.updateStudent({
         studentId: studentResponse.studentId!,
         license: studentResponse.license!,
@@ -374,6 +403,7 @@ export async function testAbc(studentResponse: QLStudent) {
         }
     });
 
+    logger.info('Getting the student');
     const student3 = await qlApi.getStudent(studentResponse.studentId!, studentResponse.license!);
 
     expect(student3.abc?.antecedents.length).toBe(3);
@@ -385,6 +415,7 @@ export async function testAbc(studentResponse: QLStudent) {
     expect(student3.abc?.consequences[1]).toBe('C2');
     expect(student3.abc?.consequences[2]).toBe('C3');
 
+    logger.info('Removing abc data from student');
     await qlApi.updateStudent({
         studentId: studentResponse.studentId!,
         license: studentResponse.license!,
@@ -398,11 +429,12 @@ export async function testAbc(studentResponse: QLStudent) {
     });
 
     await wait(2000);
+    logger.info('Getting student again');
     const student4 = await qlApi.getStudent(studentResponse.studentId!, studentResponse.license!);
     expect(student4.abc).toEqual({"antecedents": ["a1", "a2", "a3"], "consequences": ["c1", "c2", "c3"], "name": "System Test Abc", overwrite: null, "tags": []});
 }
 
-export async function testSchedule(student: QLStudent) {
+export async function testSchedule(student: QLStudent, scheduleName: string = 'System Test Schedule') {
     if(!student.scheduleCategories) {
         student.scheduleCategories = [];
     }
@@ -412,9 +444,9 @@ export async function testSchedule(student: QLStudent) {
         studentId: student.studentId,
         license: student.license!,
         scheduleCategories: [{
-            name: 'System Test Schedule',
+            name: scheduleName,
             schedules: [{
-                name: 'System Test Schedule',
+                name: scheduleName,
                 startDate: moment().format('YYYY-MM-DD'),
                 applyDays: [1,2,3,4,5],
                 activities: [
@@ -466,11 +498,13 @@ export async function testSchedule(student: QLStudent) {
         studentId: student.studentId,
         license: student.license!,
         scheduleCategories: [{
-            name: 'System Test Schedule',
+            name: scheduleName,
             schedules: []
         }]
     });
 
     const schedules3 = await qlApi.getStudent(student.studentId!, student.license!);
     expect(schedules3.scheduleCategories?.length).toBe(0);
+    
+    return scheduleName;
 }

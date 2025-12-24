@@ -1,15 +1,4 @@
-const origError = console.error;
-const origWarn = console.warn;
-const origInfo = console.info;
-const origDebug = console.debug;
-
-declare global {
-    interface Console {
-        protected: any
-    }
-}
-
-enum LoggingLevel {
+export enum LoggingLevel {
     debug = 0,
     info = 1,
     warn = 2,
@@ -18,74 +7,62 @@ enum LoggingLevel {
     none = 5
 }
 
-let loggingLevel = LoggingLevel.warn;
-export function initLogging() {
-    switch(process.env.LOGGING_LEVEL?.toLowerCase()) {
-        case 'protected':
-            loggingLevel = LoggingLevel.protected;
-            break;
-        case 'debug':
-            loggingLevel = LoggingLevel.debug;
-            break;
-        case 'info':
-            loggingLevel = LoggingLevel.info;
-            break;
-        case 'warn':
-            loggingLevel = LoggingLevel.warn;
-            break;
-        case 'error':
-            loggingLevel = LoggingLevel.error;
-            break;
-        case 'none':
-            loggingLevel = LoggingLevel.none;
-            break;
-        default:
-            loggingLevel = LoggingLevel.warn;
-            break;
+export class MttLogger {
+    private component: string;
+    private level: LoggingLevel;
+    
+    constructor(component: string, level: LoggingLevel) {
+        this.component = component;
+        this.level = level;
     }
 
-    if(loggingLevel > LoggingLevel.protected) {
-        console.protected = () => {};
-    } else {
-        console.protected = createLoggingFunction(origDebug);
-    }
-    if(loggingLevel > LoggingLevel.debug) {
-        console.debug = () => {};
-    } else {
-        console.debug = createLoggingFunction(origDebug);
+    debug(...args: any[]) {
+        if(this.level >= LoggingLevel.debug) {
+            return;
+        }
+
+        this.writeToLog(args, 'DEBUG');
     }
 
-    if(loggingLevel > LoggingLevel.info) {
-        console.info = () => {};
-    } else {
-        console.info = createLoggingFunction(origInfo);
+    info(...args: any[]) {
+        if(this.level >= LoggingLevel.info) {
+            return;
+        }
+
+        this.writeToLog(args, 'INFO');
     }
 
-    if(loggingLevel > LoggingLevel.warn) {
-        console.warn = () => {};
-    } else {
-        console.warn = createLoggingFunction(origWarn);
+    warn(...args: any[]) {
+        if(this.level >= LoggingLevel.warn) {
+            return;
+        }
+
+        this.writeToLog(args, 'WARN');
     }
 
-    if(loggingLevel > LoggingLevel.error) {
-        console.error = () => {};
-    } else {
-        console.error = createLoggingFunction(origError);
-    }
-}
+    error(...args: any[]) {
+        if(this.level >= LoggingLevel.error) {
+            return;
+        }
 
-function createLoggingFunction(func: (...args: any[]) => void): (...args: any[]) => void {
-    return (...args: any[]) => {
+        this.writeToLog(args, 'ERROR');
+    }
+
+    log(...args: any[]) {
+        this.writeToLog(args, 'LOG');
+    }
+
+    private writeToLog(args: any[], type: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'LOG') {
         for(let i = 0; i < args.length; i++) {
             if(typeof args[i] == 'object') {
                 try {
-                    args[i] = JSON.stringify(args[i]);
+                    args[i] = JSON.stringify(args[i], undefined, '  ');
                 } catch (err) {
 
                 }
             }
         }
 
-        func(...args);
+        console.log(this.component, type, ':', ...args);
     }
 }

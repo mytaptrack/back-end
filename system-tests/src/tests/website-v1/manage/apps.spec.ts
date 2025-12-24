@@ -14,6 +14,7 @@ import { uuid } from 'short-uuid';
 
 const logger = new Logger(LoggingLevel.DEBUG);
 
+
 describe('ManageApps', () => {
     beforeAll(async () => {
         await webApi.login();

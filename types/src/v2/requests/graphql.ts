@@ -251,9 +251,7 @@ export interface QLReportDetails {
     startMillis: number;
     endMillis: number;
     schedules?: QLReportDetailsSchedule[];
-    excludeDays?:
-
- string[];
+    excludeDays?: string[];
     includeDays?: string[];
     excludedIntervals?: string[];
 }
@@ -756,6 +754,8 @@ export interface QLLicenseUpdate {
     admins?: string[];
     cancel?: boolean;
     fullCancel?: boolean;
+    abcCollections?: QLAbcCollectionInput[];
+    features?: QLLicenseFeaturesInput;
 }
 
 export interface QLEmailSupport {
@@ -765,4 +765,70 @@ export interface QLEmailSupport {
 
 export interface QLServerSettings {
     token: string;
+}
+
+export interface QLAccessRestrictions {
+    info?: string;
+    data?: string;
+    schedules?: string;
+    devices?: string;
+    team?: string;
+    comments?: string;
+}
+
+export interface QLTeamMember {
+    userId: string;
+    email: string;
+    name: string;
+    restrictions?: QLAccessRestrictions;
+    status?: string;
+    version?: number;
+}
+
+export interface QLAccessRestrictionsInput {
+    info?: string;
+    data?: string;
+    schedules?: string;
+    devices?: string;
+    team?: string;
+    comments?: string;
+    behavior?: string;
+    abc?: string;
+    milestones?: string;
+    reports?: string;
+    notifications?: string;
+    documents?: string;
+    service?: string;
+    serviceData?: string;
+    serviceGoals?: string;
+    serviceSchedule?: string;
+}
+
+export interface QLTeamMemberDetailsInput {
+    name: string;
+    email: string;
+}
+
+export interface QLTeamMemberInput {
+    studentId: string;
+    userId?: string;
+    email?: string;
+    name?: string;
+    restrictions?: UserSummaryRestrictions;
+    status?: UserSummaryStatus;
+    version?: number;
+    sendEmail?: boolean;
+    details?: QLTeamMemberDetailsInput;
+}
+
+export interface QLGetReportDataInput {
+    studentId: string;
+    startDate: string;
+    endDate: string;
+}
+
+export interface QLGetDataInput {
+    studentId: string;
+    startDate: string;
+    endDate: string;
 }

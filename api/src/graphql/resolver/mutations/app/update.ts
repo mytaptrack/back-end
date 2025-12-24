@@ -223,7 +223,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
             }
 
             console.info('Checking delete status', existing.deleted, 'for incoming', conf.delete);
-            if(!existing.deleted && conf.delete) {
+            if(conf.delete) {
                 console.warn('Deleting student', conf.studentId, 'from device', source.deviceId, 'by', context.identity.username, 'because it was marked for deletion');
                 const dcindex = deviceConfig.students.findIndex(x => x.studentId == existing.studentId);
                 if(dcindex >= 0) {
@@ -244,7 +244,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
 
                 if(deviceConfig.deviceId.startsWith('MLC-') && deviceConfig.students.filter(x => !x.deleted).length == 0) {
                     console.warn('Deleting device', source.deviceId, 'because it has no students');
-                    deviceConfig.deleted = existing.deleted;
+                    deviceConfig.deleted = true;
                 }
             }
         } else {

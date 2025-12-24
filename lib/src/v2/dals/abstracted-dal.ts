@@ -39,7 +39,7 @@ export interface ScanInput {
   attributeValues?: Record<string, any>;
   projectionExpression?: string;
   indexName?: string;
-  token: any;
+  token?: any;
 }
 
 export interface UpdateInput {
@@ -216,14 +216,14 @@ export class AbstractedDal {
   /**
    * Legacy scan method - converts to new abstraction layer
    */
-  async scan<T>(input: ScanInput): Promise<{ items: T; token: any }> {
+  async scan<T>(input: ScanInput): Promise<{ items: T[]; token: any }> {
     try {
       // Convert legacy scan input to unified scan input
       const unifiedInput = this.convertLegacyScanInput(input);
       const result = await this.provider.scan<T>(unifiedInput);
       
       return {
-        items: result.items as T,
+        items: result.items as T[],
         token: result.token
       };
     } catch (error) {

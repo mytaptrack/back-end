@@ -18,6 +18,25 @@ This repository contains the data storage components as well as the api and proc
 | AWS Stack | /data-prop | This is the compute layer for data propagation through the system |
 | Tests | /system-tests | A set of system tests to validate the system's operational capabilities |
 
+## Container Development
+
+For local development without AWS dependencies, use Docker containers:
+
+```bash
+make container-up        # Start all local services
+make container-init      # Initialize database tables (first time)
+make container-down      # Stop containers
+make test-local          # Run system tests against local APIs
+```
+
+- **GraphQL API**: http://localhost:4000/graphql
+- **REST API**: http://localhost:3000/health
+- **Device API**: http://localhost:3001/health
+- **Redis**: localhost:6379
+- **RabbitMQ Management**: http://localhost:15672 (mytaptrack/mytaptrack)
+
+See [CONTAINER-QUICKSTART.md](./CONTAINER-QUICKSTART.md) and [system-tests/README-local.md](./system-tests/README-local.md) for details.
+
 ## Local Development
 
 ### Installation
@@ -79,3 +98,44 @@ See [utils/README-export.md](./utils/README-export.md) for detailed documentatio
 
 ## License
 [Mozilla Public License Version 2.0](./LICENSE)
+
+## Development with Watch Mode
+
+Run services with automatic restart on file changes:
+
+```bash
+# GraphQL API with watch mode
+make graphql-watch
+
+# REST API with watch mode
+make rest-watch
+
+# Device API with watch mode
+make device-watch
+
+# RabbitMQ consumer with watch mode
+make rabbitmq-watch
+
+# Start all services (GraphQL + RabbitMQ consumer)
+make start-all
+```
+
+Changes to TypeScript files in `api/src/` will automatically restart the service.
+
+### RabbitMQ Message Processing
+
+The GraphQL API includes a RabbitMQ consumer for processing report data messages:
+
+- **Consumer Service**: Processes messages from `report-data-queue`
+- **Message Handler**: Uses `api/src/graphql/resolver/mutations/report/process.ts`
+- **Queue Management**: Messages sent via `api/src/graphql/resolver/mutations/report/queue-management.ts`
+
+Start the consumer separately:
+```bash
+make rabbitmq-consumer
+```
+
+Or start both GraphQL API and consumer together:
+```bash
+make start-all
+```

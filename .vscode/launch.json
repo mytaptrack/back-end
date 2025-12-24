@@ -1,0 +1,84 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug GraphQL Server",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nodemon", "--exec", "npx tsx --inspect"],
+      "args": ["${workspaceFolder}/api/src/container/graphql-server.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000",
+        "RABBITMQ_URL": "amqp://mytaptrack:mytaptrack@localhost:5672",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "PrimaryTable": "mytaptrack-local-primary",
+        "DataTable": "mytaptrack-local-data",
+        "USE_DATABASE_ABSTRACTION": "false",
+        "DB_TYPE": "dynamodb",
+        "AWS_REGION": "us-east-1",
+        "PORT": "4000"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug REST API Server",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nodemon", "--exec", "npx tsx --inspect"],
+      "args": ["${workspaceFolder}/api/src/container/rest-api-server.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "PrimaryTable": "mytaptrack-local-primary",
+        "DataTable": "mytaptrack-local-data",
+        "USE_DATABASE_ABSTRACTION": "false",
+        "DB_TYPE": "dynamodb",
+        "AWS_REGION": "us-east-1",
+        "PORT": "3000"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Device API Server",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nodemon", "--exec", "npx tsx --inspect"],
+      "args": ["${workspaceFolder}/api/src/container/device-server.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "PrimaryTable": "mytaptrack-local-primary",
+        "DataTable": "mytaptrack-local-data",
+        "USE_DATABASE_ABSTRACTION": "false",
+        "DB_TYPE": "dynamodb",
+        "AWS_REGION": "us-east-1",
+        "PORT": "3001"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

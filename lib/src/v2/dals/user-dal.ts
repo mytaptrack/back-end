@@ -50,6 +50,27 @@ class UserDalClass extends DalBaseClass {
     }
 
     async getUsersForLicense(license: string): Promise<{username: string, email: string}[]> {
+        // In local mode, scan DynamoDB for users instead of using Cognito
+        if (process.env.USE_LOCAL === 'true' || process.env.NODE_ENV === 'development') {
+            try {
+                const result = await this.primary.scan<any>({
+                    filterExpression: 'begins_with(pk, :pk)',
+                    attributeValues: {
+                        ':pk': 'U#'
+                    },
+                    projectionExpression: 'pk, email, firstName, lastName',
+                    token: null                });
+                
+                return result.items.map(user => ({
+                    username: user.pk.replace('U#', ''),
+                    email: user.email || user.pk.replace('U#', '').replace('-at-', '@')
+                }));
+            } catch (error) {
+                console.warn('Failed to scan users from DynamoDB in local mode:', error);
+                return [];
+            }
+        }
+
         const groupName = `licenses/${license}/users`;
         const cognitoResult = await this.cognito.send(new ListUsersInGroupCommand({
             UserPoolId,
@@ -67,6 +88,27 @@ class UserDalClass extends DalBaseClass {
     }
 
     async getAdminsForLicense(license: string) {
+        // In local mode, scan DynamoDB for users instead of using Cognito
+        if (process.env.USE_LOCAL === 'true' || process.env.NODE_ENV === 'development') {
+            try {
+                const result = await this.primary.scan<any>({
+                    filterExpression: 'begins_with(pk, :pk)',
+                    attributeValues: {
+                        ':pk': 'U#'
+                    },
+                    projectionExpression: 'pk, email, firstName, lastName',
+                    token: null
+                });                
+                return result.items.map(user => ({
+                    username: user.pk.replace('U#', ''),
+                    email: user.email || user.pk.replace('U#', '').replace('-at-', '@')
+                }));
+            } catch (error) {
+                console.warn('Failed to scan users from DynamoDB in local mode:', error);
+                return [];
+            }
+        }
+
         const retval: { username: string, email: string }[] = [];
         const GroupName = `licenses/${license}`;
         let NextToken;
@@ -140,6 +182,26 @@ class UserDalClass extends DalBaseClass {
         return cognitoResult.UserAttributes.find(x => x.Name === 'email')?.Value;
     }
     async getUserIdsByEmail(email: string): Promise<string[]> {
+        // In local mode, scan DynamoDB for users instead of using Cognito
+        if (process.env.USE_LOCAL === 'true') {
+            try {
+                const result = await this.primary.scan<any>({
+                    filterExpression: 'begins_with(pk, :pk)',
+                    attributeValues: {
+                        ':pk': 'U#'
+                    },
+                    projectionExpression: 'userId, details'
+                });
+
+                return result.items
+                    .filter(user => user.details.email == email)
+                    .map(user => user.userId.replace('U#', ''));
+            } catch (error) {
+                console.warn('Failed to scan users by email from DynamoDB in local mode:', error.message);
+                return [];
+            }
+        }
+
         const cognitoResult = await this.cognito.send(new ListUsersCommand({
             UserPoolId,
             Filter: `"email" = "${email}"`

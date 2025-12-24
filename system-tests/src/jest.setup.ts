@@ -1,4 +1,27 @@
+// Set environment variables BEFORE any imports
+if (process.env.USE_LOCAL === 'true') {
+    const environment = process.env.STAGE ?? 'dev';
+    process.env.DYNAMODB_ENDPOINT = 'http://localhost:8000';
+    process.env.PrimaryTable = 'mytaptrack-local-primary';
+    process.env.DataTable = 'mytaptrack-local-data';
+    process.env.USE_DATABASE_ABSTRACTION = 'false';
+    process.env.DB_TYPE = 'dynamodb';
+    process.env.AWS_ACCESS_KEY_ID = 'local';
+    process.env.AWS_SECRET_ACCESS_KEY = 'local';
+    process.env.AWS_REGION = 'us-east-1';
+    process.env.STRONGLY_CONSISTENT_READ = 'true';
+}
+
 // Jest setup file to handle AWS credential issues gracefully
+
+// Mock localStorage for Node environment
+const localStorageMock = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+};
+global.localStorage = localStorageMock as any;
 
 // Check if AWS credentials are available
 const hasAWSCredentials = () => {

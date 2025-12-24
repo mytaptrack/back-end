@@ -30,132 +30,49 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
     const params = context.arguments.input;
     const license = await LicenseDal.get(params.license);
 
-    if(params.fullCancel) {
-        const input: TransactWriteCommandInput = { TransactItems: [] };
-        const datas = ([] as DalKey[]).concat(...await Promise.all([
-            data.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `${params.license}#R`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            }),
-            data.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `${params.license}#S`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            }),
-            data.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `${params.license}#DA`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            }),
-            data.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `${params.license}#T`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            }),
-            data.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `L#${params.license}`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            })
-        ]));
-        const piis = ([] as DalKey[]).concat(...await Promise.all([
-            primary.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `${params.license}#S`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            }),
-            primary.query<DalKey>({
-                keyExpression: 'lpk = :license',
-                attributeValues: {
-                    ':license': `${params.license}#AG`
-                },
-                projectionExpression: 'pk,sk',
-                indexName: MttIndexes.license
-            })
-        ]));
-        datas.forEach(key => {
-            input.TransactItems.push({
-                Delete: {
-                    TableName: data.tableName,
-                    Key: key
-                }
-            });
-        });
-        piis.forEach(key => {
-            input.TransactItems.push({
-                Delete: {
-                    TableName: primary.tableName,
-                    Key: key
-                }
-            });
-        });
-        input.TransactItems.push({
-            Delete: {
-                TableName: data.tableName,
-                Key: { pk: 'L', sk: `P#${params.license}`}
-            }
-        });
-        input.TransactItems.push({
-            Update: {
-                TableName: data.tableName,
-                Key: { pk: `U#${context.identity.username}`, sk: 'P'},
-                UpdateExpression: 'REMOVE license, licenseDetails'
-            }
-        });
-        await cancelStripe(license);
-        await data.send(new TransactWriteCommand(input))
-    } else if(params.cancel) {
-        console.log('Cancelling subscription');
-        let stripeId = license.stripe?.id;
+    // Handle license property updates
+    let hasUpdates = false;
+    const updates: any = {};
+    const updateExpressions: string[] = [];
+    const attributeNames: any = {};
+    const attributeValues: any = {};
 
-        if(license.singleUsed > 2) {
-            console.log('Single used licenses too high to cancel');
-            throw new WebError('There are too many active students, please remove all except 2');
-        }
+    if (params.abcCollections !== undefined) {
+        updateExpressions.push('#details.#abcCollections = :abcCollections');
+        attributeNames['#details'] = 'details';
+        attributeNames['#abcCollections'] = 'abcCollections';
+        attributeValues[':abcCollections'] = params.abcCollections;
+        hasUpdates = true;
+    }
 
-        if(stripeId) {
-            await cancelStripe(license);
-            
-            console.info('Updating license in db');
-            await data.update({
-                key: getLicenseKey(params.license),
-                updateExpression: 'SET #details.#features.#personal = :false, #details.#features.#free = :true, #details.#singleCount = :singleCount',
-                attributeNames: {
-                    '#details': 'details',
-                    '#features': 'features',
-                    '#personal': 'personal',
-                    '#free': 'free',
-                    '#singleCount': 'singleCount'
-                },
-                attributeValues: {
-                    ':false': false,
-                    ':true': true,
-                    ':singleCount': 2
-                }
-            });
-            license.features.personal = false;
-            license.features.free = true;
-            license.singleCount = 2;
-        }
+    if (params.features !== undefined) {
+        updateExpressions.push('#details.#features = :features');
+        attributeNames['#details'] = 'details';
+        attributeNames['#features'] = 'features';
+        attributeValues[':features'] = params.features;
+        hasUpdates = true;
+    }
+
+    if (params.tags !== undefined) {
+        updateExpressions.push('#details.#tags = :tags');
+        attributeNames['#details'] = 'details';
+        attributeNames['#tags'] = 'tags';
+        attributeValues[':tags'] = params.tags;
+        hasUpdates = true;
+    }
+
+    if (hasUpdates) {
+        await data.update({
+            key: getLicenseKey(params.license),
+            updateExpression: `SET ${updateExpressions.join(', ')}`,
+            attributeNames,
+            attributeValues
+        });
+        
+        // Update local license object for return
+        if (params.abcCollections !== undefined) license.abcCollections = params.abcCollections;
+        if (params.features !== undefined) Object.assign(license.features, params.features);
+        if (params.tags !== undefined) license.tags = params.tags;
     }
 
     return {

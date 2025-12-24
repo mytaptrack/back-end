@@ -16,13 +16,11 @@ import {
     AccessLevel, QLStudent, QLStudentUpdateInput, QLTrackable,
     UserSummaryRestrictions, Student, StudentBehavior, Milestone
 } from '@mytaptrack/types';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, TransactWriteCommand, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommand, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import { uuid } from 'short-uuid';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { processSchedules } from './schedules';
 
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const primary = new Dal('primary');
 const data = new Dal('data');
 
@@ -141,8 +139,9 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
             primaryUpdates.abc = undefined;
             
             const license = await LicenseDal.get(student.license!);
+            console.log('License data:', license);
 
-            if (license.abcCollections) {
+            if (license && license.abcCollections) {
                 console.info('Evaluating abc collections from license');
                 license.abcCollections.sort((a, b) => a.tags.length - b.tags.length);
                 console.log('Checking for collection');
@@ -396,7 +395,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
         console.log(JSON.stringify(dataUpdateItem));
         const piiUpdateItem = getTransactionUpdate(cleanObject(primaryUpdates, true), process.env.PrimaryTable!, key);
         console.log(JSON.stringify(piiUpdateItem));
-        await dynamodb.send(new TransactWriteCommand({
+        await data.send(new TransactWriteCommand({
             TransactItems: [
                 hasDataUpdates? {
                     Update: dataUpdateItem
@@ -569,7 +568,7 @@ async function createStudent(context: MttAppSyncContext<AppSyncParams, never, ne
             }
         });
     }
-    await dynamodb.send(new TransactWriteCommand(params));
+    await data.send(new TransactWriteCommand(params));
 
     return mapConfigAndPiiToStudent(dataItem, piiStorage, restrictions);
 }

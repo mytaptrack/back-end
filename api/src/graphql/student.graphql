@@ -38,6 +38,7 @@ type StudentSummaryTracking @aws_iam @aws_cognito_user_pools {
 
 type StudentSummary @aws_iam @aws_cognito_user_pools {
     studentId: String
+    license: String
     details: StudentDetails
     tracking: StudentSummaryTracking
     lastTracked: String

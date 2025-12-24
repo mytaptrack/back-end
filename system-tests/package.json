@@ -5,6 +5,7 @@
         "start": "npm test",
         "pretest": "rm -rf logs",
         "test": "jest",
+        "test:local": "USE_LOCAL=true jest",
         "clean": "npx ts-node ./src/clean.ts",
         "presetDebug": "npm uninstall @mytaptrack/types",
         "setDebug": "npm i ../types",
@@ -20,10 +21,15 @@
         "@babel/plugin-transform-modules-commonjs": "^7.27.1",
         "@mytaptrack/cdk": "file:../cdk",
         "@mytaptrack/lib": "file:../lib",
-        "@mytaptrack/types": "^2.0.45",
+        "@mytaptrack/types": "file:../types",
+        "@types/moment": "^2.11.29",
         "aws-sdk": "^2.1692.0",
+        "dotenv": "^17.2.3",
         "graphql": "^16.11.0",
         "graphql-request": "^6.1.0",
+        "ioredis": "^5.8.2",
+        "moment": "^2.30.1",
+        "moment-timezone": "^0.6.0",
         "short-uuid": "^5.2.0"
     },
     "devDependencies": {
@@ -37,11 +43,13 @@
     },
     "jest": {
         "preset": "ts-jest",
-        "testEnvironment": "node",
+        "testEnvironment": "./jest-environment.js",
         "testMatch": [
             "**/src/tests/**/*.spec.ts"
         ],
         "testTimeout": 120000,
-        "setupFilesAfterEnv": ["<rootDir>/src/jest.setup.ts"]
+        "setupFilesAfterEnv": [
+            "<rootDir>/src/jest.setup.ts"
+        ]
     }
 }

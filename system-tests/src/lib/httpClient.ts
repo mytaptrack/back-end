@@ -1,7 +1,9 @@
 import * as https from 'https';
+import * as http from 'http';
 import { Logger, LoggingLevel } from './logging';
 
 const logger = new Logger(LoggingLevel.DEBUG);
+const isLocal = process.env.USE_LOCAL === 'true';
 
 export async function rawHttpRequest(method: string, url: string, body: string, encoding: string = 'text/plain') {
     const headers = {
@@ -59,18 +61,24 @@ export async function httpRequest(endpoint: string, auth: { apiKey?: string, cog
     if(auth?.cognito) {
         headers['Authorization'] = auth.cognito;
     }
-    logger.debug(`${method} https://${endpoint}${path}`);
+    
+    const protocol = isLocal ? 'http' : 'https';
+    // Use port 3000 for REST API and auth, 3001 for device API
+    const port = isLocal ? (path.startsWith('/api/v2') || path.startsWith('/auth') || path.startsWith('/prod/api/v2') ? 3000 : 3001) : 443;
+    const client = isLocal ? http : https;
+    
+    logger.debug(`${method} ${protocol}://${endpoint}:${port}${path}`);
     const result = await new Promise<string>((resolve, reject) => {
-        const requestParams: https.RequestOptions = {
+        const requestParams: http.RequestOptions = {
             host: endpoint,
             path,
             method,
-            port: 443,
+            port,
             headers
         };
         logger.debug('Request Params', requestParams);
         logger.debug('Body', body);
-        const request = https.request(requestParams, (res) => {
+        const request = client.request(requestParams, (res) => {
             let content = '';
             res.on('error', (err) => {
                 logger.error(err);

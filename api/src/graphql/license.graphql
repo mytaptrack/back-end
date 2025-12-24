@@ -95,6 +95,9 @@ input LicenseUpdateInput @aws_iam @aws_cognito_user_pools {
     admins: [String]
     cancel: Boolean
     fullCancel: Boolean
+    abcCollections: [AbcCollectionInput]
+    features: LicenseFeaturesInput
+    tags: LicenseTagsInput
 }
 
 type LicenseTagSet @aws_iam @aws_cognito_user_pools {

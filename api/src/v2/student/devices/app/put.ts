@@ -72,8 +72,8 @@ export async function handler(request: typesV2.AppPutRequest, userDetails: WebUs
     request.deviceId = device?.deviceId ?? request.deviceId;
 
     const result = await appsync.query<QLAppDeviceConfiguration>(`
-        query getAppsForDevice($deviceId: String!, $auth: String!, $apps: [AppClaimInput]) {
-            getAppsForDevice(deviceId: $deviceId, auth: $auth, apps: $apps) {
+        query getAppsForDevice($deviceId: String!) {
+            getAppsForDevice(deviceId: $deviceId, auth: "", apps: []) {
                 deviceId
                 qrExpiration
                 studentConfigs {
@@ -115,11 +115,7 @@ export async function handler(request: typesV2.AppPutRequest, userDetails: WebUs
             }
         }
         `,
-        {
-            deviceId: request.deviceId,
-            auth: '',
-            apps: []
-        }, 'getAppsForDevice');
+        { deviceId: request.deviceId }, 'getAppsForDevice');
 
     console.log('Getting data for retval');
     console.debug('result: ', result);

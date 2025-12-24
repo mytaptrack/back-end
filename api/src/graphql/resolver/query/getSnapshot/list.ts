@@ -7,10 +7,20 @@ import { ReportDataStorage, StudentReportStorage } from '../../types/reports';
 
 const s3Client = new S3Client({});
 const dataDal = new Dal('data');
+const primary = new Dal('primary');
 
 interface Params {
     studentId: string;
     timezone: string;
+}
+
+interface SnapshotStorage extends QLSnapshotReport {
+    pk: string;
+    sk: string;
+    pksk: string;
+    license: string;
+    lpk: string;
+    lsk: string;
 }
 
 
@@ -31,7 +41,26 @@ async function handleEvent(context: MttAppSyncContext<Params, never, never, {}>)
     
     console.log('Listing objects');
     const s3Results: string[] = [];
-    {
+    
+    if(process.env.USE_LOCAL == 'true') {
+        const reports = await primary.query<SnapshotStorage>({
+            keyExpression: 'pk = :pk and begins_with(sk, :sk)',
+            attributeValues: {
+                ':pk': `S#${studentId}`,
+                ':sk': 'SS#'
+            }
+        });
+
+        console.log('Reports:', JSON.stringify(reports));
+        const sortedReports = reports.map(r => ({ date: r.date, type: r.type } as QLSnapshotReportsKey)).sort((r1, r2) => r1.date.localeCompare(r2.date)).reverse();
+        
+        console.log('Getting latest report');
+        const latest = await getSnapshot(studentId, sortedReports[0]? moment(sortedReports[0].date) : moment(), context.arguments.timezone, sortedReports[0]?.type ?? 'Weekly', context.stash.permissions.student);
+        return {
+            reports: sortedReports,
+            latest
+        };
+    } else {
         const Prefix = `student/${studentId}/reports/`;
         const listResults = await s3Client.send(new ListObjectsV2Command({
             Bucket: process.env.dataBucket,
@@ -92,54 +121,89 @@ export async function getSnapshot(studentId: string, date: Moment, timezone: str
     try {
         let body: string;
         if(restrictions.reports == AccessLevel.admin) {
-            try {
-                console.info('Getting snapshot saved data');
-                const Key = getSnapshotSavedKey(studentId, reportType, requestDate);
-                console.info('Getting saved data', process.env.dataBucket, Key);
-                const s3Response = await s3Client.send(new GetObjectCommand({
-                    Bucket: process.env.dataBucket,
-                    Key
-                }));
-                body = await s3Response.Body!.transformToString();
-                published = false;
-            } catch (err) {
-                console.log(err);
+            if(process.env.USE_LOCAL == 'true') {
+                report = await primary.get({ pk: `S#${studentId}`, sk: `SST#${date.millisecond()}`})
+                
+                if(report) {
+                    body = 'exists';
+                }
+
+                console.log('Existing private report', report);
+            } else {
+                try {
+                    console.info('Getting snapshot saved data');
+                    const Key = getSnapshotSavedKey(studentId, reportType, requestDate);
+                    console.info('Getting saved data', process.env.dataBucket, Key);
+                    const s3Response = await s3Client.send(new GetObjectCommand({
+                        Bucket: process.env.dataBucket,
+                        Key
+                    }));
+                    body = await s3Response.Body!.transformToString();
+                    published = false;
+                } catch (err) {
+                    console.log(err);
+                }
             }
         }
 
         if(!body) {
-            console.info('Getting published snapshot')
-            const Key = getSnapshotKey(studentId, reportType, requestDate);
+            if(process.env.USE_LOCAL == 'true') {
+                report = await primary.get({ pk: `S#${studentId}`, sk: `SS#${date.millisecond()}`})
 
-            console.log('Retrieving S3 data', process.env.dataBucket, Key);
-            try {
-                const s3Response = await s3Client.send(new GetObjectCommand({
-                    Bucket: process.env.dataBucket,
-                    Key
-                }));
-                body = await s3Response.Body!.transformToString();
-            } catch (err) {
-                console.log(err);
-                if(err.Code != 'NoSuchKey') {
-                    throw err;
+                console.log('Existing public report', report);
+
+                if(!report) {
+                    published = false;
+                    report = {
+                        date: date.format('yyyy-mm-dd'),
+                        studentId,
+                        message: '',
+                        lastModified: {
+                            userId: '',
+                            date: moment().format('MM/DD/yyyy')
+                        },
+                        type: reportType,
+                        behaviors: [],
+                        legend: [],
+                        published: false
+                    };
                 }
-                body = JSON.stringify({
-                    studentId,
-                    lastModified: {
-                        userId: '',
-                        date: ''
-                    },
-                    message: '',
-                    date: date.format('yyyy-MM-DD'),
-                    type: 'Weekly',
-                    behaviors: [],
-                    legend: [],
-                    published: false
-                } as QLSnapshotReport);
+                body = 'exists';
+            } else {
+                console.info('Getting published snapshot')
+                const Key = getSnapshotKey(studentId, reportType, requestDate);
+
+                console.log('Retrieving S3 data', process.env.dataBucket, Key);
+                try {
+                    const s3Response = await s3Client.send(new GetObjectCommand({
+                        Bucket: process.env.dataBucket,
+                        Key
+                    }));
+                    body = await s3Response.Body!.transformToString();
+                } catch (err) {
+                    console.log(err);
+                    if(err.Code != 'NoSuchKey') {
+                        throw err;
+                    }
+                    body = JSON.stringify({
+                        studentId,
+                        lastModified: {
+                            userId: '',
+                            date: ''
+                        },
+                        message: '',
+                        date: date.format('yyyy-MM-DD'),
+                        type: 'Weekly',
+                        behaviors: [],
+                        legend: [],
+                        published: false
+                    } as QLSnapshotReport);
+                }
+
+                console.debug(body);
+                report = JSON.parse(body);
             }
         }
-        console.debug(body);
-        report = JSON.parse(body);
     } catch (err) {
         if(err.Code !== 'AccessDenied') {
             throw err;

@@ -15,12 +15,21 @@ export interface TokenSegments {
 
 export async function getTokenKey() {
     if (!cachedTokenKey) {
-        const result = await ssm.send(new GetParameterCommand({
-            Name: process.env.TokenEncryptKey,
-            WithDecryption: true
-        }));
+        // In local mode, use environment variable instead of SSM
+        if (process.env.USE_LOCAL === 'true') {
+            cachedTokenKey = process.env.TOKEN_ENCRYPT_KEY;
+        } else {
+            const result = await ssm.send(new GetParameterCommand({
+                Name: process.env.TokenEncryptKey,
+                WithDecryption: true
+            }));
 
-        cachedTokenKey = result.Parameter.Value;
+            cachedTokenKey = result.Parameter.Value;
+        }
+
+        if(!cachedTokenKey) {
+            throw new Error('No encryption key found');
+        }
     }
     return cachedTokenKey;
 }

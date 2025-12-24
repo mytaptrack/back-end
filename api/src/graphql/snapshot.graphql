@@ -1,6 +1,24 @@
 type SnapshotReportsKey @aws_iam @aws_cognito_user_pools {
+    studentId: String
     date: String!
     type: String!
+    behaviors: [SnapshotReportBehavior]
+}
+
+type SnapshotReportBehavior @aws_iam @aws_cognito_user_pools {
+    behaviorId: String
+    stats: SnapshotReportStats
+}
+
+type SnapshotReportStats @aws_iam @aws_cognito_user_pools {
+    day: SnapshotReportStat
+    week: SnapshotReportStat
+}
+
+type SnapshotReportStat @aws_iam @aws_cognito_user_pools {
+    count: Int
+    delta: Int
+    modifier: String
 }
 
 type SnapshotReportModified @aws_iam @aws_cognito_user_pools {

@@ -14,6 +14,7 @@ let user: QLUser;
 
 const logger = new Logger(LoggingLevel.WARN);
 
+
 describe('graphql', () => {
     beforeAll(async () => {
         await qlApi.login();

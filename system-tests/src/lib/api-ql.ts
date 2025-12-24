@@ -1,7 +1,13 @@
 import { 
-  GraphQLAppInput, GraphQLAppOutput, QLApp, QLAppSummary, QLLicenseDetails, QLLicenseUsersResult, 
-  QLReportData, QLReportDataInput, QLStudent, QLStudentUpdateInput, QLUser, QLUserSummary, QLUserUpdate 
+  GraphQLAppInput, GraphQLAppOutput, QLApp, QLAppSummary, QLAppTokenResponse, 
+  QLLicenseUpdate, QLLicenseUsersResult, 
+  QLReportData, QLReportDataInput, QLSnapshotReport, QLSnapshotReports, QLStudent, 
+  QLStudentUpdateInput, QLUser, QLUserSummary, QLGetReportDataInput, 
+  QLReportDetails
 } from '@mytaptrack/types';
+import {
+    Moment
+} from '@mytaptrack/lib';
 import { Logger, LoggingLevel } from './logging';
 import { getQLEndpoint } from '../config';
 import { login } from './cognito';
@@ -38,6 +44,9 @@ export class QLApiClass {
         }
     }
 
+    async mutation<T>(query: string, params: any, resultField: string): Promise<T | undefined> {
+      return this.query<T>(query, params, resultField);
+    }
     async query<T>(query: string, params: any, resultField: string): Promise<T | undefined> {
         const response = await this.client.request<any>(query, params);
 
@@ -235,7 +244,7 @@ export class QLApiClass {
           `, { student }, 'updateStudent');
     }
 
-    async getStudent(studentId: string, license: string): Promise<QLStudent> {
+    async getStudent(studentId: string, license?: string): Promise<QLStudent> {
         return this.query<QLStudent>(`query getStudent($studentId: String = "") {
             getStudent(studentId: $studentId) {
                 abc {
@@ -513,55 +522,37 @@ export class QLApiClass {
         `, { license }, 'getUsersForLicense');
     }
 
-    async updateUser(userInfo: QLUserUpdate) {
-        return this.query<QLUser>(`
-        mutation updateUser($user: UserUpdateInput!) {
-            updateUser(user: $user) {
-                email
-                firstName
-                id
-                lastName
-                name
-                students {
-                    studentId
-                    restrictions {
+    async changeLicense(input: QLLicenseUpdate) {
+        return this.mutation(`
+            mutation changeLicense($input: LicenseUpdateInput!) {
+                changeLicense(input: $input) {
+                    license
+                    features {
                         abc
-                        behavior
-                        behaviors
-                        comments
-                        data
-                        devices
-                        documents
-                        info
-                        milestones
-                        notifications
-                        reports
-                        reportsOverride
-                        schedules
-                        service
-                        services
-                        team
-                        transferLicense
                     }
-                    behaviors
-                    services
-                    teamStatus
+                    abcCollections {
+                        name
+                        antecedents
+                        consequences
+                        tags
+                        overwrite
+                    }
                 }
             }
-        }    
-        `, { user: userInfo }, 'updateUser');
+        `, { input }, 'changeLicense');
     }
 
-    async getAppList(license: string) {
+    async getAppList(license: string, studentId?: string) {
         return this.query<QLAppSummary[]>(`
-            query getAppList($license: String!) {
-              getAppList(license: $license) {
+            query getAppList($license: String!, $studentId: String) {
+              getAppList(license: $license, studentId: $studentId) {
                 deviceId
                 name
                 tags
+                studentName
               }
             }
-            `, { license }, 'getAppList');
+            `, { license, studentId }, 'getAppList');
     }
 
     async getApp(license: string, deviceId: string) {
@@ -644,7 +635,7 @@ export class QLApiClass {
           `, { license, deviceId }, 'getApp');
     }
 
-    async updateApp(appConfig: GraphQLAppInput) {
+    async updateApp(appConfig: GraphQLAppInput): Promise<GraphQLAppOutput> {
         return this.query<GraphQLAppOutput>(`
             mutation updateApp($appConfig: AppDefinitionInput!) {
               updateApp(appConfig: $appConfig) {
@@ -695,6 +686,434 @@ export class QLApiClass {
           }
         }`, request, 'updateDataInReport');
         
+    }
+
+    // Missing REST API functionality
+    async getLicenses(licenses: string[]) {
+        return this.query(`
+            query getLicenses($licenses: [String]) {
+                getLicenses(licenses: $licenses) {
+                    license
+                    abcCollections {
+                        name
+                        antecedents
+                        consequences
+                        tags
+                    }
+                }
+            }`, { licenses }, 'getLicenses');
+    }
+
+    async getManageStudents(license: string): Promise<any> {
+        return this.query(`
+            query getManageStudents($license: String!) {
+                getManageStudents(license: $license) {
+                    students {
+                        studentId
+                        license
+                        details {
+                            firstName
+                            lastName
+                            nickname
+                        }
+                    }
+                }
+            }`, { license }, 'getManageStudents');
+    }
+
+    async getManageStats(license: string) {
+        return this.query(`
+            query getManageStats($license: String!) {
+                getManageStats(license: $license) {
+                    totalStudents
+                    activeStudents
+                }
+            }`, { license }, 'getManageStats');
+    }
+
+    async getLicenseDetails(license: string): Promise<any> {
+        return this.query(`
+            query getLicenseDetails($license: String!) {
+                getLicenseDetails(license: $license) {
+                    license
+                    abcCollections {
+                        name
+                        antecedents
+                        consequences
+                        tags
+                    }
+                }
+            }`, { license }, 'getLicenseDetails');
+    }
+
+    async getManageApps(license: string): Promise<QLApp[]> {
+        return this.query(`
+            query getAppsForLicense($license: String!) {
+                getAppsForLicense(license: $license) {
+                    deviceId
+                    name
+                    license
+                    studentConfigs {
+                        studentId
+                        studentName
+                    }
+                    tags {
+                        tag
+                    }
+                }
+            }`, { license }, 'getAppsForLicense');
+    }
+
+    async getStudentTeam(studentId: string): Promise<QLUserSummary[]> {
+        return this.query<QLUserSummary[]>(`
+            query getStudentTeam($studentId: String!) {
+                getStudentTeam(studentId: $studentId) {
+                    userId
+                    email
+                    name
+                    status
+                    version
+                    restrictions {
+                        info
+                        data
+                        schedules
+                        devices
+                        team
+                        comments
+                        behavior
+                        abc
+                        milestones
+                        reports
+                        notifications
+                        documents
+                        service
+                        serviceData
+                        serviceGoals
+                        serviceSchedule
+                    }
+                }
+            }`, { studentId }, 'getStudentTeam');
+    }
+
+    async getStudentSettings(studentId: string) {
+        return this.query(`
+            query getStudentSettings($studentId: String!) {
+                getStudentSettings(studentId: $studentId) {
+                    autoExcludeDays
+                    chartType
+                    measurementUnit
+                    showExcludedChartGaps
+                    antecedents {
+                        id
+                        name
+                    }
+                    responses {
+                        id
+                        name
+                    }
+                    devices {
+                        id
+                        name
+                    }
+                    behaviors {
+                        id
+                        frequency
+                        duration {
+                            avg
+                            sum
+                            min
+                            max
+                        }
+                    }
+                    summary {
+                        after150
+                        after45
+                        calculationType
+                        showTargets
+                        averageDays
+                    }
+                    velocity {
+                        enabled
+                        trackedEvent
+                    }
+                }
+            }`, { studentId }, 'getStudentSettings');
+    }
+
+    async getReportData(studentId: string, startDate: Moment, endDate: Moment): Promise<QLReportDetails> {
+        return this.query(`
+            query getData($studentId: String!, $startDate: String!, $endDate: String!) {
+                getData(studentId: $studentId, startDate: $startDate, endDate: $endDate) {
+                    data {
+                        dateEpoc
+                        behavior
+                        abc {
+                            a
+                            c
+                        }
+                        intensity
+                        source {
+                            device
+                            rater
+                        }
+                    }
+                    schedules {
+                        date
+                        schedule
+                    }
+                    excludeDays
+                    includeDays
+                    startMillis
+                    endMillis
+                }
+            }`, { 
+                studentId, 
+                startDate: typeof startDate === 'string' ? startDate : startDate.format('YYYY-MM-DD'),
+                endDate: typeof endDate === 'string' ? endDate : endDate.format('YYYY-MM-DD')
+            } as QLGetReportDataInput, 'getData');
+    }
+
+    async updateManageAbc(abcCollections: any[]) {
+        return this.mutation(`
+            mutation updateManageAbc($abcCollections: [AbcCollectionInput]!) {
+                updateManageAbc(abcCollections: $abcCollections)
+            }`, { abcCollections }, 'updateManageAbc');
+    }
+
+    async updateManageApp(request: any) {
+        const appConfig = {
+            deviceId: request.deviceId,
+            license: request.license,
+            name: request.name,
+            textAlerts: false,
+            timezone: 'America/Los_Angeles',
+            studentConfigs: [],
+            tags: request.tags?.map((tag: string) => ({ tag, type: 'user' })) || []
+        };
+
+        return this.mutation(`
+            mutation updateApp($appConfig: AppDefinitionInput!) {
+                updateApp(appConfig: $appConfig) {
+                    deviceId
+                }
+            }`, { appConfig }, 'updateApp');
+    }
+
+    async deleteManageApp(studentId: string, dsn: string) {
+        const appConfig = {
+            deviceId: dsn,
+            license: '000000-000000-000000', // Use the test license
+            name: 'Deleted App',
+            textAlerts: false,
+            timezone: 'America/Los_Angeles',
+            studentConfigs: [],
+            tags: [],
+            deleted: true
+        };
+
+        return this.mutation(`
+            mutation updateApp($appConfig: AppDefinitionInput!) {
+                updateApp(appConfig: $appConfig) {
+                    deviceId
+                }
+            }`, { appConfig }, 'updateApp');
+    }
+
+    async updateStudentTeamMember(teamMember: any) {
+        return this.mutation(`
+            mutation updateStudentTeamMember($studentId: String!, $teamMember: TeamMemberInput!) {
+                updateStudentTeamMember(studentId: $studentId, teamMember: $teamMember) {
+                    userId
+                    email
+                    name
+                    status
+                    version
+                }
+            }`, { studentId: teamMember.studentId, teamMember }, 'updateStudentTeamMember');
+    }
+
+    async deleteStudentTeamMember(studentId: string, userId: string) {
+        return this.mutation(`
+            mutation deleteStudentTeamMember($studentId: String!, $userId: String!) {
+                deleteStudentTeamMember(studentId: $studentId, userId: $userId)
+            }`, { studentId, userId }, 'deleteStudentTeamMember');
+    }
+
+    async updateStudentSettings(params: { studentId: string, settings: any, overwriteStudent: boolean }) {
+        return this.mutation(`
+            mutation updateStudentSettings($studentId: String!, $settings: StudentSettingsInput!, $overwriteStudent: Boolean) {
+                updateStudentSettings(studentId: $studentId, settings: $settings, overwriteStudent: $overwriteStudent) {
+                    autoExcludeDays
+                    chartType
+                    measurementUnit
+                }
+            }`, params, 'updateStudentSettings');
+    }
+
+    async updateExcludeDate(params: { studentId: string, date: string, action: string }) {
+        return this.mutation(`
+            mutation updateExcludeDate($studentId: String!, $date: String!, $action: String!) {
+                updateExcludeDate(studentId: $studentId, date: $date, action: $action)
+            }`, params, 'updateExcludeDate');
+    }
+
+    async deleteReportSchedule(params: { studentId: string, date: string }) {
+        return this.mutation(`
+            mutation deleteReportSchedule($studentId: String!, $date: String!) {
+                deleteReportSchedule(studentId: $studentId, date: $date)
+            }`, params, 'deleteReportSchedule');
+    }
+
+    async getSnapshot(studentId: string, date: string, reportType: 'Weekly' | 'Range', timezone: string): Promise<QLSnapshotReport> {
+        return this.mutation(`
+            query getSnapshot($studentId: String!, $date: String!, $reportType: String!, $timezone: String!) {
+                getSnapshot(studentId: $studentId, date: $date, reportType: $reportType timezone: $timezone) {
+                    studentId
+                    date
+                    behaviors {
+                        behaviorId
+                        stats {
+                            day {
+                                count
+                                delta
+                                modifier
+                            }
+                            week {
+                                count
+                                delta
+                                modifier
+                            }
+                        }
+                        faces {
+                            face
+                            overwrite
+                        }
+                        show
+                    }
+                }
+            }`, {studentId, date, reportType, timezone }, 'getSnapshot');
+    }
+
+    async saveSnapshot(params: { studentId: string, date: string, reportType: string, snapshot: QLSnapshotReport }) {
+        return this.mutation(`
+            mutation saveSnapshot($studentId: String!, $date: String!, $reportType: String!, $timezone: String!) {
+                saveSnapshot(studentId: $studentId, date: $date, reportType: $reportType, timezone: $timezone) {
+                    studentId
+                    date
+                    behaviors {
+                        behaviorId
+                        stats {
+                            day {
+                                count
+                                delta
+                                modifier
+                            }
+                            week {
+                                count
+                                delta
+                                modifier
+                            }
+                        }
+                        faces {
+                            face
+                            overwrite
+                        }
+                        show
+                    }
+                }
+            }`, params, 'saveSnapshot');
+    }
+
+    async createNotes(params: { studentId: string, date: string }) {
+        return this.mutation(`
+            mutation createNotes($studentId: String!, $date: String!) {
+                createNotes(studentId: $studentId, date: $date) {
+                    studentId
+                    date
+                    notes
+                    lastUpdate
+                }
+            }`, params, 'createNotes');
+    }
+
+    async updateNotes(params: { studentId: string, notes: string, lastModifiedDate: string, updateDate: string, date: string }) {
+        return this.mutation(`
+            mutation updateNotes($input: StudentNoteInput!) {
+                updateNotes(input: $input) {
+                    studentId
+                    date
+                    notes
+                    lastUpdate
+                }
+            }`, { 
+                input: {
+                    studentId: params.studentId,
+                    notes: params.notes,
+                    lastModifiedDate: params.lastModifiedDate,
+                    updateDate: params.updateDate,
+                    date: params.date
+                }
+            }, 'updateNotes');
+    }
+
+    async getAppToken(license: string, deviceId: string, expiration: number | null): Promise<QLAppTokenResponse> {
+        return this.query(`
+            query getAppToken($license: String!, $deviceId: String!, $expiration: Long) {
+                getAppToken(license: $license, deviceId: $deviceId, expiration: $expiration) {
+                    token
+                    expiration
+                }
+            }`, { license, deviceId, expiration }, 'getAppToken');
+    }
+
+    async updateReportDaySchedule(params: { studentId: string, data: { date: string, schedule: string } }) {
+        return this.mutation(`
+            mutation updateReportDaySchedule($studentId: String!, $data: ReportDetailsScheduleInput!) {
+                updateReportDaySchedule(studentId: $studentId, data: $data) {
+                    date
+                    schedule
+                }
+            }`, params, 'updateReportDaySchedule');
+    }
+
+    async listSnapshots(studentId: string) {
+        return this.query<QLSnapshotReports>(`
+            query listSnapshots($studentId: String!) {
+                listSnapshots(studentId: $studentId) {
+                    reports {
+                        studentId
+                        date
+                        behaviors {
+                            behaviorId
+                            stats {
+                                day {
+                                    count
+                                    delta
+                                    modifier
+                                }
+                                week {
+                                    count
+                                    delta
+                                    modifier
+                                }
+                            }
+                        }
+                    }
+                }
+            }`, { studentId }, 'listSnapshots');
+    }
+
+    async updateUser(user: any) {
+        return this.mutation(`
+            mutation updateUser($user: UserUpdateInput!) {
+                updateUser(user: $user) {
+                    id
+                    name
+                    firstName
+                    lastName
+                    email
+                }
+            }`, { user }, 'updateUser');
     }
 }
 

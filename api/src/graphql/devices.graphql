@@ -149,6 +149,7 @@ input AppDefinitionInput @aws_iam @aws_cognito_user_pools {
 
 type AppToken @aws_iam @aws_cognito_user_pools {
     token: String
+    expiration: Long
     qrExpiration: Long
 }
 

@@ -5,6 +5,7 @@ import { CalculationType, SummaryScope } from "@mytaptrack/types";
 
 const logger = new Logger(LoggingLevel.WARN);
 
+
 describe('Reports', () => {
     beforeAll(async () => {
         await webApi.login();

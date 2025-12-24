@@ -8,8 +8,10 @@ export async function handler (request: typesV2.AbcCollection[], userDetails: We
         console.log('No user or license found');
         throw new WebError('Access Denied');
     }
+    console.info('Getting license', userDetails.licenses[0])
     const license = await v2.LicenseDal.get(userDetails.licenses[0]);
 
+    console.info('Saving abc collections');
     license.abcCollections = request;
     await v2.LicenseDal.save(license);
 }

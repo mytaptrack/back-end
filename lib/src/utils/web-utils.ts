@@ -3,9 +3,9 @@ import { Schema, Validator } from 'jsonschema';
 import { addExecutionTag, error, warn, initTracer as lumigo, Tracer } from '@lumigo/tracer';
 import { StudentDal, TeamDal, UserStudentTeam, v2, MttAppSyncContext } from '../';
 import { AccessLevel, Student, UserSummaryRestrictionsApiPermissions } from '@mytaptrack/types';
-import { initLogging } from './logger';
+import { LoggingLevel, MttLogger } from './logger';
 
-initLogging();
+const logger = new MttLogger('WebUtils', LoggingLevel.warn);
 
 let tracer: Tracer;
 
@@ -47,7 +47,7 @@ class WebUtilsClass {
     }
 
     lambdaWrapper(func) {
-        if(!process.env.LUMIGO_TOKEN) {
+        if(!process.env.LUMIGO_TOKEN || process.env.USE_LOCAL === 'true' || process.env.NODE_ENV === 'development') {
             return func;
         }
         tracer = lumigo({
@@ -64,26 +64,33 @@ class WebUtilsClass {
         } = process.env.GRAPH_QL_AUTHORIZATION ? JSON.parse(process.env.GRAPH_QL_AUTHORIZATION) : {};
 
         const wrapper = async (context: MttAppSyncContext<any, any, any, { studentId?: string, student?: Student }>) => {
-            console.debug('context', context);
+            logger.debug('context', context);
             const studentId: string = context.arguments?.studentId ?? context.arguments?.student?.studentId ?? context.stash?.student?.studentId ?? context.stash?.studentId;
-            console.log('Getting Student Id', studentId);
+            logger.log('Getting Student Id', studentId);
+
+            const licenses = context.identity.groups?.filter(x => x.startsWith('licenses/')).map(x => x.substring('licenses/'.length)) ?? [];
+            context.stash = {
+                system: undefined,
+                permissions: undefined,
+                licenses
+            };
 
             if(context.arguments.license) {
                 if(!context.identity['userArn'] && context.identity.username && 
                     !context.identity?.groups?.find(l => l.endsWith(`/${context.arguments.license}`))) {
-                    console.error('License not found', context.arguments.license);
+                    logger.error('License not found', context.arguments.license);
                     throw new WebError('License not found', 400);
                 }
             }
             
             if (studentId) {
-                console.log('Processing Student Id', studentId);
+                logger.log('Processing Student Id', studentId);
 
-                console.log('Getting team data');
+                logger.log('Getting team data');
                 const teamData = await this.getPermissions(context, studentId);
-                console.debug('Team data', teamData);
+                logger.debug('Team data', teamData);
                 if (!teamData) {
-                    console.log('No team data found');
+                    logger.log('No team data found');
                     throw new WebError('Access Denied', 403);
                 }
 
@@ -94,20 +101,21 @@ class WebUtilsClass {
                     teamData.restrictions.service = AccessLevel.none;
                 }
 
-                console.log('Checking permissions requirements');
+                logger.log('Checking permissions requirements');
                 Object.keys(authRequirements.student ?? {}).forEach(key => {
                     if (authRequirements.student![key] == 'Admin' && teamData.restrictions[key] != 'Admin') {
-                        console.log('Admin requirement not met', teamData.restrictions);
+                        logger.log('Admin requirement not met', teamData.restrictions);
                         throw new WebError('Access Denied');
                     }
                     if (authRequirements.student![key] == 'Read Only' && (teamData.restrictions[key] != 'Admin' && teamData.restrictions[key] != 'Read Only')) {
-                        console.log('Read permissions not met', teamData.restrictions);
+                        logger.log('Read permissions not met', teamData.restrictions);
                         throw new WebError("Access denied");
                     }
                 });
 
-                console.log('Constructing stash');
+                logger.log('Constructing stash');
                 context.stash = {
+                    ...context.stash,
                     system: {
                         auth: {
                             service: context.identity.username ? 'service' : 'system',
@@ -123,17 +131,16 @@ class WebUtilsClass {
                         serviceTracking: teamData?.serviceTracking,
                         behaviorTracking: teamData?.behaviorTracking,
                         license: teamData?.license!
-                    },
-                    licenses: context.identity.groups?.filter(x => x.startsWith('licenses/')).map(x => x.substring('licenses/'.length))
-                }
+                    }
+                };
 
-                console.log('Permissions check complete');
+                logger.log('Permissions check complete');
             } else if(authRequirements) {
                 // console.log('Cannot find studentId for authentication');
                 // throw new WebError('Internal Error', 500);
             }
 
-            console.log('Invoking function');
+            logger.log('Invoking function');
             WebUtils.logObjectDetails(context);
             return await func(context);
         }
@@ -207,7 +214,7 @@ class WebUtilsClass {
     }
 
     stepLambdaWrapper(func) {
-        if(!process.env.LUMIGO_TOKEN) {
+        if(!process.env.LUMIGO_TOKEN || process.env.USE_LOCAL === 'true' || process.env.NODE_ENV === 'development') {
             return func;
         }
         
@@ -239,21 +246,21 @@ class WebUtilsClass {
         return this.lambdaWrapper(async (event: APIGatewayEvent) => {
             this.logObjectDetails(event);
             if (!event) {
-                console.log('Event is null');
+                logger.log('Event is null');
                 return this.done('Event not recognized', '400', {}, event);
             }
 
-            console.log('Checking role access');
+            logger.log('Checking role access');
             if (params.role && (!event?.requestContext?.authorizer?.claims['cognito:groups'] || event?.requestContext?.authorizer?.claims['cognito:groups'].indexOf(params.role) < 0)) {
                 return this.done('Access Denied', '403', null, event);
             }
 
             const origin = event.headers.Origin ?? event.headers.Referer ? event.headers.Referer!.slice(0, event.headers.Referer!.indexOf('/', 10)) : null;
-            console.log('Checking remote origin', origin);
+            logger.log('Checking remote origin', origin);
             if (origin) {
                 let matchResult;
                 if (origin === 'https://localhost:8000' && this.allowLocalHost) {
-                    console.log('Debugging locally');
+                    logger.log('Debugging locally');
                 } else {
                     matchResult = origin.match(/https:\/\/([a-z]+\.)?mytaptrack(\-test)?.com/);
                     if (!matchResult || matchResult.length === 0) {
@@ -269,7 +276,7 @@ class WebUtilsClass {
                 }
 
                 let data;
-                console.log('Processing body');
+                logger.log('Processing body');
                 switch (params.processBody || 'JSON') {
                     case 'JSON':
                         data = event?.body ? JSON.parse(event?.body) : undefined;
@@ -286,11 +293,11 @@ class WebUtilsClass {
                 if (schemaCheck) {
                     const results = schemaCheck.validate(data, params.schema!);
                     if (results.errors && results.errors.length > 0) {
-                        console.log('Parameter validation errors', results);
+                        logger.log('Parameter validation errors', results);
                         throw new WebError(results.errors.map(x => x.property + ' ' + x.message).join('\n'));
                     }
                 }
-                console.log('Getting user info');
+                logger.log('Getting user info');
                 let userId = this.getUserId(event);
                 let email = this.getEmail(event);
                 let licenses = (event?.requestContext?.authorizer?.claims['cognito:groups'] as string ?? '')
@@ -304,7 +311,7 @@ class WebUtilsClass {
                 if (groups.indexOf('admins') >= 0 && impersonateUserId) {
                     addExecutionTag('adminId', userId);
                     userId = impersonateUserId;
-                    console.log('Admin user impersonating user', userId);
+                    logger.log('Admin user impersonating user', userId);
 
                     const userConfigPromise = v2.UserDal.getUserConfig(userId);
                     // const piiPromise = v2.UserDal.getUserPii(userId)
@@ -313,7 +320,7 @@ class WebUtilsClass {
                         adminUser = true;
                         // email = (await piiPromise)?.details.email;
                     } catch (err) {
-                        console.log(err);
+                        logger.log(err);
                     }
                 }
                 let studentId = data && data.studentId ? data.studentId : '';
@@ -321,7 +328,7 @@ class WebUtilsClass {
                     studentId = event.queryStringParameters.studentId;
                 }
 
-                console.log('usage:', JSON.stringify({
+                logger.log('usage:', JSON.stringify({
                     type: 'access',
                     userId,
                     studentId
@@ -331,7 +338,7 @@ class WebUtilsClass {
                     addExecutionTag('studentId', studentId);
                 }
 
-                console.log('Process function');
+                logger.log('Process function');
                 const result = await wrappedFunction(data, {
                     name,
                     email,
@@ -342,7 +349,7 @@ class WebUtilsClass {
                 if (adminUser) {
                     this.cleanObject(result);
                 }
-                console.log('Returning result');
+                logger.log('Returning result');
                 return this.done(null, '200', result, event);
             } catch (err) {
                 const message = err.isWebError ? err.message : 'Internal Error';
@@ -352,7 +359,7 @@ class WebUtilsClass {
                 if (sendError) {
                     error(err.message, err);
                 }
-                console.log('API Error: The user is not signed in', err.message, err);
+                logger.log('API Error: The user is not signed in', err.message, err);
                 return this.done(message, code, null, event, false);
             }
         });
@@ -389,7 +396,7 @@ class WebUtilsClass {
     getUserId(event) {
         let userId = event.requestContext.authorizer.claims['cognito:username'];
         if (!userId) {
-            console.warn(`Cognito identity not found.`);
+            logger.warn(`Cognito identity not found.`);
             this.logObjectDetails(event);
             throw new Error('The user is not signed in');
         } else if (userId.startsWith('accounts.google.com')) {
@@ -404,7 +411,7 @@ class WebUtilsClass {
 
     logObjectDetails(object) {
         if (this.isDebug) {
-            console.log(JSON.stringify(object));
+            logger.log(JSON.stringify(object));
         }
     }
 

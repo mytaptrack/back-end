@@ -17,3 +17,8 @@ MyTapTrack is a comprehensive data storage and API solution that provides:
 - **System Testing**: Comprehensive system validation and testing suite
 
 The solution is built as a multi-stack AWS CDK application with modular architecture supporting scalable deployment across multiple environments.
+
+# Libraries
+
+- **lib**: This stores helper functions and constructs which are to be used server side.
+- **types**: This stores type definitions for websites and clients.

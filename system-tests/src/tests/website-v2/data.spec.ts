@@ -5,14 +5,15 @@ import { testBehavior } from './helpers';
 
 const logger = new Logger(LoggingLevel.WARN);
 
+
 describe('QLReporting', () => {
     beforeAll(async () => {
         try {
-            console.log('Starting qlApi.login()...');
+            logger.info('Starting qlApi.login()...');
             await qlApi.login();
-            console.log('qlApi.login() completed successfully');
+            logger.info('qlApi.login() completed successfully');
         } catch (error) {
-            console.error('qlApi.login() failed:', error);
+            logger.error('qlApi.login() failed:', error);
             throw error;
         }
     }, 60 * 1000); // Increased timeout to 60 seconds

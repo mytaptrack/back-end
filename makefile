@@ -1,4 +1,53 @@
-.PHONY: install install-graphql install-deps build deploy test update-env clean unit_tests deploy-core deploy-graphql deploy-api deploy-device deploy-data-prop
+.PHONY: install install-graphql install-deps build deploy test update-env clean unit_tests deploy-core deploy-graphql deploy-api deploy-device deploy-data-prop container-up container-down container-logs container-init container-services test-local device-start rest-start device-watch rest-watch graphql-watch rabbitmq-consumer rabbitmq-watch start-all
+
+# Container commands
+container-up:
+	docker-compose up -d
+
+container-services:
+	docker-compose up -d dynamodb-local rabbitmq redis
+
+container-down:
+	docker-compose down
+
+container-logs:
+	docker-compose logs -f
+
+container-init:
+	cd api && npm run container:init-tables
+
+# Local device API (without Docker)
+device-start:
+	cd api && npm run device:start
+
+device-watch:
+	cd api && npm run device:watch
+
+# Local REST API (without Docker)
+rest-start:
+	cd api && npm run rest:start
+
+rest-watch:
+	cd api && npm run rest:watch
+
+# Local GraphQL API (without Docker)
+graphql-watch:
+	cd api && npm run graphql:watch
+
+# Local RabbitMQ consumer
+rabbitmq-consumer:
+	cd api && npm run rabbitmq:consumer
+
+rabbitmq-watch:
+	cd api && npm run rabbitmq:watch
+
+# Start all local services (GraphQL + RabbitMQ consumer)
+start-all:
+	cd api && npm run start:all
+
+# Local testing
+test-local:
+	cd system-tests && npm run test:local
 
 # Full installation and deployment
 install: install-deps build configure-env set-env deploy

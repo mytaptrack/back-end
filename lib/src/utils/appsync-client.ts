@@ -6,13 +6,23 @@ export class LambdaAppsyncQueryClient {
     private client: GraphQLClient;
 
     constructor(url: string) {
-        this.client = new GraphQLClient(url, {
-            fetch: createSignedFetcher({ 
-                service: 'appsync', 
-                region: process.env.AWS_REGION || 'us-west-2', 
-                fetch 
-            }),
-        });
+        // In local mode, use regular HTTP requests instead of signed requests
+        if (process.env.USE_LOCAL === 'true' || process.env.NODE_ENV === 'development') {
+            this.client = new GraphQLClient(url, {
+                fetch: fetch as any,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } else {
+            this.client = new GraphQLClient(url, {
+                fetch: createSignedFetcher({ 
+                    service: 'appsync', 
+                    region: process.env.AWS_REGION || 'us-west-2', 
+                    fetch 
+                }),
+            });
+        }
     }
 
     async query<T>(query: string, variables: any, resultProp: string): Promise<T> {

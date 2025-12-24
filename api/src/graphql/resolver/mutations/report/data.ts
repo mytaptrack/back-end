@@ -65,7 +65,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
             redoDurations: data.redoDurations
         } as ProcessButtonRequest;
 
-        console.log('sending message to sqs');
+        console.log('sending message to event system');
         await EventDal.sendEvents('website', [{
             type: MttEventType.trackEvent,
             data: message

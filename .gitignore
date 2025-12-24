@@ -11,3 +11,8 @@ node_modules/*
 **/cdk.out/*
 
 .DS_Store
+
+# Container environment
+.env
+docker-compose.override.yml
+

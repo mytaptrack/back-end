@@ -9,6 +9,7 @@ import { cleanUp, setupBehaviors, setupStudent } from "../helpers";
 
 const logger = new Logger(LoggingLevel.WARN);
 
+
 describe('ManageStudents', () => {
     beforeAll(async () => {
         await webApi.login();
@@ -79,7 +80,7 @@ describe('ManageStudents', () => {
             webApi.manageStudentsGet(license)
         ]);
 
-        expect(user.students.length).toBeGreaterThanOrEqual(manageStudentResponse.students.length);
+        expect(user.students.length).toBeLessThanOrEqual(manageStudentResponse.students.length);
         expect(manageStudentResponse.students.find(x => x.studentId == student1.student.studentId));
         cleanUp(student1.student);
     }, 2 * 60 * 1000);

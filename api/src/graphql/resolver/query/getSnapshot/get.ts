@@ -20,5 +20,7 @@ async function handleEvent(context: MttAppSyncContext<Params, never, never, {}>)
         throw new Error('Invalid report type');
     }
 
+    console.log('Args:', context.arguments);
+
     return await getSnapshot(context.arguments.studentId, moment(context.arguments.date), context.arguments.timezone, context.arguments.reportType as any, context.stash.permissions.student);
 }

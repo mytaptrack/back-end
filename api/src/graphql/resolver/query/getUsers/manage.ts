@@ -134,7 +134,7 @@ export async function eventHandler(context: MttAppSyncContext<QueryParams, any, 
             firstName: pii.firstName,
             lastName: pii.lastName,
             schoolId: pii.schoolStudentId,
-            licenseDetails: conf.licenseDetails,
+            licenseDetails: conf?.licenseDetails,
             behaviors: pii.behaviorLookup.map(b => ({ id: b.id, name: b.name })),
             services: pii.servicesLookup?.map(s => ({ id: s.id, name: s.name })) ?? []
         } as LicenseStudentSummary;

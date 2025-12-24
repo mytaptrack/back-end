@@ -1,0 +1,125 @@
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: mytaptrack-dynamodb
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+    working_dir: /home/dynamodblocal
+    networks:
+      - mytaptrack-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: mytaptrack-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: mytaptrack
+      RABBITMQ_DEFAULT_PASS: mytaptrack
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - mytaptrack-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: mytaptrack-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mytaptrack-network
+    command: redis-server --appendonly yes
+
+  graphql-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: mytaptrack-graphql
+    ports:
+      - "4000:4000"
+    environment:
+      DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+      RABBITMQ_URL: amqp://mytaptrack:mytaptrack@rabbitmq:5672
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-local}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-local}
+      PrimaryTable: mytaptrack-local-primary
+      DataTable: mytaptrack-local-data
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - dynamodb-local
+      - rabbitmq
+      - redis
+    networks:
+      - mytaptrack-network
+    volumes:
+      - ./api/src:/app/src
+      - ./lib:/app/lib
+      - ./types:/app/types
+
+  device-api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.device
+    container_name: mytaptrack-device-api
+    ports:
+      - "3001:3001"
+    environment:
+      DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-local}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-local}
+      PrimaryTable: mytaptrack-local-primary
+      DataTable: mytaptrack-local-data
+      appsyncUrl: http://graphql-api:4000/graphql
+    depends_on:
+      - dynamodb-local
+      - graphql-api
+    networks:
+      - mytaptrack-network
+
+  rest-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: mytaptrack-rest-api
+    ports:
+      - "3000:3000"
+    environment:
+      DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-local}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-local}
+      PrimaryTable: mytaptrack-local-primary
+      DataTable: mytaptrack-local-data
+      appsyncUrl: http://graphql-api:4000/graphql
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-local-dev-secret-change-in-production}
+      SAML_CERT: ${SAML_CERT:-}
+      SAML_ENTRY_POINT: ${SAML_ENTRY_POINT:-http://localhost:8080/simplesaml/saml2/idp/SSOService.php}
+      SAML_ISSUER: ${SAML_ISSUER:-mytaptrack-local}
+      SAML_CALLBACK_URL: ${SAML_CALLBACK_URL:-http://localhost:3000/auth/saml/callback}
+      NODE_ENV: development
+      USE_LOCAL: "true"
+      PORT: 3000
+    depends_on:
+      - dynamodb-local
+      - graphql-api
+      - redis
+    networks:
+      - mytaptrack-network
+    command: npm run rest:start
+
+volumes:
+  rabbitmq-data:
+  redis-data:
+
+networks:
+  mytaptrack-network:
+    driver: bridge

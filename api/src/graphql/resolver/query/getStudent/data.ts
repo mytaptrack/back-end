@@ -1,4 +1,3 @@
-import { util } from '@aws-appsync/utils';
 import {
     StudentPiiStorage, StudentConfigStorage, StudentDashboardSettingsStorage, WebUtils, 
     TrackableItem, getStudentSchedulePrimaryKey, ScheduleDal, LicenseDal, getStudentPrimaryKey, 
@@ -8,12 +7,9 @@ import {
     UserSummaryRestrictions, QLStudent, StudentBehavior, BehaviorSettings, DashboardDeviceSettings, 
     StudentDashboardSettings, ScheduleCategory, NotificationDetails, Notification, NotificationType, NotificationDetailsBehavior, AccessLevel, QLService, LicenseFeatures,
 } from '@mytaptrack/types';
-import { BatchGetItemResponse, MttAppSyncContext } from '@mytaptrack/cdk';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, BatchGetCommand, BatchGetCommandInput } from '@aws-sdk/lib-dynamodb';
+import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const data = new Dal('data');
 const primary = new Dal('primary');
 

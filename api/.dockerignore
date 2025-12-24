@@ -1,0 +1,9 @@
+node_modules
+cdk.out
+.build
+*.log
+.git
+.gitignore
+README.md
+.vscode
+.kiro

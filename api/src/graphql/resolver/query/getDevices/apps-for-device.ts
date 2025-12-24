@@ -31,6 +31,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
     const deviceId = context.arguments.deviceId;
     let auth = context.arguments.auth;
     const apps = context.arguments.apps;
+    const isIAMAuth = context.identity['accountId'] && context.identity['cognitoIdentityAuthProvider'] == null;
 
     console.info('Getting app config');
     let deviceAppConfigs = await data.query<LicenseAppConfigStorage>({
@@ -175,11 +176,12 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, any,
 
         console.info('getting unsetAuths');
         const unsetAuths = deviceAppConfigs.filter(x => x.auth && x.auth.length > 0 ? false : true);
-        // if (auth && unsetAuths.length != deviceAppConfigs.length &&
-        //     !deviceAppConfigs.find(x => x.auth.find(a => a == auth))) {
-        //     console.info('Authentication failed', unsetAuths.length, deviceAppConfigs.length);
-        //     throw new WebError('Access Denied', 403);
-        // }
+        
+        if (!isIAMAuth && auth && unsetAuths.length != deviceAppConfigs.length &&
+            !deviceAppConfigs.find(x => x.auth.find(a => a == auth))) {
+            console.info('Authentication failed', unsetAuths.length, deviceAppConfigs.length);
+            throw new WebError('Access Denied', 403);
+        }
 
         if (!auth) {
             console.info('Creating identity');

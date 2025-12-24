@@ -39,8 +39,8 @@ export async function handler (data: { studentId: string, appId: string, deviceI
 
     console.info('Getting app');
     const result = await appsync.query<QLAppDeviceConfiguration>(`
-            query getAppsForDevice($deviceId: String!, $auth: String!, $apps: [AppClaimInput]) {
-                getAppsForDevice(deviceId: $deviceId, auth: $auth, apps: $apps) {
+            query getAppsForDevice($deviceId: String!) {
+                getAppsForDevice(deviceId: $deviceId, auth: "", apps: []) {
                     deviceId
                     identity
                     qrExpiration
@@ -79,11 +79,7 @@ export async function handler (data: { studentId: string, appId: string, deviceI
                 }
             }
         `,
-        {
-            deviceId: data.deviceId,
-            auth: '',
-            apps: []
-        }, 'getAppsForDevice');
+        { deviceId: data.deviceId }, 'getAppsForDevice');
 
 
     console.info('Converting app');
