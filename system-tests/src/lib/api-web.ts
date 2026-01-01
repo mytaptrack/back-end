@@ -18,7 +18,7 @@ import { getApiEndpoint, config } from '../config';
 import { TestUserConfig } from '@mytaptrack/cdk';
 import { Logger, LoggingLevel } from './logging';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('api-web', LoggingLevel.warn);
 
 class WebApiClass {
     private token: string;

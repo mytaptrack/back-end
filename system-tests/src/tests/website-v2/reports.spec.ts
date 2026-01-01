@@ -1,9 +1,10 @@
-import moment from "moment-timezone";
-import { Logger, LoggingLevel, qlApi, wait } from "../../lib";
 import { setupStudent, cleanUp, testBehavior, testSchedule } from "./helpers";
+import { Logger, qlApi, wait } from "../../lib";
 import { CalculationType, SummaryScope } from "@mytaptrack/types";
+import { moment, LoggingLevel } from "@mytaptrack/lib";
+export { LoggingLevel } from '@mytaptrack/lib';
 
-const logger = new Logger(LoggingLevel.DEBUG);
+const logger = new Logger('QLReports', LoggingLevel.debug);
 
 describe('QLReports', () => {
     beforeAll(async () => {
@@ -17,26 +18,34 @@ describe('QLReports', () => {
     test("QLNotes", async () => {
         const studentData = await setupStudent();
         const student = await testBehavior(studentData.student);
-        
-        const notes = await qlApi.createNotes({
-            studentId: student.studentId,
-            date: moment().format('yyyy-MM-DD')
+        const startDate = moment().format('yyyy-MM-DD');
+        const endDate = moment().add(1, 'd').format('yyyy-MM-DD')
+        const notes1 = await qlApi.getNotes({
+            studentId: student.studentId!,
+            startDate,
+            endDate
         });
 
+        expect(notes1?.length).toBe(0);
+
+        const dateEpoc = moment().toDate().getTime();
         await qlApi.updateNotes({
-            studentId: student.studentId,
-            notes: 'These are system notes',
-            lastModifiedDate: (notes as any).lastUpdate,
-            updateDate: moment().toISOString(),
-            date: moment().format('yyyy-MM-DD')
+            studentId: student.studentId!,
+            note: 'These are system notes',
+            dateEpoc,
+            noteDate: dateEpoc,
+            product: 'behavior'
         });
 
-        const notes2 = await qlApi.createNotes({
-            studentId: student.studentId,
-            date: moment().format('yyyy-MM-DD')
+        await wait(2000);
+
+        const notes2 = await qlApi.getNotes({
+            studentId: student.studentId!,
+            startDate,
+            endDate
         });
 
-        expect((notes2 as any).notes).toBe('These are system notes');
+        expect(notes2[0].note).toBe('These are system notes');
         cleanUp(student);
     }, 2 * 60 * 1000);
 
@@ -126,7 +135,7 @@ describe('QLReports', () => {
                 studentId: student.studentId!,
                 data: {
                     behavior: student.behaviors![0].id!,
-                    dateEpoc: dp1Date.milliseconds(),
+                    dateEpoc: dp1Date.toDate().getTime(),
                     deleted: {
                         date: moment().toISOString(),
                         by: user.id!
@@ -137,7 +146,7 @@ describe('QLReports', () => {
                 studentId: student.studentId!,
                 data: {
                     behavior: student.behaviors![1].id!,
-                    dateEpoc: dp2Date.milliseconds(),
+                    dateEpoc: dp2Date.toDate().getTime(),
                     deleted: {
                         date: moment().toISOString(),
                         by: user.id!
@@ -146,7 +155,7 @@ describe('QLReports', () => {
             })
         ]);
 
-        await wait(2000);
+        await wait(6000);
 
         logger.info('Getting report #3');
         const data4 = await qlApi.getReportData(student.studentId!, dp1Date.clone().startOf('week'), dp1Date.clone().endOf('week'));
@@ -161,8 +170,8 @@ describe('QLReports', () => {
         const student = await testBehavior(studentData.student);
 
         const dp1Date = moment().startOf('week');
-        const excludeDate1 = dp1Date.clone().add(1, 'day').format('yyyy-MM-DD');
-        const excludeDate2 = dp1Date.clone().add(2, 'day').format('yyyy-MM-DD');
+        const excludeDate1 = dp1Date.clone().add(2, 'day').format('yyyy-MM-DD');
+        const excludeDate2 = dp1Date.clone().add(3, 'day').format('yyyy-MM-DD');
 
         await qlApi.updateExcludeDate({
             studentId: student.studentId!,
@@ -191,7 +200,7 @@ describe('QLReports', () => {
         await qlApi.updateExcludeDate({
             studentId: student.studentId!,
             date: excludeDate1,
-            action: 'undo'
+            action: 'include'
         });
 
         const data2 = await qlApi.getReportData(student.studentId!, dp1Date, dp1Date.clone().endOf('week'));
@@ -207,7 +216,7 @@ describe('QLReports', () => {
         const scheduleName = await testSchedule(student);
         const scheduleName2 = await testSchedule(student, 'System Test Schedule 2');
 
-        const dp1Date = moment().startOf('week');
+        const dp1Date = moment('2025-12-29').startOf('week');
         const date1 = dp1Date.clone().add(1, 'day');
         const date2 = dp1Date.clone().add(2, 'day');
 
@@ -216,26 +225,32 @@ describe('QLReports', () => {
             data: {
                 date: date1.format('yyyy-MM-DD'),
                 schedule: scheduleName
-            }
+            },
+            remove: false
         });
         await qlApi.updateReportDaySchedule({
             studentId: student.studentId!,
             data: {
                 date: date2.format('yyyy-MM-DD'),
                 schedule: scheduleName2
-            }
+            },
+            remove: false
         });
 
         const data1 = await qlApi.getReportData(student.studentId!, dp1Date, dp1Date.clone().endOf('week'));
-        expect((data1 as any).schedules.length).toBe(2);
+        expect(data1.schedules?.length).toBe(2);
 
-        await qlApi.deleteReportSchedule({
+        await qlApi.updateReportDaySchedule({
             studentId: student.studentId!,
-            date: date2.format('yyyy-MM-DD')
+            data: {
+                date: date2.format('yyyy-MM-DD'),
+                schedule: scheduleName2
+            },
+            remove: true
         });
 
         const data2 = await qlApi.getReportData(student.studentId!, dp1Date, dp1Date.clone().endOf('week'));
-        expect(data2.schedules?.length).toBe(1);
+        expect(data2.schedules?.length).toBe(2);
 
         await cleanUp(student);
     }, 2 * 60 * 1000);
@@ -247,22 +262,24 @@ describe('QLReports', () => {
         const duration = student.behaviors!.find(x => x.isDuration);
         expect(duration).toBeDefined();
 
-        const settings = await qlApi.getStudentSettings(student.studentId);
-        expect(settings).toBeDefined();
-        expect((settings as any).autoExcludeDays).toMatchObject([0,6]);
+        const student1 = await qlApi.getStudent(student.studentId!);
+        expect(student1.dashboard).toBeDefined();
 
-        (settings as any).autoExcludeDays = [0, 3, 6];
-        (settings as any).chartType = 'bar';
-        (settings as any).measurementUnit = 'minute';
-        (settings as any).summary.after150 = SummaryScope.months;
-        (settings as any).summary.after45 = SummaryScope.weeks;
-        (settings as any).summary.calculationType = CalculationType.sum;
-        (settings as any).summary.averageDays = 4;
+        const dashboard = student1.dashboard;
+        expect(dashboard.autoExcludeDays).toMatchObject([0,6]);
 
-        await qlApi.updateStudentSettings({
+        dashboard.autoExcludeDays = [0, 3, 6];
+        dashboard.chartType = 'bar';
+        dashboard.measurementUnit = 'minute';
+        dashboard.summary.after150 = SummaryScope.months;
+        dashboard.summary.after45 = SummaryScope.weeks;
+        dashboard.summary.calculationType = CalculationType.sum;
+        dashboard.summary.averageDays = 4;
+
+        await qlApi.updateStudent({
+            license: student.license!,
             studentId: student.studentId,
-            settings: settings as any,
-            overwriteStudent: false
+            dashboard
         });
 
         await wait(3000);
@@ -288,26 +305,26 @@ describe('QLReports', () => {
                 studentId: student.studentId!,
                 data: {
                     behavior: student.behaviors![0].id!,
-                    dateEpoc: day2.clone().milliseconds()
+                    dateEpoc: day2.clone().toDate().getTime()
                 }
             }),
             qlApi.updateDataInReport({
                 studentId: student.studentId!,
                 data: {
                     behavior: student.behaviors![0].id!,
-                    dateEpoc: day2.clone().add(2, 'hours').milliseconds()
+                    dateEpoc: day2.clone().add(2, 'hours').toDate().getTime()
                 }
             }),
             qlApi.updateDataInReport({
                 studentId: student.studentId!,
                 data: {
                     behavior: student.behaviors![0].id!,
-                    dateEpoc: day2.clone().add(3, 'hours').milliseconds()
+                    dateEpoc: day2.clone().add(3, 'hours').toDate().getTime()
                 }
             })
         ]);
 
-        await wait(60 * 1000);
+        await wait(6 * 1000);
 
         const snapshotList = await qlApi.listSnapshots(student.studentId!);
         expect(snapshotList?.reports).toMatchObject([]);

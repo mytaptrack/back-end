@@ -3,7 +3,8 @@
  * Allows gradual migration to the new database abstraction layer
  */
 
-import { Dal, DalBaseClass, QueryInput, ScanInput, UpdateInput, DalKey, MttIndexes } from './dal';
+import { QueryInput, ScanInput, UpdateInput, DalKey, MttIndexes } from './dal-types';
+import { Dal } from './dal';
 import { AbstractedDal, AbstractedDalBaseClass } from './abstracted-dal';
 import { DatabaseConfig, IDataAccessLayer } from '../types/database-abstraction';
 

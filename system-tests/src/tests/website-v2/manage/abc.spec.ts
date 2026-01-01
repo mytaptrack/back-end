@@ -2,7 +2,7 @@ import { LicenseStorage } from "@mytaptrack/lib";
 import { data, license } from "../../../config";
 import { Logger, LoggingLevel, qlApi } from "../../../lib";
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('QLManageAbc', LoggingLevel.warn);
 
 describe('QLManageAbc', () => {
     beforeAll(async () => {

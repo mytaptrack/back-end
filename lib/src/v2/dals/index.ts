@@ -3,14 +3,18 @@
  */
 
 // Export original DAL classes (now enhanced with abstraction layer support)
-export { 
-  Dal, 
-  DalBaseClass, 
-  QueryInput, 
+export {
+QueryInput, 
   ScanInput, 
   UpdateInput, 
   DalKey, 
-  MttIndexes 
+  MttIndexes
+} from './dal-types';
+
+export { 
+  Dal, 
+  DalBaseClass, 
+   
 } from './dal';
 
 // Export abstraction layer DAL classes

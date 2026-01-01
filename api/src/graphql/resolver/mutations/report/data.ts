@@ -1,5 +1,5 @@
 import {
-    EventDal, IoTClickType, MttEventType, ProcessButtonRequest, WebError, 
+    EventDal, IoTClickType, LoggingLevel, MttEventType, MttLogger, ProcessButtonRequest, WebError, 
     WebUtils, getStudentPrimaryKey, moment 
 } from '@mytaptrack/lib';
 import {
@@ -15,12 +15,13 @@ interface AppSyncParams {
   data: QLReportDataInput;
 }
 
+const logger = new MttLogger('updateData', LoggingLevel.debug);
 const dataDal = new Dal('data');
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<QLReportData | QLReportService> {
-    console.log('Recovery Data', context.arguments);
+    logger.log('Recovery Data', context.arguments);
     
     const data = context.arguments.data;
     const studentId = context.arguments.studentId;
@@ -34,7 +35,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
     if (data.behavior || data.service) {
         const student = await dataDal.get<StudentConfigStorage>(getStudentPrimaryKey(studentId), 'behaviors, responses, services');
 
-        console.debug('student', student);
+        logger.debug('student', student);
         const studentBehavior = student.behaviors?.find(x => x.id == data.behavior) ??
             student.responses?.find(x => x.id == data.behavior) ??
             student.services?.find(x => x.id == data.service);
@@ -45,7 +46,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
 
         let notStopped = data.duration != undefined;
         
-        console.log('Constructing message');
+        logger.log('Constructing message');
         const message = {
             studentId,
             behaviorId: data.behavior,
@@ -65,7 +66,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
             redoDurations: data.redoDurations
         } as ProcessButtonRequest;
 
-        console.log('sending message to event system');
+        logger.log('sending message to event system');
         await EventDal.sendEvents('website', [{
             type: MttEventType.trackEvent,
             data: message

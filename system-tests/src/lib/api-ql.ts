@@ -3,7 +3,9 @@ import {
   QLLicenseUpdate, QLLicenseUsersResult, 
   QLReportData, QLReportDataInput, QLSnapshotReport, QLSnapshotReports, QLStudent, 
   QLStudentUpdateInput, QLUser, QLUserSummary, QLGetReportDataInput, 
-  QLReportDetails
+  QLReportDetails,
+  QLStudentNote,
+  QLUserUpdate
 } from '@mytaptrack/types';
 import {
     Moment
@@ -11,9 +13,9 @@ import {
 import { Logger, LoggingLevel } from './logging';
 import { getQLEndpoint } from '../config';
 import { login } from './cognito';
-import { GraphQLClient } from 'graphql-request';
+import { gql, GraphQLClient } from 'graphql-request';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('QLApiClass', LoggingLevel.warn);
 
 export class QLApiClass {
     private token: string;
@@ -795,51 +797,6 @@ export class QLApiClass {
             }`, { studentId }, 'getStudentTeam');
     }
 
-    async getStudentSettings(studentId: string) {
-        return this.query(`
-            query getStudentSettings($studentId: String!) {
-                getStudentSettings(studentId: $studentId) {
-                    autoExcludeDays
-                    chartType
-                    measurementUnit
-                    showExcludedChartGaps
-                    antecedents {
-                        id
-                        name
-                    }
-                    responses {
-                        id
-                        name
-                    }
-                    devices {
-                        id
-                        name
-                    }
-                    behaviors {
-                        id
-                        frequency
-                        duration {
-                            avg
-                            sum
-                            min
-                            max
-                        }
-                    }
-                    summary {
-                        after150
-                        after45
-                        calculationType
-                        showTargets
-                        averageDays
-                    }
-                    velocity {
-                        enabled
-                        trackedEvent
-                    }
-                }
-            }`, { studentId }, 'getStudentSettings');
-    }
-
     async getReportData(studentId: string, startDate: Moment, endDate: Moment): Promise<QLReportDetails> {
         return this.query(`
             query getData($studentId: String!, $startDate: String!, $endDate: String!) {
@@ -995,7 +952,7 @@ export class QLApiClass {
     }
 
     async saveSnapshot(params: { studentId: string, date: string, reportType: string, snapshot: QLSnapshotReport }) {
-        return this.mutation(`
+        return this.mutation(gql`
             mutation saveSnapshot($studentId: String!, $date: String!, $reportType: String!, $timezone: String!) {
                 saveSnapshot(studentId: $studentId, date: $date, reportType: $reportType, timezone: $timezone) {
                     studentId
@@ -1024,19 +981,29 @@ export class QLApiClass {
             }`, params, 'saveSnapshot');
     }
 
-    async createNotes(params: { studentId: string, date: string }) {
-        return this.mutation(`
-            mutation createNotes($studentId: String!, $date: String!) {
-                createNotes(studentId: $studentId, date: $date) {
+    async getNotes(params: { studentId: string, startDate: string, endDate: string }): Promise<QLStudentNote[]> {
+        return this.query(gql`
+            query getNotes($studentId: String!, $startDate: String!, $endDate: String!) {
+                getNotes(studentId: $studentId, startDate: $startDate, endDate: $endDate) {
                     studentId
+                    product
+                    noteDate
+                    noteId
+                    dateEpoc
                     date
+                    source {
+                        id
+                        name
+                        type
+                    }
+                    note
                     notes
                     lastUpdate
                 }
-            }`, params, 'createNotes');
+            }`, params, 'getNotes');
     }
 
-    async updateNotes(params: { studentId: string, notes: string, lastModifiedDate: string, updateDate: string, date: string }) {
+    async updateNotes(params: QLStudentNote) {
         return this.mutation(`
             mutation updateNotes($input: StudentNoteInput!) {
                 updateNotes(input: $input) {
@@ -1046,13 +1013,7 @@ export class QLApiClass {
                     lastUpdate
                 }
             }`, { 
-                input: {
-                    studentId: params.studentId,
-                    notes: params.notes,
-                    lastModifiedDate: params.lastModifiedDate,
-                    updateDate: params.updateDate,
-                    date: params.date
-                }
+                input: params
             }, 'updateNotes');
     }
 
@@ -1066,10 +1027,10 @@ export class QLApiClass {
             }`, { license, deviceId, expiration }, 'getAppToken');
     }
 
-    async updateReportDaySchedule(params: { studentId: string, data: { date: string, schedule: string } }) {
+    async updateReportDaySchedule(params: { studentId: string, data: { date: string, schedule: string }, remove: boolean }) {
         return this.mutation(`
-            mutation updateReportDaySchedule($studentId: String!, $data: ReportDetailsScheduleInput!) {
-                updateReportDaySchedule(studentId: $studentId, data: $data) {
+            mutation updateReportDaySchedule($studentId: String!, $data: ReportDetailsScheduleInput!, $remove: Boolean) {
+                updateReportDaySchedule(studentId: $studentId, data: $data, remove: $remove) {
                     date
                     schedule
                 }
@@ -1103,8 +1064,8 @@ export class QLApiClass {
             }`, { studentId }, 'listSnapshots');
     }
 
-    async updateUser(user: any) {
-        return this.mutation(`
+    async updateUser(user: QLUserUpdate, terms: string = '') {
+        return this.mutation<QLUserSummary>(`
             mutation updateUser($user: UserUpdateInput!) {
                 updateUser(user: $user) {
                     id
@@ -1113,7 +1074,7 @@ export class QLApiClass {
                     lastName
                     email
                 }
-            }`, { user }, 'updateUser');
+            }`, { user, terms }, 'updateUser');
     }
 }
 

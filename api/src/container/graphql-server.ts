@@ -7,6 +7,9 @@ import { buildSchema } from 'graphql';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { AuthManager } from './auth-manager';
+import { LoggingLevel, MttLogger } from '@mytaptrack/lib';
+
+const logger = new MttLogger('GraphQL Server', LoggingLevel.error);
 
 const PORT = process.env.GRAPHQL_PORT || 4000;
 
@@ -47,6 +50,7 @@ const resolverMap: Record<string, string> = {
   'src/graphql/resolver/mutations/report/notes.ts': 'updateNotes',
   'src/graphql/resolver/subscriptions/report/notes.ts': 'onStudentNote',
   'src/graphql/resolver/mutations/report/date-inclusion.ts': 'updateReportDateInclusion',
+  'src/graphql/resolver/mutations/report/update-exclude-date.ts': 'updateExcludeDate',
   'src/graphql/resolver/mutations/user/dashboard.ts': 'updateUserBehaviorDashboardSettings',
   'src/graphql/resolver/mutations/student/update-info/data.ts': 'updateStudent',
   'src/graphql/resolver/mutations/student/update-info/delete.ts': 'deleteStudent',
@@ -110,28 +114,28 @@ function loadResolvers() {
     }
   };
   
-  console.log('Loading resolvers...');
+  logger.log('Loading resolvers...');
   for (const [codePath, fieldName] of Object.entries(resolverMap)) {
     const cleanPath = codePath.replace(/^\.\//, '');
     const fullPath = join(__dirname, '../..', cleanPath);
     try {
       const resolver = require(fullPath);
       resolvers[fieldName] = wrapResolver(resolver.handler);
-      console.log(`✓ Loaded ${fieldName} from ${codePath}`);
+      logger.log(`✓ Loaded ${fieldName} from ${codePath}`);
     } catch (e) {
-      console.warn(`✗ Failed to load resolver ${fieldName} from ${codePath}:`, e.message);
+      logger.warn(`✗ Failed to load resolver ${fieldName} from ${codePath}:`, e.message);
     }
   }
   
-  console.log('Resolver loading complete');
-  console.log('Available resolvers:', Object.keys(resolvers));
+  logger.log('Resolver loading complete');
+  logger.log('Available resolvers:', Object.keys(resolvers));
   return resolvers;
 }
 
 function wrapResolver(handler: Function) {
   return async (args: any, context: any, info: any) => {
     try {
-      console.log(`[GraphQL] Calling resolver: ${info?.fieldName}`);
+      logger.info(`Calling resolver: ${info?.fieldName}`);
       
       // Extract selection set from GraphQL info
       const selectionSetList = info?.fieldNodes?.[0]?.selectionSet?.selections?.map((selection: any) => selection.name.value) || [];
@@ -155,13 +159,13 @@ function wrapResolver(handler: Function) {
         }
       };
       
-      console.log(`[GraphQL] Identity for ${info?.fieldName}:`, context.identity);
-      console.log(`[GraphQL] Event for ${info?.fieldName}:`, JSON.stringify(event, null, 2));
+      logger.info(`Identity for ${info?.fieldName}:`, context.identity);
+      logger.info(`Event for ${info?.fieldName}:`, JSON.stringify(event, null, 2));
       const result = await handler(event);
-      console.log(`[GraphQL] Result for ${info?.fieldName}:`, result);
+      logger.info(`Result for ${info?.fieldName}:`, result);
       return result;
     } catch (error) {
-      console.error(`[${new Date().toISOString()}] Resolver Error:`, error);
+      logger.error(`[${new Date().toISOString()}] Resolver Error:`, error);
       throw error;
     }
   };
@@ -176,14 +180,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Headers:', JSON.stringify(req.headers, null, 2));
-  console.log('Body:', JSON.stringify(req.body, null, 2));
+  logger.info(`${req.method} ${req.url}`);
+  logger.debug('Headers:', JSON.stringify(req.headers, null, 2));
+  logger.debug('Body:', JSON.stringify(req.body, null, 2));
   
   const originalSend = res.send;
   res.send = function(data) {
-    console.log(`[${new Date().toISOString()}] Response ${res.statusCode}`);
-    console.log('Response:', typeof data === 'string' ? data.substring(0, 500) : JSON.stringify(data).substring(0, 500));
+    logger.info(`Response ${res.statusCode}`);
+    logger.debug('Response:', typeof data === 'string' ? data.substring(0, 500) : JSON.stringify(data).substring(0, 500));
     return originalSend.call(this, data);
   };
   
@@ -202,7 +206,7 @@ app.use(async (req, res, next) => {
       token = authHeader.substring(7);
     }
     
-    console.log('Validating JWT token for GraphQL request');
+    logger.log('Validating JWT token for GraphQL request');
     const payload = await AuthManager.validateToken(token);
     
     if (payload) {
@@ -211,16 +215,16 @@ app.use(async (req, res, next) => {
       
       if (identity) {
         (req as any).userIdentity = identity;
-        console.log('✓ JWT validated for user:', payload.sub);
-        console.log('✓ Identity set:', identity);
+        logger.info('✓ JWT validated for user:', payload.sub);
+        logger.info('✓ Identity set:', identity);
       } else {
-        console.warn('✗ Identity not found in Redis for user:', payload.sub);
+        logger.warn('✗ Identity not found in Redis for user:', payload.sub);
       }
     } else {
-      console.warn('✗ Invalid JWT token');
+      logger.warn('✗ Invalid JWT token');
     }
   } else {
-    console.warn('✗ No authorization header found');
+    logger.warn('✗ No authorization header found');
   }
   
   next();
@@ -237,24 +241,24 @@ app.use('/graphql', graphqlHTTP((req) => ({
     headers: req.headers
   },
   customFormatErrorFn: (error) => {
-    console.error(`[${new Date().toISOString()}] GraphQL Error:`, error);
+    logger.error(`[${new Date().toISOString()}] GraphQL Error:`, error);
     return error;
   }
 })));
 
 async function start() {
   try {
-    console.log('Starting GraphQL container server...');
-    console.log(`DynamoDB endpoint: ${process.env.DYNAMODB_ENDPOINT}`);
-    console.log(`RabbitMQ URL: ${process.env.RABBITMQ_URL}`);
+    logger.log('Starting GraphQL container server...');
+    logger.log(`DynamoDB endpoint: ${process.env.DYNAMODB_ENDPOINT}`);
+    logger.log(`RabbitMQ URL: ${process.env.RABBITMQ_URL}`);
     
     await validateDynamoDB();
     await initRabbitMQ();
     app.listen(PORT, () => {
-      console.log(`GraphQL server running at http://localhost:${PORT}/graphql`);
+      logger.log(`GraphQL server running at http://localhost:${PORT}/graphql`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 }

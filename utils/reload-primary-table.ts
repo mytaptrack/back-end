@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-process.env.PrimaryTable = 'mytaptrack-prod-primary';
-process.env.DataTable = 'mytaptrack-prod-data';
-process.env.AWS_REGION = 'us-east-1';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: require('path').join(__dirname, '../../.env'), override: true });
 
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 const { unmarshall } = require("@aws-sdk/util-dynamodb");

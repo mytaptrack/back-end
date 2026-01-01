@@ -5,7 +5,8 @@ import { typesV2, MttTag } from '@mytaptrack/types';
 import { AppStoredObject, TrackedBehaviorEx, TrackedTargetEx } from '../types/app';
 import { v4 as uuid } from 'uuid';
 import { WebError, WebUtils, moment } from '../..';
-import { Dal, DalKey, MttIndexes, UpdateInput } from './dal';
+import { Dal } from './dal';
+import { DalKey, MttIndexes, UpdateInput } from './dal-types';
 import {
     AppConfigStorage, AppPii, AppPiiGlobal, 
     AppPushEndpoint, AppPushEndpointStorage,

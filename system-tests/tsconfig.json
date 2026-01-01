@@ -3,20 +3,20 @@
   "compilerOptions": {
     "sourceMap": true,
     "declaration": false,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "importHelpers": true,
-    "target": "es6",
+    "target": "ES2022",
     "typeRoots": [
       "node_modules/@types",
       "node_modules/@mytaptrack"
     ],
     "lib": [
-      "ESNext",
+      "ES2022",
       "dom"
     ],
     "types":[

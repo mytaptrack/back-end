@@ -4,7 +4,7 @@ import { TestUserConfig } from '@mytaptrack/cdk';
 import { Logger, LoggingLevel } from './logging';
 import { httpRequest } from './httpClient';
 
-const logger = new Logger(LoggingLevel.ERROR);
+const logger = new Logger('cognito', LoggingLevel.error);
 let clientId: string;
 let cachedToken: string | null = null;
 

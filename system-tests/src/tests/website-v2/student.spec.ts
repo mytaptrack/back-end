@@ -12,7 +12,7 @@ import {
 
 let user: QLUser;
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('website-v2/student', LoggingLevel.warn);
 
 
 describe('graphql', () => {

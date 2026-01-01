@@ -1,7 +1,7 @@
 import { LoggingLevel, Logger, qlApi } from "../../lib";
 import { config } from "../../config";
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('QLUser', LoggingLevel.warn);
 
 describe('QLUser', () => {
     beforeEach(() => {
@@ -26,24 +26,26 @@ describe('QLUser', () => {
         await qlApi.updateUser({
             id: user.id,
             firstName: user.firstName,
-            lastName: user.lastName,
+            lastName: user.lastName!,
             name: modifiedName,
-            email: user.email,
+            email: user.email!,
             state: user.state,
-            zip: user.zip
+            zip: user.zip,
+            students: []
         });
 
         const user2 = await qlApi.getUser();
         expect(user2.name).toBe(modifiedName);
 
         await qlApi.updateUser({
-            id: user.id,
+            id: user.id!,
             firstName: user.firstName,
-            lastName: user.lastName,
+            lastName: user.lastName!,
             name: 'mytaptrack Parent',
-            email: user.email,
+            email: user.email!,
             state: user.state,
-            zip: user.zip
+            zip: user.zip,
+            students: []
         });
     }, 2 * 60 * 1000)
 });

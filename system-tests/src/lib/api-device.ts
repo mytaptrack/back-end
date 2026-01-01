@@ -6,7 +6,7 @@ import * as https from 'https';
 import * as config from '../config';
 import { Logger, LoggingLevel } from "./logging";
 
-const logger = new Logger(LoggingLevel.DEBUG);
+const logger = new Logger('api-device', LoggingLevel.debug);
 const identity = "066c859c-9716-407e-8ce3-b72a92d51a98";
 const prefix = config.config.env.domain.sub.device.path ?? '';
 

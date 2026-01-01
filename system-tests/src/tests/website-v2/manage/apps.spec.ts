@@ -4,7 +4,7 @@ import { cleanUp, setupStudent, testBehavior } from "../helpers";
 import { Logger, LoggingLevel } from "../../../lib";
 import { uuid } from 'short-uuid';
 
-const logger = new Logger(LoggingLevel.DEBUG);
+const logger = new Logger('QLManageApps', LoggingLevel.debug);
 
 describe('QLManageApps', () => {
     beforeAll(async () => {
@@ -19,7 +19,7 @@ describe('QLManageApps', () => {
         const student2WithBehaviors = await testBehavior(student2.student);
 
         logger.info('Getting student');
-        const student = await qlApi.getStudent(student1WithBehaviors.studentId);
+        const student = await qlApi.getStudent(student1WithBehaviors.studentId!);
 
         logger.info('Creating app');
         const registeredData = await qlApi.updateApp({

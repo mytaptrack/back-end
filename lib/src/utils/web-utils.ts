@@ -1,9 +1,11 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { Schema, Validator } from 'jsonschema';
 import { addExecutionTag, error, warn, initTracer as lumigo, Tracer } from '@lumigo/tracer';
-import { StudentDal, TeamDal, UserStudentTeam, v2, MttAppSyncContext } from '../';
 import { AccessLevel, Student, UserSummaryRestrictionsApiPermissions } from '@mytaptrack/types';
 import { LoggingLevel, MttLogger } from './logger';
+import { StudentDal, TeamDal, UserDal,  } from '../v2/dals';
+import { UserStudentTeam } from '../v2/types';
+import { MttAppSyncContext } from './appsync-interfaces';
 
 const logger = new MttLogger('WebUtils', LoggingLevel.warn);
 
@@ -136,12 +138,12 @@ class WebUtilsClass {
 
                 logger.log('Permissions check complete');
             } else if(authRequirements) {
-                // console.log('Cannot find studentId for authentication');
+                // logger.log('Cannot find studentId for authentication');
                 // throw new WebError('Internal Error', 500);
             }
 
             logger.log('Invoking function');
-            WebUtils.logObjectDetails(context);
+            logger.debug(context);
             return await func(context);
         }
 
@@ -244,7 +246,7 @@ class WebUtilsClass {
             schemaCheck = new Validator();
         }
         return this.lambdaWrapper(async (event: APIGatewayEvent) => {
-            this.logObjectDetails(event);
+            logger.debug(event);
             if (!event) {
                 logger.log('Event is null');
                 return this.done('Event not recognized', '400', {}, event);
@@ -313,7 +315,7 @@ class WebUtilsClass {
                     userId = impersonateUserId;
                     logger.log('Admin user impersonating user', userId);
 
-                    const userConfigPromise = v2.UserDal.getUserConfig(userId);
+                    const userConfigPromise = UserDal.getUserConfig(userId);
                     // const piiPromise = v2.UserDal.getUserPii(userId)
                     try {
                         licenses = [(await userConfigPromise)?.license];
@@ -397,7 +399,7 @@ class WebUtilsClass {
         let userId = event.requestContext.authorizer.claims['cognito:username'];
         if (!userId) {
             logger.warn(`Cognito identity not found.`);
-            this.logObjectDetails(event);
+            logger.debug(event);
             throw new Error('The user is not signed in');
         } else if (userId.startsWith('accounts.google.com')) {
             userId = userId.replace('accounts.google.com', 'Google');
@@ -410,9 +412,7 @@ class WebUtilsClass {
     }
 
     logObjectDetails(object) {
-        if (this.isDebug) {
-            logger.log(JSON.stringify(object));
-        }
+        logger.debug(object);
     }
 
     cleanObject(obj: any) {

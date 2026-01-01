@@ -1,3 +1,5 @@
+import { moment } from './moment';
+
 export enum LoggingLevel {
     debug = 0,
     info = 1,
@@ -8,12 +10,16 @@ export enum LoggingLevel {
 }
 
 export class MttLogger {
-    private component: string;
-    private level: LoggingLevel;
+    protected component: string;
+    protected level: LoggingLevel;
     
     constructor(component: string, level: LoggingLevel) {
         this.component = component;
         this.level = level;
+    }
+
+    static getLogger(component: string, level: LoggingLevel) {
+        return new MttLogger(component, level);
     }
 
     debug(...args: any[]) {
@@ -63,6 +69,7 @@ export class MttLogger {
             }
         }
 
-        console.log(this.component, type, ':', ...args);
+        console.log(`[${moment().format('HH:mm:ss:SSS')}] ${type} ${this.component}`, ':', ...args);
     }
 }
+

@@ -1,3 +1,5 @@
+import { validateDynamoDB, initRabbitMQ, docClient, rabbitChannel } from './local-env-setup';
+
 import express from 'express';
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
@@ -102,6 +104,10 @@ app.get('/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Device API server running on http://localhost:${PORT}`);
-});
+
+async function start() {
+    await validateDynamoDB();
+    app.listen(PORT, () => {
+        console.log(`Device API server running on http://localhost:${PORT}`);
+    });
+}

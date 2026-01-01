@@ -1,5 +1,6 @@
 import { typesV2, UserSummary } from '@mytaptrack/types';
-import { DalBaseClass, MttIndexes } from './dal';
+import { DalBaseClass } from './dal';
+import { MttIndexes } from './dal-types';
 import { getUserPrimaryKey, getUserStudentSummaryKey } from '../utils';
 import { UserPrimaryStorage, UserStudentTeam } from '../types';
 

@@ -3,7 +3,7 @@ import { license } from "../../../config";
 import { cleanUp, setupStudent, testBehavior } from "../helpers";
 import { AccessLevel, UserSummaryStatus } from "@mytaptrack/types";
 
-const logger = new Logger(LoggingLevel.INFO);
+const logger = new Logger('QLManageStudents', LoggingLevel.info);
 
 describe('QLManageStudents', () => {
     beforeAll(async () => {

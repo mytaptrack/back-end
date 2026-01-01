@@ -15,9 +15,12 @@ import {
     StudentPiiStorage, UserStudentNotificationStorage, isEqual
 } from '../types';
 import { DalBaseClass } from './dal';
-import { getStudentPrimaryKey, getUserPrimaryKey, getUserStudentNotificationKey, getUserTeamInvite, moment } from '../..';
-import { WebUtils } from '../..';
+import { getStudentPrimaryKey, getUserPrimaryKey, getUserStudentNotificationKey, getUserTeamInvite } from '../utils/key-mappings';
+import { moment } from '../../utils/index';
+import { MttLogger, LoggingLevel } from '../../utils/logger';
 import { MttTag } from '@mytaptrack/types';
+
+const logger = new MttLogger('UserDal', LoggingLevel.warn);
 
 const UserPoolId = process.env.UserPoolId;
 
@@ -28,7 +31,7 @@ interface UserIdStorage {
 }
 
 class UserDalClass extends DalBaseClass {
-    public cognito = new CognitoIdentityProviderClient({});
+    public cognito = process.env.USE_LOCAL == 'true'? null : new CognitoIdentityProviderClient({});
 
     async getUserId(email: string, defaultUserId: string) {
         const key = { pk: `U#${email.toLowerCase()}#E`, sk: 'P'};
@@ -66,7 +69,7 @@ class UserDalClass extends DalBaseClass {
                     email: user.email || user.pk.replace('U#', '').replace('-at-', '@')
                 }));
             } catch (error) {
-                console.warn('Failed to scan users from DynamoDB in local mode:', error);
+                logger.warn('Failed to scan users from DynamoDB in local mode:', error);
                 return [];
             }
         }
@@ -104,7 +107,7 @@ class UserDalClass extends DalBaseClass {
                     email: user.email || user.pk.replace('U#', '').replace('-at-', '@')
                 }));
             } catch (error) {
-                console.warn('Failed to scan users from DynamoDB in local mode:', error);
+                logger.warn('Failed to scan users from DynamoDB in local mode:', error);
                 return [];
             }
         }
@@ -139,7 +142,7 @@ class UserDalClass extends DalBaseClass {
 
     async addUserToLicense(userId: string, license: string) {
         const groupName = `licenses/${license}`;
-        console.log('Getting group', groupName);
+        logger.log('Getting group', groupName);
         let group: GetGroupCommandOutput = undefined;
         try {
             group = await this.cognito.send(new GetGroupCommand({
@@ -150,14 +153,14 @@ class UserDalClass extends DalBaseClass {
             
         }
         if(!group?.Group) {
-            console.log('Creating group', groupName);
+            logger.log('Creating group', groupName);
             await this.cognito.send(new CreateGroupCommand({
                 UserPoolId,
                 GroupName: groupName
             }));
         }
 
-        console.log('Adding user to group', groupName);
+        logger.log('Adding user to group', groupName);
         await this.cognito.send(new AdminAddUserToGroupCommand({
             Username: userId,
             GroupName: groupName,
@@ -197,7 +200,7 @@ class UserDalClass extends DalBaseClass {
                     .filter(user => user.details.email == email)
                     .map(user => user.userId.replace('U#', ''));
             } catch (error) {
-                console.warn('Failed to scan users by email from DynamoDB in local mode:', error.message);
+                logger.warn('Failed to scan users by email from DynamoDB in local mode:', error.message);
                 return [];
             }
         }
@@ -232,7 +235,7 @@ class UserDalClass extends DalBaseClass {
             return data.events;
         } catch (err) {
             const message = err.message;
-            console.log('An error occured retrieving the user', message);
+            logger.log('An error occured retrieving the user', message);
             throw new Error('Internal Error');
         }
     }
@@ -324,10 +327,10 @@ class UserDalClass extends DalBaseClass {
             })
         ]);
 
-        WebUtils.logObjectDetails(existingInvites);
+        logger.debug(existingInvites);
 
         if(existingInvites) {
-            console.log('Merging invites');
+            logger.log('Merging invites');
             dataResponse.push(...existingInvites);
         }
         let invites: UserTeamInviteStorage[] = dataResponse.filter((x: {sk: string}) => x.sk.match(/^S#[0-9|a-z|\-]+#I$/)) as UserTeamInviteStorage[];
@@ -351,20 +354,20 @@ class UserDalClass extends DalBaseClass {
                 length = studentIds.length - i;
             }
             const keys = studentIds.slice(i, i + length).map(s => getStudentPrimaryKey(s));
-            console.log('Getting student pii', keys.length);
+            logger.log('Getting student pii', keys.length);
             batches.push(this.primary.batchGet<StudentPiiStorage>(
                 keys,
                 'studentId,firstName,lastName,tags,lastTracked,lastUpdatedDate'));
         }
         const studentPiiResponse: StudentPiiStorage[] = [].concat(...await Promise.all(batches));
         let studentPiiLookup: StudentPiiStorage[] = studentPiiResponse.filter(x => x? true : false);
-        console.log('Student pii count', studentPiiLookup.length);
+        logger.log('Student pii count', studentPiiLookup.length);
         const teamInvites: Notification<NotificationDetailsTeam>[] = [].concat(
                 students.filter(x => x.status == UserSummaryStatus.PendingApproval)
                     .map(i => {
                         const invitePii = studentPiiLookup.find(y => y.studentId == i.studentId);
                         if(!invitePii) {
-                            console.log('Could not find pii', i.studentId);
+                            logger.log('Could not find pii', i.studentId);
                             return;
                         }
                         return {
@@ -382,7 +385,7 @@ class UserDalClass extends DalBaseClass {
                 invites.map(i => {
                     const invitePii = studentPiiLookup.find(y => y.studentId == i.studentId);
                     if(!invitePii) {
-                        console.log('Could not find pii', i.studentId);
+                        logger.log('Could not find pii', i.studentId);
                         return;
                     }
                     return {
@@ -455,7 +458,7 @@ class UserDalClass extends DalBaseClass {
             }
             let invites: UserTeamInviteStorage[] = dataResponse.filter((x: {sk: string}) => x.sk.match(/^S#[0-9|a-z|\-]+#I$/)) as UserTeamInviteStorage[];
             let students: UserStudentTeam[] = dataResponse.filter((x: {sk: string}) => x.sk.match(/^S#[0-9|a-z|\-]+#S$/)) as UserStudentTeam[];
-            console.log(`Invites (${invites.length}), Students (${students.length})`);
+            logger.log(`Invites (${invites.length}), Students (${students.length})`);
             const studentIds: string[] = [];
             invites.forEach(x => {
                 if(!studentIds.find(y => x.studentId == y)) {
@@ -474,15 +477,15 @@ class UserDalClass extends DalBaseClass {
                     length = studentIds.length - i;
                 }
                 const keys = studentIds.slice(i, i + length).map(s => getStudentPrimaryKey(s));
-                console.log('Getting student pii', keys.length);
+                logger.log('Getting student pii', keys.length);
                 batches.push(this.primary.batchGet<StudentPiiStorage>(
                     keys,
                     'studentId, firstName, lastName, tags, lastTracked, lastUpdatedDate, archived'));
             }
             const studentPiiResponse: StudentPiiStorage[] = [].concat(...await Promise.all(batches));
             let studentPiiLookup: StudentPiiStorage[] = studentPiiResponse.filter(x => x && !x.archived);
-            console.log('Student pii count', studentPiiLookup.length);
-            console.log(studentPiiResponse.find(x => x.studentId == 'dc2a3551-40f6-4087-89ba-13b98763e595'));
+            logger.log('Student pii count', studentPiiLookup.length);
+            logger.log(studentPiiResponse.find(x => x.studentId == 'dc2a3551-40f6-4087-89ba-13b98763e595'));
             const user: User = {
                 version: 1,
                 userId,
@@ -494,7 +497,7 @@ class UserDalClass extends DalBaseClass {
                         .map(i => {
                             const invitePii = studentPiiLookup.find(y => y.studentId == i.studentId);
                             if(!invitePii) {
-                                console.log('Could not find pii', i.studentId);
+                                logger.log('Could not find pii', i.studentId);
                                 return;
                             }
                             return {
@@ -512,11 +515,11 @@ class UserDalClass extends DalBaseClass {
                     invites.map(i => {
                         const invitePii = studentPiiLookup.find(y => y.studentId == i.studentId);
                         if(!invitePii) {
-                            console.log('Could not find pii', i.studentId);
+                            logger.log('Could not find pii', i.studentId);
                             return;
                         }
                         if(invitePii.archived) {
-                            console.log('Student archived', i.studentId);
+                            logger.log('Student archived', i.studentId);
                             return;
                         }
                         return {
@@ -546,15 +549,15 @@ class UserDalClass extends DalBaseClass {
                         const studentPii = studentPiiLookup.find(y => y.studentId == x.studentId);
                         const summary = p.events.find(y => y.studentId == x.studentId);
                         if(!studentPii) {
-                            console.log('Could not find pii', x.studentId);
+                            logger.log('Could not find pii', x.studentId);
                             return;
                         }
                         if(studentPii.archived) {
-                            console.log('Student archived', x.studentId);
+                            logger.log('Student archived', x.studentId);
                             return;
                         }
                         if(studentPii.studentId == 'df06cb69-0517-4789-a6e9-8ee989ea66a4') {
-                            console.log(studentPii);
+                            logger.log(studentPii);
                         }
                         let tracked: string = studentPii.lastTracked;
                         if (!tracked) {
@@ -579,7 +582,7 @@ class UserDalClass extends DalBaseClass {
 
             return user;
         } catch (err) {
-            console.log('An error occurred retrieving the user', err);
+            logger.log('An error occurred retrieving the user', err);
             throw new Error('Internal Error');
         }
     }
@@ -603,7 +606,7 @@ class UserDalClass extends DalBaseClass {
         const key = getUserPrimaryKey(userId);
         const existing = await this.data.get<UserDataStorage>(key, 'pk,sk');
         if(!existing) {
-            console.log('saveUserConfig','Putting new entry');
+            logger.log('saveUserConfig','Putting new entry');
             await this.data.put({
                 ...key,
                 pksk: `${key.pk}#${key.sk}`,
@@ -622,7 +625,7 @@ class UserDalClass extends DalBaseClass {
                 version: 1
             } as UserDataStorage, true);
         } else {
-            console.log('saveUserConfig','Updating existing entry');
+            logger.log('saveUserConfig','Updating existing entry');
             const updateInput = {
                 key,
                 updateExpression: 'SET ',

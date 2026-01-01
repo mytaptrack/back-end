@@ -10,7 +10,7 @@ node_modules/*
 **/.build/*
 **/cdk.out/*
 
-.DS_Store
+**/.DS_Store
 
 # Container environment
 .env

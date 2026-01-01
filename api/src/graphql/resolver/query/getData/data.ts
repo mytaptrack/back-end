@@ -89,6 +89,9 @@ async function handleEvent(context: MttAppSyncContext<QLGetDataInput, never, nev
                 if(restrictions.behaviors && !restrictions.behaviors.find(x => x == item.behavior)) {
                     return;
                 }
+                if(item.deleted) {
+                    return;
+                }
                 if(item.abc) {
                     console.log('Adding short keys');
                     if(item.abc.a) shortIds.push(item.abc.a);

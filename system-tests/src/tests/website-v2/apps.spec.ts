@@ -5,7 +5,7 @@ import { GraphQLAppInput } from "@mytaptrack/types";
 import moment from "moment-timezone";
 import { Logger, LoggingLevel } from "../../lib";
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('apps', LoggingLevel.warn);
 
 
 describe('website-v2', () => {

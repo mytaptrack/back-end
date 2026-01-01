@@ -57,7 +57,7 @@ type Mutation {
     updateSnapshot(studentId: String!, date: String!, reportType: String!, snapshot: SnapshotReportInput!): SnapshotReport @aws_iam @aws_cognito_user_pools
 
     updateDataInReport(studentId: String!, data: ReportDataInput!): ReportAnyData @aws_iam @aws_cognito_user_pools
-    updateReportDaySchedule(studentId: String!, data: ReportDetailsScheduleInput!): ReportDetailsSchedule @aws_iam @aws_cognito_user_pools
+    updateReportDaySchedule(studentId: String!, data: ReportDetailsScheduleInput!, remove: Boolean): ReportDetailsSchedule @aws_iam @aws_cognito_user_pools
     updateNotes(input: StudentNoteInput!): StudentNote @aws_iam @aws_cognito_user_pools
     updateReportDateInclusion(studentId: String!, input: StudentDashboardSettingsDateInclusionInput!): Boolean @aws_iam @aws_cognito_user_pools
 
@@ -84,8 +84,6 @@ type Mutation {
     updateReportsData(studentId: String!, behaviorId: String!, eventDate: String!, abc: ReportDataAbcInput, intensity: Int): ReportData @aws_iam @aws_cognito_user_pools
     deleteReportsData(studentId: String!, behaviorId: String!, date: String!): Boolean @aws_iam @aws_cognito_user_pools
     updateExcludeDate(studentId: String!, date: String!, action: String!): Boolean @aws_iam @aws_cognito_user_pools
-    deleteReportSchedule(studentId: String!, date: String!): Boolean @aws_iam @aws_cognito_user_pools
-    createNotes(studentId: String!, date: String!): StudentNote @aws_iam @aws_cognito_user_pools
 }
 
 type Subscription {

@@ -1,5 +1,5 @@
 import { MttAppSyncContext, StudentConfigStorage, StudentPiiStorage, StudentStorageModel, WebError, WebUtils } from '@mytaptrack/lib';
-import { Dal, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal, MttIndexes } from '@mytaptrack/lib';
 import { Student } from '@mytaptrack/types';
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);

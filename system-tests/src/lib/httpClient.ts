@@ -2,7 +2,7 @@ import * as https from 'https';
 import * as http from 'http';
 import { Logger, LoggingLevel } from './logging';
 
-const logger = new Logger(LoggingLevel.DEBUG);
+const logger = new Logger('httpClient', LoggingLevel.debug);
 const isLocal = process.env.USE_LOCAL === 'true';
 
 export async function rawHttpRequest(method: string, url: string, body: string, encoding: string = 'text/plain') {

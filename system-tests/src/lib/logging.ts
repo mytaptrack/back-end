@@ -1,20 +1,16 @@
 import path from 'path';
 import * as fs from 'fs';
+import { MttLogger, LoggingLevel } from '@mytaptrack/lib';
+export { LoggingLevel } from '@mytaptrack/lib';
 
-export enum LoggingLevel {
-    DEBUG = 0,
-    INFO = 1,
-    WARN = 2,
-    ERROR = 3,
-    NONE = 4
-}
-
-export class Logger {
-    constructor(private level: LoggingLevel) {
+export class Logger extends MttLogger {
+    
+    constructor(component: string, level: LoggingLevel) {
+        super(component, level);
     }
 
     debug(...args: any) {
-        if(this.level > LoggingLevel.DEBUG) {
+        if(this.level > LoggingLevel.debug) {
             return;
         } 
         
@@ -30,7 +26,7 @@ export class Logger {
     }
 
     info(...args: any) {
-        if(this.level > LoggingLevel.INFO) {
+        if(this.level > LoggingLevel.info) {
             return;
         } 
         
@@ -46,7 +42,7 @@ export class Logger {
     }
 
     warn(...args: any) {
-        if(this.level > LoggingLevel.WARN) {
+        if(this.level > LoggingLevel.warn) {
             return;
         }
         const parts = args.map(x => {
@@ -61,7 +57,7 @@ export class Logger {
     }
     
     error(...args: any) {
-        if(this.level > LoggingLevel.ERROR) {
+        if(this.level > LoggingLevel.error) {
             return;
         }
         const parts = args.map(x => {

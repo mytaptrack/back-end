@@ -1,32 +1,19 @@
 // Load .env file first
 import * as dotenv from 'dotenv';
 
+console.log = () => {};
 dotenv.config({ path: require('path').join(__dirname, '../../.env'), override: true });
 
 const environment = process.env.STAGE ?? 'dev';
-process.env.PrimaryTable = process.env.PrimaryTable;
-process.env.DataTable = process.env.DataTable;
-process.env.STRONGLY_CONSISTENT_READ = 'true';
-
-// Set local DynamoDB endpoint when in local mode
-if (process.env.USE_LOCAL === 'true') {
-    process.env.DYNAMODB_ENDPOINT = 'http://localhost:8000';
-    // Use table names from .env file
-    process.env.PrimaryTable = process.env.PrimaryTable || 'mytaptrack-primary';
-    process.env.DataTable = process.env.DataTable || 'mytaptrack-data';
-    process.env.USE_DATABASE_ABSTRACTION = 'false';
-    process.env.DB_TYPE = 'dynamodb';
-    process.env.AWS_ACCESS_KEY_ID = 'local';
-    process.env.AWS_SECRET_ACCESS_KEY = 'local';
-    process.env.AWS_REGION = 'us-east-1';
-}
 
 import { ConfigFile } from '@mytaptrack/cdk';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal, MttLogger } from '@mytaptrack/lib';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { Logger, LoggingLevel } from './lib/logging';
 
-const logger = new Logger(LoggingLevel.WARN)
+const logger = new Logger('config', LoggingLevel.warn);
+
+MttLogger.getLogger = () => { return logger; }
 
 // Only create SSM client if not in local mode
 const ssm = process.env.USE_LOCAL === 'true' ? null : new SSMClient({

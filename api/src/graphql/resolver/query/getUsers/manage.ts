@@ -1,16 +1,17 @@
 import { util } from '@aws-appsync/utils';
 import {
-    StudentPiiStorage, StudentConfigStorage, UserStudentTeam, LicenseStorage, StudentDashboardSettingsStorage, WebUtils, TrackableItem, getStudentSchedulePrimaryKey, ScheduleDal, UserDal, UserDataStorage, getUserPrimaryKey, UserPrimaryStorage, getStudentPrimaryKey
+    StudentPiiStorage, StudentConfigStorage, UserStudentTeam, LicenseStorage, StudentDashboardSettingsStorage, WebUtils, TrackableItem, getStudentSchedulePrimaryKey, ScheduleDal, UserDal, UserDataStorage, getUserPrimaryKey, UserPrimaryStorage, getStudentPrimaryKey,
+    MttLogger,
+    LoggingLevel
 } from '@mytaptrack/lib';
 import {
     QLUserSummary, AccessLevel, QLLicenseUsersResult, LicenseStudentSummary, QLUserSummaryStudent, UserSummaryStatus
 } from '@mytaptrack/types';
-import { BatchGetItemResponse, MttAppSyncContext } from '@mytaptrack/cdk';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, BatchGetCommand, BatchGetCommandInput } from '@aws-sdk/lib-dynamodb';
-import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { MttAppSyncContext } from '@mytaptrack/cdk';
+import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib';
 
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const logger = MttLogger.getLogger('getUsersForLicense', LoggingLevel.warn);
+
 const data = new Dal('data');
 const primary = new Dal('primary');
 
@@ -21,7 +22,7 @@ interface QueryParams {
 export const handler = WebUtils.graphQLWrapper(eventHandler);
 
 export async function eventHandler(context: MttAppSyncContext<QueryParams, any, any, {}>): Promise<QLLicenseUsersResult> {
-    console.log('Getting users');
+    logger.log('Getting users');
     const team = await data.query<UserStudentTeam>({
         keyExpression: 'lpk = :license',
         filterExpression: 'attribute_not_exists(deleted) and attribute_not_exists(removed)',
@@ -52,7 +53,7 @@ export async function eventHandler(context: MttAppSyncContext<QueryParams, any, 
     const getUsers = context.info.selectionSetList.find(x => x == 'users')? true : false;
     const getStudents = context.info.selectionSetList.find(x => x == 'students')? true : false;
     
-    console.info('Getting user and student details', getUsers, getStudents);
+    logger.info('Getting user and student details', getUsers, getStudents);
     const [userPiis, studentPiis, studentConfigs] = await Promise.all([
         getUsers? primary.batchGet<UserPrimaryStorage>(userKeys, 'userId, details') : Promise.resolve(undefined),
         getStudents? primary.batchGet<StudentPiiStorage>(studentKeys) : Promise.resolve(undefined),
@@ -144,6 +145,6 @@ export async function eventHandler(context: MttAppSyncContext<QueryParams, any, 
         users,
         students
     };
-    console.debug('retval', retval);
+    logger.debug('retval', retval);
     return retval;
 }

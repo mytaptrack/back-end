@@ -11,7 +11,7 @@ import {
   FilterCondition,
   UnifiedUpdateInput 
 } from '../types/database-abstraction';
-import { DalKey, QueryInput as DynamoQueryInput, ScanInput as DynamoScanInput, UpdateInput as DynamoUpdateInput } from '../dals/dal';
+import { DalKey, QueryInput as DynamoQueryInput, ScanInput as DynamoScanInput, UpdateInput as DynamoUpdateInput } from '../dals/dal-types';
 import { ValidationError } from '../types/database-errors';
 
 // Key transformation utilities

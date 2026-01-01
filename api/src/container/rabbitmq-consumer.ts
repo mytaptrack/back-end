@@ -44,6 +44,9 @@ export class RabbitMQConsumer {
     const queueName = 'report-data-queue';
     await this.channel.assertQueue(queueName, { durable: true });
     
+    // Set prefetch to 1 to process messages one at a time
+    await this.channel.prefetch(1);
+    
     logger.log(`Starting consumer for queue: ${queueName}`);
     
     this.channel.consume(queueName, async (msg) => {
@@ -52,20 +55,13 @@ export class RabbitMQConsumer {
           const data = JSON.parse(msg.content.toString());
           logger.log('Processing report data message:', data);
                     
-          // Create SQS-like event structure for the process handler
-          const sqsEvent = {
-            Records: [{
-              body: JSON.stringify(data)
-            }]
-          };
-          
           await trackProcessor(data, data.studentId);
           logger.log('✓ Successfully processed report data message');
           
           this.channel!.ack(msg);
         } catch (error) {
           logger.error('✗ Error processing report data message:', error.message);
-          // this.channel!.nack(msg, false, false); // Don't requeue on error
+          this.channel!.nack(msg, false, false); // Don't requeue on error
         }
       }
     });

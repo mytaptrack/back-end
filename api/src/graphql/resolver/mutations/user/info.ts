@@ -4,7 +4,9 @@ import {
     MttAppSyncContext, moment,
     WebError,
     StudentConfigStorage,
-    getStudentPrimaryKey
+    getStudentPrimaryKey, Dal,
+    MttLogger,
+    LoggingLevel
 } from '@mytaptrack/lib';
 import {
     AccessLevel,
@@ -13,8 +15,8 @@ import {
 import {
     TransactWriteCommand, TransactWriteCommandInput
 } from '@aws-sdk/lib-dynamodb';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 
+const logger = MttLogger.getLogger('UpdateUser', LoggingLevel.info);
 const dataDal = new Dal('data');
 const primaryDal = new Dal('primary');
 
@@ -48,30 +50,30 @@ function cleanObject(obj: any) {
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<QLUserSummary> {
-    console.log('Processing updating app');
+    logger.log('Processing updating app');
     const user = context.arguments.user;
-    const licenses = context.identity.groups?.filter(x => x.startsWith('licenses/')).map(x => x.substring('licenses/'.length));
+    const licenses = context.identity.groups?.filter(x => x.startsWith('licenses/'))?.map(x => x.substring('licenses/'.length));
 
     let userData = await getUserData(user.id);
 
     if(!userData.pii) {
-        console.info('Getting user by email');
+        logger.info('Getting user by email');
         const userIds = await UserDal.getUserIdsByEmail(user.email);
         if(userIds?.length > 0) {
-            console.info('User id found');
+            logger.info('User id found');
             userData = await getUserData(userIds[0]);
         }
         if(!userData.pii) {
             if(user.id == context.identity.username) {
-                console.info('Creating current user');
+                logger.info('Creating current user');
                 await createUser(context.identity.username, user);
                 user.id = context.identity.username;
                 return user;
             } else {
-                console.info('Checking if email as id exists');
+                logger.info('Checking if email as id exists');
                 userData = await getUserData(user.email);
                 if(!userData.pii) {
-                    console.info('Email as id does not exist, creating it for temporary information');
+                    logger.info('Email as id does not exist, creating it for temporary information');
                     await createUser(user.email, user);
 
                     user.id = user.email;
@@ -85,7 +87,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
         user.id = userData.pii.userId;
     }
     
-    console.info('Updating user information');
+    logger.info('Updating user information');
     await updateUser(context.identity.username, user, userData, licenses);
 
     return {
@@ -171,9 +173,9 @@ async function updateUser(inviteUserId: string, user: QLUserUpdate, userData: Us
         TransactItems: []
     };
 
-    console.debug('UserId: ', user.email);
-    console.debug('Pii UserId: ', userData.pii.userId);
-    console.debug('InviteUserId: ', inviteUserId);
+    logger.debug('UserId: ', user.email);
+    logger.debug('Pii UserId: ', userData.pii.userId);
+    logger.debug('InviteUserId: ', inviteUserId);
     if( (user.email == userData.pii.userId || user.id == inviteUserId) &&
         (
             pii.details.firstName != user.firstName || 
@@ -201,7 +203,7 @@ async function updateUser(inviteUserId: string, user: QLUserUpdate, userData: Us
         });
     }
 
-    await Promise.all(user.students.map(s => addStudentTransaction(inviteUserId, user, s, transaction, licenses)));
+    await Promise.all(user.students?.map(s => addStudentTransaction(inviteUserId, user, s, transaction, licenses)));
 
     if(transaction.TransactItems.length > 0) {
         await dataDal.send(new TransactWriteCommand(transaction));
@@ -212,19 +214,19 @@ async function addStudentTransaction(inviteUserId: string, user: QLUserUpdate, s
     const studentConfig = await dataDal.get<StudentConfigStorage>(getStudentPrimaryKey(student.studentId), 'license');
 
     if(!studentConfig) {
-        console.info('Student does not exist');
+        logger.info('Student does not exist');
         throw new WebError('Access Denied');
     }
 
-    console.debug('Licenses: ', licenses);
-    console.debug('Student license: ', studentConfig.license);
+    logger.debug('Licenses: ', licenses);
+    logger.debug('Student license: ', studentConfig.license);
     if(!licenses?.includes(studentConfig.license)) {
         const inviterPermissions = await dataDal.get<UserStudentTeam>(
             getUserStudentSummaryKey(student.studentId, inviteUserId), 
             'restrictions, removed');
         
         if(!inviterPermissions || inviterPermissions?.deleted || inviterPermissions?.restrictions.team != AccessLevel.admin) {
-            console.error('User does not have access to student');
+            logger.error('User does not have access to student');
             throw new WebError('Access Denied');
         }
     }
@@ -288,6 +290,6 @@ async function addStudentTransaction(inviteUserId: string, user: QLUserUpdate, s
             }
         });
     } else {
-        console.error('No action taken as team not found');
+        logger.error('No action taken as team not found');
     }
 }

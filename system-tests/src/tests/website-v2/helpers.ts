@@ -1,10 +1,10 @@
-import moment from "moment";
-import { data, primary, license, config } from '../../config';
 import { AccessLevel, QLStudent, QLUser, UserSummaryStatus } from "@mytaptrack/types";
+import { data, primary, license, config } from '../../config';
 import { qlApi } from "../../lib/api-ql";
-import { wait, Logger, LoggingLevel } from "../../lib";
+import { wait, Logger } from "../../lib";
+import { moment, LoggingLevel } from "@mytaptrack/lib";
 
-const logger = new Logger(LoggingLevel.INFO);
+const logger = new Logger('helpers', LoggingLevel.info);
 
 let user: QLUser;
 

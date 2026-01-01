@@ -20,16 +20,7 @@ class LookupDalClass extends DalBaseClass {
         const pk = `L#${license}#B`;
         const sk = `${behaviorName}`;
         
-        // Use abstraction layer if available, otherwise fall back to legacy DAL
-        let result: TagStorage | null = null;
-        
-        if (this.isAbstractionEnabled()) {
-            const provider = this.getAbstractionProvider()!;
-            const key: DatabaseKey = { primary: pk, sort: sk };
-            result = await provider.get<TagStorage>(key, { projection: ['shortId'] });
-        } else {
-            result = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
-        }
+        const result: TagStorage = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
         
         let retval = result ? { behaviorName, shortId: result.shortId } : null;
 
@@ -48,24 +39,10 @@ class LookupDalClass extends DalBaseClass {
                     license
                 };
 
-                if (this.isAbstractionEnabled()) {
-                    const provider = this.getAbstractionProvider()!;
-                    await provider.put(tagData, { ensureNotExists: true });
-                } else {
-                    await this.primary.put(tagData, true);
-                }
+                await this.primary.put(tagData, true);
             } catch (err) {
                 if (err.message === 'The conditional request failed') {
-                    let secondResult: TagStorage | null = null;
-                    
-                    if (this.isAbstractionEnabled()) {
-                        const provider = this.getAbstractionProvider()!;
-                        const key: DatabaseKey = { primary: pk, sort: sk };
-                        secondResult = await provider.get<TagStorage>(key, { projection: ['shortId'] });
-                    } else {
-                        secondResult = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
-                    }
-                    
+                    const secondResult = await this.primary.get<TagStorage>({ pk, sk }, 'shortId');
                     retval = secondResult ? { behaviorName, shortId: secondResult.shortId } : null;
                 }
                 if (!retval) {

@@ -3,7 +3,7 @@ import { Logger, LoggingLevel, qlApi, wait } from '../../lib';
 import * as helpers from './helpers';
 import { testBehavior } from './helpers';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('QLReporting', LoggingLevel.warn);
 
 
 describe('QLReporting', () => {
