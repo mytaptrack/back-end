@@ -1,14 +1,12 @@
 import {
-    EventDal, IoTClickType, MttEventType, ProcessButtonRequest, WebError, 
-    WebUtils, getStudentPrimaryKey, moment 
+    WebError, WebUtils, getStudentPrimaryKey, moment, 
+    Dal, StudentConfigStorage
 } from '@mytaptrack/lib';
 import {
-    QLReportData, QLReportDataInput, QLReportDetailsSchedule, QLReportService
+    AccessLevel, QLReportDetailsSchedule
 } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { StudentConfigStorage } from '@mytaptrack/lib';
 import { StudentReportStorage } from '../../types/reports';
 
 interface AppSyncParams {
@@ -18,7 +16,7 @@ interface AppSyncParams {
 
 const dataDal = new Dal('data');
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { data: AccessLevel.admin } });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<QLReportDetailsSchedule> {
     console.log('Recovery Data', context.arguments);

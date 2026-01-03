@@ -1,3 +1,5 @@
+process.env.STRONGLY_CONSISTENT_READ = 'true';
+
 import {
     StudentPiiStorage, StudentConfigStorage, StudentDashboardSettingsStorage, WebUtils, 
     TrackableItem, getStudentSchedulePrimaryKey, ScheduleDal, LicenseDal, getStudentPrimaryKey, 
@@ -74,7 +76,7 @@ function assignValues(dest: any, source: any): any {
     return dest;
 }
 
-export const handler = WebUtils.graphQLWrapper(eventHandler);
+export const handler = WebUtils.graphQLWrapper(eventHandler, { student: { data: AccessLevel.read }});
 
 export async function eventHandler(context: MttAppSyncContext<QueryParams, PreviousResults, any, QueryParams>): Promise<QLStudent | null> {
     console.log('getStudent data.request');

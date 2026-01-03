@@ -1,11 +1,9 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { AppConfigStorage, StudentDal, StudentPii, StudentPiiStorage, WebUtils } from '@mytaptrack/lib';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { StudentDal, StudentPiiStorage, WebUtils, Dal } from '@mytaptrack/lib';
 import { QLAppSummary } from '@mytaptrack/types';
 import { LicenseAppConfigStorage, LicenseAppPiiStorage } from '../../types';
-import { response } from '../../mutations/student/service/update-definition/data';
 
-export const handler = WebUtils.lambdaWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { license: true });
 
 const data = new Dal('data');
 const primary = new Dal('primary');

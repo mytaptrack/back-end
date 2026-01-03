@@ -1,13 +1,6 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { 
-    StudentDashboardSettingsStorage,
-    WebUtils
-} from '@mytaptrack/lib';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import {
-    QLUserSummary,
-    StudentDashboardSettings
-} from '@mytaptrack/types';
+import { StudentDashboardSettingsStorage, WebUtils, Dal } from '@mytaptrack/lib';
+import { AccessLevel, StudentDashboardSettings } from '@mytaptrack/types';
 
 interface AppSyncParams {
   studentId: string;
@@ -20,7 +13,7 @@ const data = new Dal('data');
  * @param event the context object holds contextual information about the function invocation.
  */
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { data: AccessLevel.read } });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<StudentDashboardSettings> {
     console.log('updateService data.request', context);

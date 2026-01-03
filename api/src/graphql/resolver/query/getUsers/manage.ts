@@ -1,8 +1,7 @@
-import { util } from '@aws-appsync/utils';
 import {
-    StudentPiiStorage, StudentConfigStorage, UserStudentTeam, LicenseStorage, StudentDashboardSettingsStorage, WebUtils, TrackableItem, getStudentSchedulePrimaryKey, ScheduleDal, UserDal, UserDataStorage, getUserPrimaryKey, UserPrimaryStorage, getStudentPrimaryKey,
-    MttLogger,
-    LoggingLevel
+    StudentPiiStorage, StudentConfigStorage, UserStudentTeam, WebUtils, 
+    getUserPrimaryKey, UserPrimaryStorage, getStudentPrimaryKey,
+    MttLogger, LoggingLevel
 } from '@mytaptrack/lib';
 import {
     QLUserSummary, AccessLevel, QLLicenseUsersResult, LicenseStudentSummary, QLUserSummaryStudent, UserSummaryStatus
@@ -19,7 +18,7 @@ interface QueryParams {
     license: string;
 }
 
-export const handler = WebUtils.graphQLWrapper(eventHandler);
+export const handler = WebUtils.graphQLWrapper(eventHandler, { license: true });
 
 export async function eventHandler(context: MttAppSyncContext<QueryParams, any, any, {}>): Promise<QLLicenseUsersResult> {
     logger.log('Getting users');

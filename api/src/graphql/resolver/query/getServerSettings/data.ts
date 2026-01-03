@@ -8,7 +8,7 @@ import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 
-export const handler = WebUtils.graphQLWrapper(eventHandler);
+export const handler = WebUtils.graphQLWrapper(eventHandler, { license: true });
 
 let https: string = '';
 

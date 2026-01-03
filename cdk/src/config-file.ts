@@ -149,7 +149,8 @@ export class ConfigFile {
 
     constructor(configDir: string, environment: string) {
         this.config = {} as Config;
-        const configPath = path.join(configDir, 'config.yml');
+        const configPath = path.join(configDir, process.env.CONFIG_FILE ?? 'config.yml');
+        console.log('Config Path', path.resolve(configPath));
         if(fs.existsSync(configPath)) {
             const envConfig = this.extract(configPath);
             this.config = envConfig;

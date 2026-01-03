@@ -73,7 +73,7 @@ function containsAll<T>(a: T[], b: T[], evalData: (a:T, b:T) => boolean) {
     return retval;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: {} });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<Student> {
     console.debug('Context', context);

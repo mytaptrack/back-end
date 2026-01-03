@@ -1,4 +1,4 @@
-import { QLStudentNote } from '@mytaptrack/types';
+import { AccessLevel, QLStudentNote } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { Moment, WebUtils, moment } from '@mytaptrack/lib';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
@@ -22,7 +22,7 @@ export function getNotesKey(studentId: string, date: Moment, product: string) {
     return `student/${studentId}/notes/${product ?? ''}${date.format('yyyy/MM/DD')}.json`;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { comments: AccessLevel.read } });
 
 async function handleEvent(context: MttAppSyncContext<Params, never, never, StashData>): Promise<QLStudentNote[]> {
     const startDate: Moment = moment(context.arguments.startDate).startOf('day');

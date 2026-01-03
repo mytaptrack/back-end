@@ -1,14 +1,15 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { 
     AppPiiGlobal, WebUtils,
-    NotificationDal, StudentDal, UserPrimaryStorage, getAppGlobalKey, getUserPrimaryKey
+    NotificationDal, StudentDal, UserPrimaryStorage, 
+    getAppGlobalKey, getUserPrimaryKey, Dal
 } from '@mytaptrack/lib';
-import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
 import {
-    QLSubscriptionStudentConfig, QLSubscriptionStudentConfigNameId
+    AccessLevel,
+    QLSubscriptionStudentConfig
 } from '@mytaptrack/types';
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { notifications: AccessLevel.read } });
 
 const primary = new Dal('primary');
 

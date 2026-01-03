@@ -1,6 +1,7 @@
 import { MttAppSyncContext, WebUtils } from "@mytaptrack/lib";
+import { AccessLevel } from "@mytaptrack/types";
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { comments: AccessLevel.read } });
 
 interface AppSyncParams {
     studentId: string;

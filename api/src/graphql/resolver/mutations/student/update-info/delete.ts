@@ -1,25 +1,12 @@
 import {
-    AppSyncIdentityCognito
-} from 'aws-lambda';
-
-import {
-    UserStudentTeam, StudentConfigStorage, ServiceStorage,
-    StudentPiiStorage, TrackableItem, PiiTrackable, StudentDal,
-    WebUtils, WebError, moment, Moment, TeamDal, getUserStudentSummaryKey, StudentPii, ScheduleDal, isEqual, getStudentPrimaryKey, getUserPrimaryKey, getStudentUserDashboardKey, UserDashboardStorage, getLicenseKey
+    StudentConfigStorage, WebUtils, WebError, Dal, DalKey, 
+    MttIndexes, getStudentPrimaryKey, getLicenseKey
 } from '@mytaptrack/lib';
+
 import {
     MttAppSyncContext
 } from '@mytaptrack/cdk';
-import {
-    AccessLevel, QLStudent, QLStudentUpdateInput, QLTrackable,
-    UserSummaryRestrictions, Student, StudentBehavior, Milestone, QLStudentSummary
-} from '@mytaptrack/types';
-import { DynamoDBClient, TransactWriteItem } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, TransactWriteCommand, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
-import { uuid } from 'short-uuid';
-import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
 
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const primary = new Dal('primary');
 const data = new Dal('data');
 
@@ -28,7 +15,7 @@ export interface AppSyncParams {
     license: string;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: {} });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<boolean> {
     console.debug('Context ', context);

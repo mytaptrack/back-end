@@ -16,7 +16,7 @@ interface QueryParams {
     }
 }
 
-export const handler: any = WebUtils.graphQLWrapper(handleEvent);
+export const handler: any = WebUtils.graphQLWrapper(handleEvent, { student: {} });
 
 export async function handleEvent(event: MttAppSyncContext<QueryParams, never, never, {}>): Promise<QLStudentSummary[]> {
     WebUtils.logObjectDetails(JSON.stringify(event));

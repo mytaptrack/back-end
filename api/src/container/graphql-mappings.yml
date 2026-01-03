@@ -1,0 +1,381 @@
+# GraphQL Resolver Mappings for Container Mode
+# Organized by GraphQL type with field names as keys and detailed configuration as values
+
+Query:
+  getGlobalServiceReport:
+    handler: 'src/graphql/resolver/query/getGlobalServiceReport/data.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getStudents:
+    handler: 'src/graphql/resolver/query/getStudent/get-students.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  findStudent:
+    handler: 'src/graphql/resolver/query/getStudent/find-students.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'License']
+      primary:
+        access: read
+  getLicenses:
+    handler: 'src/graphql/resolver/query/getLicenses/data.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getStudent:
+    handler: 'src/graphql/resolver/query/getStudent/data.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getData:
+    handler: 'src/graphql/resolver/query/getData/data.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getNotes:
+    handler: 'src/graphql/resolver/query/getData/notes.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getStudentSources:
+    handler: 'src/graphql/resolver/query/getStudent/data-sources.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'Student']
+      primary:
+        access: read
+  listSnapshots:
+    handler: 'src/graphql/resolver/query/getSnapshot/list.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getSnapshot:
+    handler: 'src/graphql/resolver/query/getSnapshot/get.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getAppList:
+    handler: 'src/graphql/resolver/query/getDevices/apps.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'Device']
+      primary:
+        access: read
+  getApp:
+    handler: 'src/graphql/resolver/query/getDevices/app.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getAppToken:
+    handler: 'src/graphql/resolver/query/getDevices/appToken.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getAppsForDevice:
+    handler: 'src/graphql/resolver/query/getDevices/apps-for-device.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'Device']
+      primary:
+        access: read
+  getAppsForLicense:
+    handler: 'src/graphql/resolver/query/getDevices/apps-for-license.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'License']
+      primary:
+        access: read
+  getTrackForDevice:
+    handler: 'src/graphql/resolver/query/getDevices/track-for-dsn.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'Device']
+      primary:
+        access: read
+  getSubscriptionsForStudent:
+    handler: 'src/graphql/resolver/query/getStudent/subscriptions.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'License']
+      primary:
+        access: read
+  getUsersForLicense:
+    handler: 'src/graphql/resolver/query/getUsers/manage.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'License']
+      primary:
+        access: read
+  getServerSettings:
+    handler: 'src/graphql/resolver/query/getServerSettings/data.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+    ssm:
+      - name: https_key
+  getUser:
+    handler: 'src/graphql/resolver/query/getUsers/current.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+    cognito: 2
+  getUserPaymentSession:
+    handler: 'src/graphql/resolver/query/getUsers/payment-session.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getManageStudents:
+    handler: 'src/graphql/resolver/query/getManageStudents/get-manage-students.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'License']
+      primary:
+        access: read
+  getManageStats:
+    handler: 'src/graphql/resolver/query/getManageStats/get-manage-stats.ts'
+    tables:
+      data:
+        access: read
+        indexes: ['', 'License']
+      primary:
+        access: read
+  getLicenseDetails:
+    handler: 'src/graphql/resolver/query/getLicenseDetails/get-license-details.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getStudentTeam:
+    handler: 'src/graphql/resolver/query/getStudentTeam/get-student-team.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+  getReportData:
+    handler: 'src/graphql/resolver/query/getReportData/get-report-data.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read
+
+Mutation:
+  updateNotes:
+    handler: 'src/graphql/resolver/mutations/report/notes.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: readWrite
+  updateReportDateInclusion:
+    handler: 'src/graphql/resolver/mutations/report/date-inclusion.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateExcludeDate:
+    handler: 'src/graphql/resolver/mutations/report/update-exclude-date.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateUserBehaviorDashboardSettings:
+    handler: 'src/graphql/resolver/mutations/user/dashboard.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateStudent:
+    handler: 'src/graphql/resolver/mutations/student/update-info/data.ts'
+    tables:
+      data:
+        access: readWrite
+        indexes: ['', 'License']
+      primary:
+        access: readWrite
+  deleteStudent:
+    handler: 'src/graphql/resolver/mutations/student/update-info/delete.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  deleteStudentTeamMember:
+    handler: 'src/graphql/resolver/mutations/student/delete-team-member.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateStudentTeamMember:
+    handler: 'src/graphql/resolver/mutations/student/update-team-member.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateSnapshot:
+    handler: 'src/graphql/resolver/mutations/snapshot/save.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateDataInReport:
+    handler: 'src/graphql/resolver/mutations/report/data.ts'
+    tables:
+      data:
+        access: readWrite
+        indexes: ['', 'Student', 'License']
+      primary:
+        access: readWrite
+    eventBus:
+      access: sendMessage
+    sqs:
+      - name: reportDataQueue
+        access: 0
+    policyStatements:
+      - actions:
+          - events:PutEvents
+        resources: 
+          - arn:aws:events:${context.region}:${this.account}:event-bus/*
+        
+  updateReportDaySchedule:
+    handler: 'src/graphql/resolver/mutations/report/schedule.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  deleteNotifications:
+    handler: 'src/graphql/resolver/mutations/student/notifications/delete-notifications.ts'
+    tables:
+      data:
+        access: readWrite
+        indexes: ['', 'Device']
+      primary:
+        access: readWrite
+  updateApp:
+    handler: 'src/graphql/resolver/mutations/app/update.ts'
+    tables:
+      data:
+        access: readWrite
+        indexes: ['', 'Device']
+      primary:
+        access: readWrite
+  acceptUserTerms:
+    handler: 'src/graphql/resolver/mutations/user/accept-terms.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateUser:
+    handler: 'src/graphql/resolver/mutations/user/info.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+    cognito: 0
+  userLicenseChange:
+    handler: 'src/graphql/resolver/mutations/license/license-updated.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  changeLicense:
+    handler: 'src/graphql/resolver/mutations/license/change-license.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+    cognito: 1
+  emailSupport:
+    handler: 'src/graphql/resolver/mutations/support/email.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateInvite:
+    handler: 'src/graphql/resolver/mutations/user/invite.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateManageAbc:
+    handler: 'src/graphql/resolver/mutations/manage/update-manage-abc.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  updateReportsData:
+    handler: 'src/graphql/resolver/mutations/reports/update-reports-data.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+  createSnapshot:
+    handler: 'src/graphql/resolver/mutations/snapshot/create-snapshot.ts'
+    tables:
+      data:
+        access: readWrite
+      primary:
+        access: readWrite
+
+Subscription:
+  onStudentNote:
+    handler: 'src/graphql/resolver/subscriptions/report/notes.ts'
+    tables:
+      data:
+        access: read
+      primary:
+        access: read

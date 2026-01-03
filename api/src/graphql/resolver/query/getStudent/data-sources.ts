@@ -1,18 +1,12 @@
 import {
-    StudentPiiStorage, StudentConfigStorage, UserStudentTeam, LicenseStorage, StudentDashboardSettingsStorage, WebUtils, TrackableItem, TeamDal, AppDal, DeviceDal
+    StudentPiiStorage, StudentConfigStorage, Dal, WebUtils, TeamDal
 } from '@mytaptrack/lib';
 import {
-    UserSummaryRestrictions, QLStudent, StudentBehavior, BehaviorSettings, DashboardDeviceSettings, StudentDashboardSettings, AccessLevel, UserSummary
+    UserSummaryRestrictions, QLStudent, QLDataSources, AccessLevel, UserSummary
 } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, BatchGetCommand, BatchGetCommandInput } from '@aws-sdk/lib-dynamodb';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { QLDataSources } from '../../../../../../types/src/v2/requests/graphql';
 import { LicenseAppPiiStorage, LicenseTrack2PiiStorage } from '../../types';
 
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
-const data = new Dal('data');
 const primary = new Dal('primary');
 
 interface PreviousResults extends StudentPiiStorage {
@@ -32,8 +26,7 @@ interface QueryParams {
     studentId: string;
 }
 
-
-export const handler = WebUtils.graphQLWrapper(eventHandler);
+export const handler = WebUtils.graphQLWrapper(eventHandler, { student: {} });
 
 export async function eventHandler(context: MttAppSyncContext<QueryParams, PreviousResults, any, QueryParams>): Promise<QLDataSources> {
     console.log('getStudent data.request');

@@ -1,13 +1,11 @@
 import {
-    WebUtils, getUserPrimaryKey, moment
+    WebUtils, getUserPrimaryKey, moment, Dal
 } from '@mytaptrack/lib';
 import {
     MttAppSyncContext
 } from '@mytaptrack/cdk';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 
 const dataDal = new Dal('data');
-const primaryDal = new Dal('primary');
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);
 

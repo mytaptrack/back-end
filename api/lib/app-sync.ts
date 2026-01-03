@@ -1,19 +1,18 @@
-import { Fn, Stack, CfnOutput, Duration } from 'aws-cdk-lib';
-import { Role, ManagedPolicy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
-import { AuthorizationType, Code, FieldLogLevel, FunctionRuntime, MappingTemplate, NoneDataSource } from 'aws-cdk-lib/aws-appsync';
+import { Stack, CfnOutput } from 'aws-cdk-lib';
+import { Role, ManagedPolicy, Effect } from 'aws-cdk-lib/aws-iam';
+import { AuthorizationType, Code, FieldLogLevel, FunctionRuntime } from 'aws-cdk-lib/aws-appsync';
 import { ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { MttStackProps } from './params';
 import { Construct } from 'constructs';
-import { CfnParameter, StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { 
   AppSyncApi, MttContext, AppsyncSchema, MttFunction, MttDynamoDB, DynamoDBAccess, 
-  MttS3, MttSqs, SqsAccess, EventBusAccess, MttCognito, MttSecret, MTTSecretAccess, 
+  MttSqs, SqsAccess, EventBusAccess, MttCognito, MttSecret, MTTSecretAccess, 
   CognitoAccess } from '@mytaptrack/cdk';
 import { AccessLevel } from '@mytaptrack/types';
 import { S3Access } from '@mytaptrack/cdk';
-import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { MttEventType } from '@mytaptrack/lib';
+import { MttEventType, MttIndexes } from '@mytaptrack/lib';
 
 export class AppSyncStack extends Stack {
   private EnvironmentTagName: string;
@@ -24,7 +23,6 @@ export class AppSyncStack extends Stack {
     super(scope, id, props);
 
     this.EnvironmentTagName = props.environment;
-    const CoreStack = props.coreStack;
 
     const context = new MttContext(this, this.stackName, 'AppSyncStack', undefined, props.coreStack);
     const config = context.config;

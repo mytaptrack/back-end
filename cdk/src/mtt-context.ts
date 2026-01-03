@@ -15,12 +15,7 @@ import { Alias } from 'aws-cdk-lib/aws-kms';
 import { 
     mkdir, statSync, readdirSync, lstatSync, logger,
     MttFunction, MttLayer, MttRestApi, folderUpdated, writeCacheFile,
-    MttDynamoDB,
-    MttS3,
-
-    MttKmsKey,
-    Config,
-    ConfigFile
+    MttDynamoDB, MttS3, Config, ConfigFile
 } from '.';
 import { EventBus, IEventBus } from 'aws-cdk-lib/aws-events';
 

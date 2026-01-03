@@ -59,11 +59,8 @@ class WebUtilsClass {
         return tracer.trace(func);
     }
 
-    graphQLWrapper(func) {
-        const authRequirements: { 
-            license?: boolean,
-            student?: UserSummaryRestrictionsApiPermissions 
-        } = process.env.GRAPH_QL_AUTHORIZATION ? JSON.parse(process.env.GRAPH_QL_AUTHORIZATION) : {};
+    graphQLWrapper(func, auth?: { license?: boolean, student?: UserSummaryRestrictionsApiPermissions }) {
+        const authRequirements = auth ?? {};
 
         const wrapper = async (context: MttAppSyncContext<any, any, any, { studentId?: string, student?: Student }>) => {
             logger.debug('context', context);

@@ -1,7 +1,6 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { StudentDal, WebUtils } from '@mytaptrack/lib';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { GraphQLAppStudent, QLApp, QLAppSummary } from '@mytaptrack/types';
+import { StudentDal, WebUtils, Dal } from '@mytaptrack/lib';
+import { GraphQLAppStudent, QLApp } from '@mytaptrack/types';
 import { LicenseAppConfigStorage, LicenseAppPiiStorage } from '../../types';
 
 export const handler = WebUtils.lambdaWrapper(handleEvent);

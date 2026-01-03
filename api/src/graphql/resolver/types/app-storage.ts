@@ -1,6 +1,5 @@
-import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { QLApp, GraphQLAppInput, GraphQLAppStudent, QLTag, QLAppStudentSummary } from '@mytaptrack/types';
-import { uuid } from 'short-uuid';
+import { DalKey } from '@mytaptrack/lib';
+import { QLTag } from '@mytaptrack/types';
 
 export interface LicenseAppConfigStorageBehaviorItem {
     id: string;

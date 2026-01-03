@@ -1,12 +1,12 @@
 import {
-    AppPiiGlobal, DevicePiiGlobalStorage, Moment, StudentConfigStorage, UserPrimaryStorage,
-    WebUtils, generateDeviceGlobalKey, getStudentPrimaryKey, getUserPrimaryKey, moment
+    AppPiiGlobal, DevicePiiGlobalStorage, 
+    StudentConfigStorage, UserPrimaryStorage,
+    Dal, DalKey, WebUtils, generateDeviceGlobalKey, getStudentPrimaryKey, 
+    getUserPrimaryKey, moment
 } from '@mytaptrack/lib';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { LicenseTrack2PiiStorage, getAppGlobalV2Key, getNoteStorageKey } from '../../types';
-import { QLStudentNote, QLStudentNoteSource } from '@mytaptrack/types';
+import { getAppGlobalV2Key, getNoteStorageKey } from '../../types';
+import { AccessLevel, QLStudentNote } from '@mytaptrack/types';
 import shortUUID from 'short-uuid';
 
 interface AppSyncParams {
@@ -21,7 +21,7 @@ export interface NoteStorage extends DalKey, QLStudentNote {
     lsk: string;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { comments: AccessLevel.admin } });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<QLStudentNote> {
     const studentId = context.arguments.input.studentId;

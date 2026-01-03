@@ -33,7 +33,7 @@ export function getSnapshotSavedKey(studentId: string, reportType: string, date:
     return `student/${studentId}/reports-saved/${reportType}/${startOfWeek.format('yyyy')}/${startOfWeek.format('MM-DD')}.json`;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { reports: AccessLevel.read } });
 
 async function handleEvent(context: MttAppSyncContext<Params, never, never, {}>): Promise<QLSnapshotReports> {
     const studentId = context.arguments.studentId;

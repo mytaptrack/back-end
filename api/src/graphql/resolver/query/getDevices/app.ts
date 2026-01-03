@@ -1,11 +1,13 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { AppConfigStorage, AppPiiStorage, StudentConfigStorage, StudentPiiStorage, UserStudentTeam, WebUtils, getAppGlobalKey, getStudentAppKey, getStudentPrimaryKey, getUserStudentSummaryKey } from '@mytaptrack/lib';
-import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { 
+    StudentConfigStorage, StudentPiiStorage, UserStudentTeam, 
+    WebUtils, getStudentPrimaryKey, getUserStudentSummaryKey,
+    Dal, DalKey
+} from '@mytaptrack/lib';
 import { AccessLevel, GraphQLAppStudent, QLApp, QLAppStudentSummary, QLAppStudentSummaryTrackable } from '@mytaptrack/types';
 import { LicenseAppConfigStorage, LicenseAppPiiStorage, getAppGlobalV2Key } from '../../types';
-import { valuesMatch } from '@mytaptrack/types';
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { license: true });
 
 const data = new Dal('data');
 const primary = new Dal('primary');

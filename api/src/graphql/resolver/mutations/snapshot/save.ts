@@ -1,4 +1,4 @@
-import { QLSnapshotReport } from '@mytaptrack/types';
+import { AccessLevel, QLSnapshotReport } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { WebUtils, moment } from '@mytaptrack/lib';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
@@ -13,7 +13,7 @@ interface Params {
     snapshot: QLSnapshotReport;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { reports: AccessLevel.admin } });
 
 async function handleEvent(context: MttAppSyncContext<Params, never, never, {}>): Promise<QLSnapshotReport> {
     const snapshot = context.arguments.snapshot;

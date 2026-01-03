@@ -12,7 +12,7 @@ interface StashData {
     end: number;
 }
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { data: AccessLevel.read } });
 
 async function handleEvent(context: MttAppSyncContext<QLGetDataInput, never, never, StashData>) {
     const startDate: Moment = moment(context.arguments.startDate);

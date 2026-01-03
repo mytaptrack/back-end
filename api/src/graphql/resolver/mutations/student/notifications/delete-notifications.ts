@@ -1,28 +1,14 @@
-import {
-    AppSyncIdentityCognito
-} from 'aws-lambda';
-
-import {
-    UserStudentTeam, StudentConfigStorage, ServiceStorage,
-    StudentPiiStorage, TrackableItem, PiiTrackable, StudentDal,
-    WebUtils, WebError, moment, Moment, TeamDal, getUserStudentSummaryKey, StudentPii, ScheduleDal, isEqual, getStudentPrimaryKey, getUserPrimaryKey, getStudentUserDashboardKey, UserDashboardStorage, UserStudentNotificationStorage
-} from '@mytaptrack/lib';
+import { Dal, WebUtils, UserStudentNotificationStorage } from '@mytaptrack/lib';
 import {
     MttAppSyncContext
 } from '@mytaptrack/cdk';
 import {
-    AccessLevel, QLStudent, QLStudentUpdateInput, QLTrackable,
-    UserSummaryRestrictions, Student, StudentBehavior, Milestone, QLNotificationDelete
+    AccessLevel, QLNotificationDelete
 } from '@mytaptrack/types';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-import { uuid } from 'short-uuid';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 
-const primary = new Dal('primary');
 const data = new Dal('data');
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { data: AccessLevel.read } });
 
 export async function handleEvent(context: MttAppSyncContext<{ notifications: QLNotificationDelete}, never, never, {}>): Promise<any[]> {
     console.debug('Context', context);

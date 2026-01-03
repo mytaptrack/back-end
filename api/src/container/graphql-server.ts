@@ -1,4 +1,6 @@
 // Load local environment setup FIRST
+process.env.CONFIG_PATH = "../config/";
+process.env.CONFIG_FILE = 'example_test.yml';
 import { validateDynamoDB, initRabbitMQ, docClient, rabbitChannel } from './local-env-setup';
 
 import express from 'express';
@@ -37,61 +39,65 @@ const schemaFile = readFileSync(join(schemaPath, 'schema.graphql'), 'utf-8');
 const processedSchema = processIncludes(schemaFile, schemaPath);
 const schemaString = stripAwsDirectives(processedSchema);
 
+import * as fs from 'fs';
+import * as path from 'path';
+import * as yaml from 'js-yaml';
+import { AppSyncStack } from '../../lib/app-sync';
+import { Construct, IConstruct, Node } from 'constructs';
+
 const schema = buildSchema(schemaString);
 
-const resolverMap: Record<string, string> = {
-  'src/graphql/resolver/query/getGlobalServiceReport/data.ts': 'getGlobalServiceReport',
-  'src/graphql/resolver/query/getStudent/get-students.ts': 'getStudents',
-  'src/graphql/resolver/query/getStudent/find-students.ts': 'findStudent',
-  'src/graphql/resolver/query/getLicenses/data.ts': 'getLicenses',
-  'src/graphql/resolver/query/getStudent/data.ts': 'getStudent',
-  'src/graphql/resolver/query/getData/data.ts': 'getData',
-  'src/graphql/resolver/query/getData/notes.ts': 'getNotes',
-  'src/graphql/resolver/mutations/report/notes.ts': 'updateNotes',
-  'src/graphql/resolver/subscriptions/report/notes.ts': 'onStudentNote',
-  'src/graphql/resolver/mutations/report/date-inclusion.ts': 'updateReportDateInclusion',
-  'src/graphql/resolver/mutations/report/update-exclude-date.ts': 'updateExcludeDate',
-  'src/graphql/resolver/mutations/user/dashboard.ts': 'updateUserBehaviorDashboardSettings',
-  'src/graphql/resolver/mutations/student/update-info/data.ts': 'updateStudent',
-  'src/graphql/resolver/mutations/student/update-info/delete.ts': 'deleteStudent',
-  'src/graphql/resolver/mutations/student/delete-team-member.ts': 'deleteStudentTeamMember',
-  'src/graphql/resolver/mutations/student/update-team-member.ts': 'updateStudentTeamMember',
-  'src/graphql/resolver/query/getStudent/data-sources.ts': 'getStudentSources',
-  'src/graphql/resolver/query/getSnapshot/list.ts': 'listSnapshots',
-  'src/graphql/resolver/query/getSnapshot/get.ts': 'getSnapshot',
-  'src/graphql/resolver/mutations/snapshot/save.ts': 'updateSnapshot',
-  'src/graphql/resolver/mutations/report/data.ts': 'updateDataInReport',
-  'src/graphql/resolver/mutations/report/schedule.ts': 'updateReportDaySchedule',
-  'src/graphql/resolver/mutations/student/notifications/delete-notifications.ts': 'deleteNotifications',
-  'src/graphql/resolver/query/getDevices/apps.ts': 'getAppList',
-  'src/graphql/resolver/query/getDevices/app.ts': 'getApp',
-  'src/graphql/resolver/query/getDevices/appToken.ts': 'getAppToken',
-  'src/graphql/resolver/query/getDevices/apps-for-device.ts': 'getAppsForDevice',
-  'src/graphql/resolver/query/getDevices/apps-for-license.ts': 'getAppsForLicense',
-  'src/graphql/resolver/query/getDevices/track-for-dsn.ts': 'getTrackForDevice',
-  'src/graphql/resolver/mutations/app/update.ts': 'updateApp',
-  'src/graphql/resolver/query/getStudent/subscriptions.ts': 'getSubscriptionsForStudent',
-  'src/graphql/resolver/query/getUsers/manage.ts': 'getUsersForLicense',
-  'src/graphql/resolver/query/getServerSettings/data.ts': 'getServerSettings',
-  'src/graphql/resolver/query/getUsers/current.ts': 'getUser',
-  'src/graphql/resolver/mutations/user/accept-terms.ts': 'acceptUserTerms',
-  'src/graphql/resolver/query/getUsers/payment-session.ts': 'getUserPaymentSession',
-  'src/graphql/resolver/mutations/user/info.ts': 'updateUser',
-  'src/graphql/resolver/mutations/license/license-updated.ts': 'userLicenseChange',
-  'src/graphql/resolver/mutations/license/change-license.ts': 'changeLicense',
-  './src/graphql/resolver/mutations/support/email.ts': 'emailSupport',
-  './src/graphql/resolver/mutations/user/invite.ts': 'updateInvite',
-  
-  // Missing REST API functionality
-  'src/graphql/resolver/query/getManageStudents/get-manage-students.ts': 'getManageStudents',
-  'src/graphql/resolver/query/getManageStats/get-manage-stats.ts': 'getManageStats',
-  'src/graphql/resolver/query/getLicenseDetails/get-license-details.ts': 'getLicenseDetails',
-  'src/graphql/resolver/query/getStudentTeam/get-student-team.ts': 'getStudentTeam',
-  'src/graphql/resolver/query/getReportData/get-report-data.ts': 'getReportData',
-  'src/graphql/resolver/mutations/manage/update-manage-abc.ts': 'updateManageAbc',
-  'src/graphql/resolver/mutations/reports/update-reports-data.ts': 'updateReportsData',
-  'src/graphql/resolver/mutations/snapshot/create-snapshot.ts': 'createSnapshot',
+const scope: Construct = {
+  node: new Node(undefined, undefined, '')
 };
+
+class MockConstruct extends Construct implements IConstruct {
+  constructor(public scope: any, public id: string, public props?: any) {
+    super(scope, 'mock stack');
+  }
+}
+class MockStack extends MockConstruct {
+  public stackName = 'mock-stack';
+  public region = 'us-east-1';
+}
+
+// Load resolver mappings from YAML file
+function loadResolverMappings(): Record<string, string> {
+  // const yamlPath = path.join(__dirname, 'graphql-mappings.yml');
+  // const yamlContent = fs.readFileSync(yamlPath, 'utf8');
+  // const config = yaml.load(yamlContent) as any;
+
+  // Mock the stack props and dependencies
+  const mockProps: any = {
+    environment: 'dev',
+    coreStack: 'mock-core-stack'
+  };
+  
+  const mockStackInstance = new MockStack(null, 'MockAppSyncStack', mockProps);
+  const appSync = new AppSyncStack(mockStackInstance as any, 'appsync', { environment: 'example_test', coreStack: '' });
+  
+  // Flatten the structure to match the original format (file path -> field name)
+  const resolverMap: Record<string, string> = {};
+  
+  // Object.entries(config.Query || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
+  //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
+  //   resolverMap[filePath] = fieldName;
+  // });
+  
+  // Object.entries(config.Mutation || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
+  //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
+  //   resolverMap[filePath] = fieldName;
+  // });
+  
+  // Object.entries(config.Subscription || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
+  //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
+  //   resolverMap[filePath] = fieldName;
+  // });
+  
+  return resolverMap;
+}
+
+const resolverMap = loadResolverMappings();
 
 function loadResolvers() {
   const resolvers: any = {};

@@ -1,7 +1,8 @@
-import { TeamDal, WebUtils,StudentPiiStorage, getStudentPrimaryKey, UserStudentTeam } from '@mytaptrack/lib';
-import { QLStudentSummary, StudentSummary } from '@mytaptrack/types';
+import { 
+    Dal, DalKey, WebUtils,StudentPiiStorage, getStudentPrimaryKey, UserStudentTeam 
+} from '@mytaptrack/lib';
+import { QLStudentSummary } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
 
 const dataDal = new Dal('data');
 const primaryDal = new Dal('primary');
@@ -12,7 +13,7 @@ interface QueryParams {
     lastName: string;
 }
 
-export const handler: any = WebUtils.graphQLWrapper(handleEvent);
+export const handler: any = WebUtils.graphQLWrapper(handleEvent, { license: true });
 
 export async function handleEvent(event: MttAppSyncContext<QueryParams, never, never, never>): Promise<QLStudentSummary[]> {
     console.debug(event);
@@ -58,7 +59,7 @@ export async function handleEvent(event: MttAppSyncContext<QueryParams, never, n
             details: {
                 firstName: pii?.firstName ?? 'No first name',
                 lastName: pii?.lastName ?? 'No last name',
-                nickname: pii?.nickname ?? pii?.subtext ?? `${pii?.firstName} ${pii?.lastName}` ?? 'No name found',
+                nickname: pii?.nickname ?? pii?.subtext ?? `${pii?.firstName} ${pii?.lastName}`,
                 schoolId: pii?.schoolStudentId
             },
             tracking: {

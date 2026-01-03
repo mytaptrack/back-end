@@ -1,18 +1,20 @@
 import {
-    WebUtils, AppPiiGlobalStorage, isEqual, StudentDal
+    WebUtils, isEqual, Dal, moment
 } from '@mytaptrack/lib';
 import {
     MttAppSyncContext
 } from '@mytaptrack/cdk';
 import {
-    GraphQLAppInput, GraphQLAppOutput, QLApp
+    GraphQLAppInput, GraphQLAppOutput
 } from '@mytaptrack/types';
 import {
-    TransactWriteCommand, TransactWriteCommandInput, UpdateCommandInput
+    TransactWriteCommand, TransactWriteCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import { uuid } from 'short-uuid';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { LicenseAppConfigStorage, LicenseAppConfigStorageStudent, LicenseAppPiiStorage, getAppGlobalV2Key } from '../../types';
+import { 
+    LicenseAppConfigStorage, LicenseAppConfigStorageStudent, LicenseAppPiiStorage, 
+    getAppGlobalV2Key 
+} from '../../types';
 
 const dataDal = new Dal('data');
 const primaryDal = new Dal('primary');
@@ -21,24 +23,7 @@ export interface AppSyncParams {
     appConfig: GraphQLAppInput;
 }
 
-function cleanObject(obj: any) {
-    if(!obj) {
-        return;
-    }
-
-    if(typeof obj == 'object') {
-        Object.keys(obj).forEach(key => {
-            if(obj[key] == undefined) {
-                delete obj[key];
-            }
-            cleanObject(obj[key]);
-        });
-    }
-
-    return obj;
-}
-
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { license: true });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, never>): Promise<GraphQLAppOutput> {
     console.log('Processing updating app');
@@ -244,7 +229,11 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
 
                 if(deviceConfig.deviceId.startsWith('MLC-') && deviceConfig.students.filter(x => !x.deleted).length == 0) {
                     console.warn('Deleting device', source.deviceId, 'because it has no students');
-                    deviceConfig.deleted = true;
+                    deviceConfig.deleted = {
+                        by: context.identity.username,
+                        date: moment().toDate().getTime(),
+                        client: 'Web'
+                    };
                 }
             }
         } else {

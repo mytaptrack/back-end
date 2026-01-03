@@ -1,12 +1,11 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { 
     DeviceConfigStorage, DevicePiiGlobalStorage,
-    LicenseStorage, moment,
-    WebError, WebUtils, generateDeviceGlobalKey, generateStudentTrackKey, getLicenseKey, getStudentAppKey, getStudentPrimaryKey, StudentConfigStorage, generateDataKey, DataStorage
+    LicenseStorage, moment, Dal,
+    WebError, WebUtils, generateDeviceGlobalKey, generateStudentTrackKey, 
+    getLicenseKey, getStudentPrimaryKey, StudentConfigStorage, generateDataKey
 } from '@mytaptrack/lib';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { IoTDevice } from '@mytaptrack/types';
-import { StudentRawStorage } from '../../mutations/student/update-info/data';
 import { ReportDataStorage, ReportServiceDataStorage, StudentReportStorage } from '../../types/reports';
 
 export const handler = WebUtils.graphQLWrapper(handleEvent);

@@ -4,7 +4,7 @@ import {
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { StudentConfigStorage } from '@mytaptrack/lib';
+import { AccessLevel } from '@mytaptrack/types';
 
 interface AppSyncParams {
   studentId: string;
@@ -18,7 +18,7 @@ interface AppSyncParams {
 
 const dataDal = new Dal('data');
 
-export const handler = WebUtils.graphQLWrapper(handleEvent);
+export const handler = WebUtils.graphQLWrapper(handleEvent, { student: { data: AccessLevel.admin } });
 
 export async function handleEvent(context: MttAppSyncContext<AppSyncParams, never, never, {}>): Promise<boolean> {
     console.log('Handling Exclude and include event', context.arguments);
