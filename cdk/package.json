@@ -26,7 +26,7 @@
         "jsonschema": "^1.4.1",
         "lodash": "^4.17.21",
         "moment-timezone": "^0.6.0",
-        "npm": "^11.4.1",
+        "npm": "^11.7.0",
         "path": "^0.12.7",
         "short-uuid": "^5.2.0",
         "tslib": "^2.5.2",
