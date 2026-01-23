@@ -24,7 +24,7 @@
         "glob": "^10.3.10",
         "install": "^0.13.0",
         "jsonschema": "^1.4.1",
-        "lodash": "^4.17.21",
+        "lodash": "^4.17.23",
         "moment-timezone": "^0.6.0",
         "npm": "^11.4.1",
         "path": "^0.12.7",
