@@ -2,8 +2,7 @@ import { LicenseStorage } from "@mytaptrack/lib";
 import { data, license } from "../../../config";
 import { Logger, LoggingLevel, webApi } from "../../../lib";
 
-const logger = new Logger(LoggingLevel.WARN);
-
+const logger = new Logger('manage-abc', LoggingLevel.warn);
 
 describe('manage-abc', () => {
     beforeAll(async () => {

@@ -1,8 +1,7 @@
 import { LoggingLevel, Logger, webApi } from "../../lib";
 import { config } from "../../config";
 
-const logger = new Logger(LoggingLevel.WARN);
-
+const logger = new Logger('UserV1', LoggingLevel.warn);
 
 describe('user', () => {
 

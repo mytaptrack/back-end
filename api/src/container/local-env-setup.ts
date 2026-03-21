@@ -7,6 +7,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '../../../.env'
 import { DynamoDBClient, ListTablesCommand } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import amqp from 'amqplib';
+import { initTables } from './init-tables';
 
 // Set local environment variables to override any AWS defaults
 // These MUST be set before any AWS SDK clients are initialized
@@ -41,10 +42,10 @@ export async function validateDynamoDB() {
     const missingTables = requiredTables.filter(table => !TableNames?.includes(table));
     
     if (missingTables.length > 0) {
-      console.error(`✗ Missing required tables: ${missingTables.join(', ')}`);
-      throw new Error(`Missing DynamoDB tables: ${missingTables.join(', ')}`);
+      console.log(`Tables not found, creating: ${missingTables.join(', ')}`);
+      await initTables(dynamoClient);
     }
-    
+
     console.log('✓ All required tables exist');
   } catch (error) {
     console.error('✗ Failed to validate DynamoDB:', error);

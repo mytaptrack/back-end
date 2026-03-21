@@ -170,27 +170,29 @@ const tables = [
   }
 ];
 
-async function initTables() {
-  try {
-    const { TableNames } = await client.send(new ListTablesCommand({}));
-    console.log('Existing tables:', TableNames);
+export async function initTables(existingClient?: DynamoDBClient) {
+  const c = existingClient ?? client;
+  const { TableNames } = await c.send(new ListTablesCommand({}));
+  console.log('Existing tables:', TableNames);
 
-    for (const table of tables) {
-      if (TableNames?.includes(table.TableName)) {
-        console.log(`Table ${table.TableName} already exists`);
-        continue;
-      }
-
-      console.log(`Creating table ${table.TableName}...`);
-      await client.send(new CreateTableCommand(table));
-      console.log(`Table ${table.TableName} created`);
+  for (const table of tables) {
+    if (TableNames?.includes(table.TableName)) {
+      console.log(`Table ${table.TableName} already exists`);
+      continue;
     }
 
-    console.log('Table initialization complete');
-  } catch (error) {
-    console.error('Error initializing tables:', error);
-    process.exit(1);
+    console.log(`Creating table ${table.TableName}...`);
+    await c.send(new CreateTableCommand(table));
+    console.log(`Table ${table.TableName} created`);
   }
+
+  console.log('Table initialization complete');
 }
 
-initTables();
+// Auto-execute when run directly (container:init-tables script)
+if (require.main === module) {
+  initTables().catch((error) => {
+    console.error('Error initializing tables:', error);
+    process.exit(1);
+  });
+}

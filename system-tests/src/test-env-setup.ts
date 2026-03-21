@@ -2,8 +2,23 @@ import { AdminCreateUserCommand, AdminSetUserPasswordCommand, ChangePasswordComm
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { ConfigFile, TestUserConfig } from '@mytaptrack/cdk';
 
-// Load environment variables from .env file
-require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
+// Load environment variables from .env file only for local mode
+if (process.env.USE_LOCAL === 'true') {
+    require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
+} else {
+    // For AWS mode, only load non-credential environment variables
+    const dotenv = require('dotenv');
+    const envConfig = dotenv.parse(require('fs').readFileSync(require('path').join(__dirname, '../../.env')));
+    
+    // Only set non-AWS credential variables
+    Object.keys(envConfig).forEach(key => {
+        if (!key.startsWith('AWS_ACCESS_KEY') && !key.startsWith('AWS_SECRET_ACCESS_KEY') && key !== 'DYNAMODB_ENDPOINT') {
+            if (!process.env[key]) {
+                process.env[key] = envConfig[key];
+            }
+        }
+    });
+}
 
 // Setup for local mode
 if (process.env.USE_LOCAL === 'true') {

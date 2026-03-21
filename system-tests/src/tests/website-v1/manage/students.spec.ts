@@ -7,8 +7,7 @@ import {
 import { license } from "../../../config";
 import { cleanUp, setupBehaviors, setupStudent } from "../helpers";
 
-const logger = new Logger(LoggingLevel.WARN);
-
+const logger = new Logger('ManageStudentsV1', LoggingLevel.warn);
 
 describe('ManageStudents', () => {
     beforeAll(async () => {

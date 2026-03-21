@@ -1,5 +1,4 @@
 import { webApi } from '../lib';
-import { license } from '../config';
 
 describe('API Gateway Fix Test', () => {
     beforeAll(async () => {

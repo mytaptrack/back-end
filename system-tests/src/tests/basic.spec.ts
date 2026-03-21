@@ -2,7 +2,7 @@ import { Logger, LoggingLevel, hasAWSCredentials, skipIfNoAWS } from '../lib';
 
 describe('Basic Infrastructure Tests', () => {
     test('Logger should work without Jest context issues', () => {
-        const logger = new Logger(LoggingLevel.INFO);
+        const logger = new Logger('BasicInfraTests', LoggingLevel.info);
         
         // This should not throw an error anymore
         expect(() => {

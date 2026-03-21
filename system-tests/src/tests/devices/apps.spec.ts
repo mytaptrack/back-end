@@ -4,10 +4,10 @@ process.env.STRONGLY_CONSISTENT_READ = 'true';
 import { webApi, wait, getAppDefinitions, getAppDefinitionsV3, Logger, LoggingLevel } from '../../lib';
 import { cleanUp, setupStudent, setupBehaviors } from '../website-v1/helpers';
 import { uuid } from 'short-uuid';
-import { cleanStudentApps, createQRCode, testTracking } from './helpers';
+import { createQRCode, testTracking } from './helpers';
 import { Schema, Validator } from 'jsonschema';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('appsV1', LoggingLevel.warn);
 
 const definitionV2Schema: Schema = {
     type: 'object',

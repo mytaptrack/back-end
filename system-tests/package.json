@@ -6,6 +6,7 @@
         "pretest": "rm -rf logs",
         "test": "jest",
         "test:local": "USE_LOCAL=true jest",
+        "test:aws": "USE_LOCAL=false && node src/aws-test-setup.js && USE_LOCAL=false jest",
         "clean": "npx ts-node ./src/clean.ts",
         "presetDebug": "npm uninstall @mytaptrack/types",
         "setDebug": "npm i ../types",
@@ -28,6 +29,8 @@
         "graphql": "^16.11.0",
         "graphql-request": "^6.1.0",
         "ioredis": "^5.8.2",
+        "jsonschema": "^1.5.0",
+        "jsonwebtoken": "^9.0.3",
         "moment": "^2.30.1",
         "moment-timezone": "^0.6.0",
         "short-uuid": "^5.2.0"
@@ -48,6 +51,7 @@
             "**/src/tests/**/*.spec.ts"
         ],
         "testTimeout": 120000,
+        "globalSetup": "<rootDir>/src/local-global-setup.js",
         "setupFilesAfterEnv": [
             "<rootDir>/src/jest.setup.ts"
         ]

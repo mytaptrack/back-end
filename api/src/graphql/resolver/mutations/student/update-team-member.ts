@@ -1,13 +1,14 @@
-import { TeamDal, UserDal, WebUtils } from '@mytaptrack/lib';
+import { LoggingLevel, MttLogger, TeamDal, UserDal, WebUtils } from '@mytaptrack/lib';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { AccessLevel, QLTeamMember, QLTeamMemberInput, UserSummary, UserSummaryStatus } from '@mytaptrack/types';
 
+const logger = MttLogger.getLogger('UpdateTeamMember', LoggingLevel.debug);
 export const handler = WebUtils.graphQLWrapper(eventHandler);
 
 export async function eventHandler(event: MttAppSyncContext<{ studentId: string, teamMember: QLTeamMemberInput }, never, never, {}>): Promise<QLTeamMember> {
     const { teamMember, studentId } = event.arguments;
 
-    console.log('Checking if user has team management permissions');
+    logger.info('Checking if user has team management permissions');
     if(event.stash.permissions.student.team != AccessLevel.admin) {
         throw new Error('Access Denied');
     }
@@ -21,7 +22,7 @@ export async function eventHandler(event: MttAppSyncContext<{ studentId: string,
     }
 
     if(!teamMember.userId || teamMember.userId == email) {
-        console.info('Getting user id from email');
+        logger.info('Getting user id from email');
         const user = await UserDal.getUserByEmail(email);
         if(user) {
             console.info('User information retrieved', user);
@@ -44,9 +45,11 @@ export async function eventHandler(event: MttAppSyncContext<{ studentId: string,
             name
         }
     };
+    logger.debug('userSummary', userSummary);
 
-    console.log(`Updating team member for student ${teamMember.studentId}`);
+    logger.info(`Updating team member for student ${teamMember.studentId}`);
     const updatedMember = await TeamDal.putTeamMember(userSummary);
+    logger.debug('updatedMember', updatedMember);
 
     return {
         userId: updatedMember.userId,

@@ -3,8 +3,7 @@ import { Logger, LoggingLevel, wait, webApi } from "../../lib";
 import { setupStudent, cleanUp, testBehavior, setupBehaviors, setupSchedule } from "./helpers";
 import { CalculationType, SummaryScope } from "@mytaptrack/types";
 
-const logger = new Logger(LoggingLevel.WARN);
-
+const logger = new Logger('ReportsV1', LoggingLevel.warn);
 
 describe('Reports', () => {
     beforeAll(async () => {

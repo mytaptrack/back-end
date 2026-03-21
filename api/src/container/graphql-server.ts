@@ -44,6 +44,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { AppSyncStack } from '../../lib/app-sync';
 import { Construct, IConstruct, Node } from 'constructs';
+import { LambdaResolverProps } from '@mytaptrack/cdk';
 
 const schema = buildSchema(schemaString);
 
@@ -73,11 +74,41 @@ function loadResolverMappings(): Record<string, string> {
     coreStack: 'mock-core-stack'
   };
   
-  const mockStackInstance = new MockStack(null, 'MockAppSyncStack', mockProps);
-  const appSync = new AppSyncStack(mockStackInstance as any, 'appsync', { environment: 'example_test', coreStack: '' });
+  const lambdaResolvers: LambdaResolverProps[] = [];
+  const appsync: any = {
+    addLambdaResolver: (id, props: LambdaResolverProps) => { lambdaResolvers.push(props) },
+    addNoneDataSource: (id, props) => {},
+    createResolver: (id, props) => {}
+  };
+  const ddbTable: any = {};
+  const bus: any = {};
+  const object: any = {};
+  const config: any = {
+    env: { 
+      app: { secrets: { tokenKey: { name: '' } } },
+      domain: { sub: { device: { appid: '' } } }
+    }
+  };
+  AppSyncStack.addResolversToAppSync({ 
+    appsync,
+    primaryTable: ddbTable,
+    dataTable: ddbTable,
+    eventBus: bus,
+    reportDataQueue: object,
+    dataBucket: object,
+    cognito: object,
+    props: {},
+    config,
+    region: '',
+    account: ''
+  });
   
   // Flatten the structure to match the original format (file path -> field name)
   const resolverMap: Record<string, string> = {};
+
+  lambdaResolvers.forEach(config => {
+    resolverMap[config.codePath] = config.fieldName;
+  })
   
   // Object.entries(config.Query || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
   //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
@@ -202,7 +233,7 @@ app.use((req, res, next) => {
 
 // JWT verification middleware - must be before GraphQL endpoint
 app.use(async (req, res, next) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const authHeader: string = req.headers.authorization || (req.headers.Authorization as string);
   
   if (authHeader) {
     let token = authHeader;

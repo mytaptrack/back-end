@@ -5,7 +5,8 @@ import {
   QLStudentUpdateInput, QLUser, QLUserSummary, QLGetReportDataInput, 
   QLReportDetails,
   QLStudentNote,
-  QLUserUpdate
+  QLUserUpdate,
+  QLTeamMember
 } from '@mytaptrack/types';
 import {
     Moment
@@ -766,8 +767,8 @@ export class QLApiClass {
             }`, { license }, 'getAppsForLicense');
     }
 
-    async getStudentTeam(studentId: string): Promise<QLUserSummary[]> {
-        return this.query<QLUserSummary[]>(`
+    async getStudentTeam(studentId: string): Promise<QLTeamMember[]> {
+        return this.query<QLTeamMember[]>(`
             query getStudentTeam($studentId: String!) {
                 getStudentTeam(studentId: $studentId) {
                     userId

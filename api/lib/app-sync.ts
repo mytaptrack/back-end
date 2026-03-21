@@ -9,10 +9,12 @@ import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { 
   AppSyncApi, MttContext, AppsyncSchema, MttFunction, MttDynamoDB, DynamoDBAccess, 
   MttSqs, SqsAccess, EventBusAccess, MttCognito, MttSecret, MTTSecretAccess, 
-  CognitoAccess } from '@mytaptrack/cdk';
+  CognitoAccess, 
+  MttS3} from '@mytaptrack/cdk';
 import { AccessLevel } from '@mytaptrack/types';
-import { S3Access } from '@mytaptrack/cdk';
+import { S3Access, Config } from '@mytaptrack/cdk';
 import { MttEventType, MttIndexes } from '@mytaptrack/lib';
+import { IEventBus } from 'aws-cdk-lib/aws-events';
 
 export class AppSyncStack extends Stack {
   private EnvironmentTagName: string;
@@ -80,272 +82,6 @@ export class AppSyncStack extends Stack {
     context.setParameter(true, 'endpoints/appsync/arn', this.appsync.arn!);
     context.setParameter(true, 'endpoints/appsync/id', this.appsync.apiId);
 
-    this.appsync.addLambdaResolver('GetGlobalServiceReport', {
-      id: 'GetGlobalServiceReport',
-      codePath: 'src/graphql/resolver/query/getGlobalServiceReport/data.ts',
-      handler: 'handler',
-      typeName: 'Query',
-      fieldName: 'getGlobalServiceReport',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('ResolverGetStudents', {
-      id: 'ResolverGetStudents',
-      typeName: 'Query',
-      fieldName: 'getStudents',
-      codePath: 'src/graphql/resolver/query/getStudent/get-students.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      auth: {
-        student: {}
-      }
-    });
-
-    this.appsync.addLambdaResolver('FindStudent', {
-      id: 'FindStudent',
-      typeName: 'Query',
-      fieldName: 'findStudent',
-      codePath: 'src/graphql/resolver/query/getStudent/find-students.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read, indexes: [ MttIndexes.license ] }
-      ],
-      auth: {
-        license: true
-      }
-    });
-
-    // TODO add back
-    this.appsync.addLambdaResolver('getLicenses', {
-      id: 'GetLicenses',
-      typeName: 'Query',
-      fieldName: 'getLicenses',
-      codePath: 'src/graphql/resolver/query/getLicenses/data.ts',
-      tables: [{ table: dataTable, access: DynamoDBAccess.read }]
-    });
-
-
-
-    this.appsync.addLambdaResolver('GetStudentData', {
-      id: 'GetStudentData',
-      codePath: 'src/graphql/resolver/query/getStudent/data.ts',
-      typeName: 'Query',
-      fieldName: 'getStudent',
-      environmentVariables: {
-        'STRONGLY_CONSISTENT_READ': 'true',
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read }, 
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      auth: {
-        student: {
-          data: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetDataReport', {
-      id: 'GetDataReport',
-      codePath: 'src/graphql/resolver/query/getData/data.ts',
-      typeName: 'Query',
-      fieldName: 'getData',
-      tables: [ 
-        { table: dataTable, access: DynamoDBAccess.read },
-        { table: primaryTable, access: DynamoDBAccess.read }
-      ],
-      auth: {
-        student: {
-          data: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetNotes', {
-      id: 'GetNotes',
-      codePath: 'src/graphql/resolver/query/getData/notes.ts',
-      typeName: 'Query',
-      fieldName: 'getNotes',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read },
-        { table: primaryTable, access: DynamoDBAccess.read }
-      ],
-      buckets: [
-        { bucket: dataBucket, access: S3Access.read, pattern: 'student/*' }
-      ],
-      auth: {
-        student: {
-          comments: AccessLevel.read
-        }
-      }
-    });
-    this.appsync.addLambdaResolver('UpdateNotes', {
-      id: 'UpdateNotes',
-      codePath: 'src/graphql/resolver/mutations/report/notes.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateNotes',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read },
-        { table: primaryTable, access: DynamoDBAccess.readWrite }
-      ],
-      auth: {
-        student: {
-          comments: AccessLevel.admin
-        }
-      }
-    });
-    this.appsync.addLambdaResolver("OnStudentNote", {
-      id: 'OnStudentNote',
-      codePath: 'src/graphql/resolver/subscriptions/report/notes.ts',
-      typeName: 'Subscription',
-      fieldName: 'onStudentNote',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      auth: {
-        student: {
-          comments: AccessLevel.read
-        }
-      }
-    });
-    
-    this.appsync.addLambdaResolver('UpdateDateInclusion', {
-      id: 'urdi',
-      codePath: 'src/graphql/resolver/mutations/report/date-inclusion.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateReportDateInclusion',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.readWrite }
-      ],
-      auth: {
-        student: {
-          data: AccessLevel.admin
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('UpdateUserDashboard', {
-      id: 'UpdateUserDashboard',
-      codePath: 'src/graphql/resolver/mutations/user/dashboard.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateUserBehaviorDashboardSettings',
-      tables: [ 
-        { table: dataTable, access: DynamoDBAccess.readWrite } 
-      ],
-      auth: {
-        student: {
-          data: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('UpdateStudentData', {
-      id: 'UpdateStudentData',
-      codePath: 'src/graphql/resolver/mutations/student/update-info/data.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateStudent',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite }, 
-        { table: dataTable, access: DynamoDBAccess.readWrite }
-      ],
-      auth: {
-        student: {}
-      }
-    });
-
-    this.appsync.addLambdaResolver('DeleteStudents', {
-      id: 'DeleteStudents',
-      codePath: 'src/graphql/resolver/mutations/student/update-info/delete.ts',
-      typeName: 'Mutation',
-      fieldName: 'deleteStudent',
-      environmentVariables: {
-        STRONGLY_CONSISTENT_READ: 'true'
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite }, 
-        { table: dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.student, MttIndexes.license ] }
-      ],
-      auth: {
-        student: {}
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetDataSources', {
-      id: 'GetDataSources',
-      codePath: 'src/graphql/resolver/query/getStudent/data-sources.ts',
-      typeName: 'Query',
-      fieldName: 'getStudentSources',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read }, 
-        { table: dataTable, access: DynamoDBAccess.read, indexes: ['', 'Student'] }
-      ],
-      auth: {
-        student: {
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('ListSnapshots', {
-      id: 'ListSnapshots',
-      codePath: 'src/graphql/resolver/query/getSnapshot/list.ts',
-      typeName: 'Query',
-      fieldName: 'listSnapshots',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read },
-        { table: primaryTable, access: DynamoDBAccess.read }
-      ],
-      buckets: [
-        { bucket: dataBucket, access: S3Access.read, pattern: 'student/*' }
-      ],
-      auth: {
-        student: {
-          reports: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetSnapshot', {
-      id: 'GetSnapshot',
-      codePath: 'src/graphql/resolver/query/getSnapshot/get.ts',
-      typeName: 'Query',
-      fieldName: 'getSnapshot',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read },
-        { table: primaryTable, access: DynamoDBAccess.read }
-      ],
-      buckets: [
-        { bucket: dataBucket, access: S3Access.read, pattern: 'student/*' }
-      ],
-      auth: {
-        student: {
-          reports: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('SaveSnapshot', {
-      id: 'SaveSnapshot',
-      codePath: 'src/graphql/resolver/mutations/snapshot/save.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateSnapshot',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      buckets: [
-        { bucket: dataBucket, access: S3Access.write, pattern: 'student/*' }
-      ],
-      auth: {
-        student: {
-          reports: AccessLevel.admin
-        }
-      }
-    });
-
     
     const reportDataQueue = new MttSqs(context, {
       id: 'ReportDataQueue',
@@ -354,45 +90,6 @@ export class AppSyncStack extends Stack {
       envVariable: 'DATA_QUEUE_URL',
       contentBasedDeduplication: true,
       hasPhi: true
-    });
-
-    this.appsync.addLambdaResolver('UpdateDataInReport', {
-      id: 'UpdateDataInReport',
-      codePath: 'src/graphql/resolver/mutations/report/data.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateDataInReport',
-      environmentVariables: {
-        EVENT_BUS: context.getEventBus().eventBusName
-      },
-      tables: [{ table: dataTable, access: DynamoDBAccess.read }],
-      sqs: [{ sqs: reportDataQueue, access: SqsAccess.sendMessage}],
-      auth: {
-        student: {
-          data: AccessLevel.admin
-        }
-      },
-      policyStatements: [
-        {
-          actions: ['events:PutEvents'],
-          resources: [`arn:aws:events:${context.region}:${this.account}:event-bus/*`]
-        }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('UpdateReportDaySchedule', {
-      id: 'UpdateReportDaySchedule',
-      codePath: 'src/graphql/resolver/mutations/report/schedule.ts',
-      typeName: 'Mutation',
-      fieldName: 'updateReportDaySchedule',
-      environmentVariables: {
-          STRONGLY_CONSISTENT_READ: 'true'
-      },
-      tables: [{ table: dataTable, access: DynamoDBAccess.readWrite }],
-      auth: {
-        student: {
-          data: AccessLevel.admin
-        }
-      }
     });
 
     new MttFunction(context, {
@@ -444,316 +141,16 @@ export class AppSyncStack extends Stack {
       ]
     });
 
-    this.appsync.addLambdaResolver('DeleteNotifications', {
-      id: 'DeleteNotifications',
-      typeName: 'Mutation',
-      fieldName: 'deleteNotifications',
-      codePath: 'src/graphql/resolver/mutations/student/notifications/delete-notifications.ts',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.readWrite }
-      ],
-      auth: {
-        student: {
-          data: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetAppList', {
-      id: 'GetAppList',
-      typeName: 'Query',
-      fieldName: 'getAppList',
-      codePath: 'src/graphql/resolver/query/getDevices/apps.ts',
-      environmentVariables: {
-        'STRONGLY_CONSISTENT_READ': 'true'
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      auth: {
-        license: true
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetApp', {
-      id: 'GetApp',
-      typeName: 'Query',
-      fieldName: 'getApp',
-      codePath: 'src/graphql/resolver/query/getDevices/app.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.read, indexes: [ '', MttIndexes.device ] }
-      ],
-      auth: {
-        license: true
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetAppToken', {
-      id: 'GetAppToken',
-      typeName: 'Query',
-      fieldName: 'getAppToken',
-      codePath: 'src/graphql/resolver/query/getDevices/appToken.ts',
-      environmentVariables: {
-        TokenEncryptKey: config.env.app.secrets.tokenKey.name,
-        appid: config.env.domain.sub.device.appid
-      },
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      policyStatements: [
-        {
-          effect: Effect.ALLOW,
-          actions: ['ssm:GetParameter'],
-          resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter${config.env.app.secrets.tokenKey.name}`]
-        }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('GetAppsForDevice', {
-      id: 'GetAppsForDevice',
-      typeName: 'Query',
-      fieldName: 'getAppsForDevice',
-      codePath: 'src/graphql/resolver/query/getDevices/apps-for-device.ts',
-      environmentVariables: {
-        STRONGLY_CONSISTENT_READ: 'true'
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
-      ]
-    });
-    this.appsync.addLambdaResolver('GetAppsForLicense', {
-      id: 'GetAppsForLicense',
-      typeName: 'Query',
-      fieldName: 'getAppsForLicense',
-      codePath: 'src/graphql/resolver/query/getDevices/apps-for-license.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('getTrackForDevice', {
-      id: 'GetTrackForDevice',
-      typeName: 'Query',
-      fieldName: 'getTrackForDevice',
-      codePath: 'src/graphql/resolver/query/getDevices/track-for-dsn.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('UpdateApp', {
-      id: 'UpdateApp',
-      typeName: 'Mutation',
-      fieldName: 'updateApp',
-      codePath: 'src/graphql/resolver/mutations/app/update.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
-      ],
-      auth: {
-        license: true
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetSubscriptionsForStudent', {
-      id: 'gsfs',
-      typeName: 'Query',
-      fieldName: 'getSubscriptionsForStudent',
-      codePath: 'src/graphql/resolver/query/getStudent/subscriptions.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read, indexes: [ '', MttIndexes.device ] }
-      ],
-      auth: {
-        student: {
-          notifications: AccessLevel.read
-        }
-      }
-    });
-
-    this.appsync.addLambdaResolver('GetUsersForLicense', {
-      id: 'GetUsersForLicense',
-      typeName: 'Query',
-      fieldName: 'getUsersForLicense',
-      codePath: 'src/graphql/resolver/query/getUsers/manage.ts',
-      environmentVariables: {
-        STRONGLY_CONSISTENT_READ: 'true'
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read, indexes: [ '', MttIndexes.license ] }
-      ],
-      auth: {
-        license: true
-      }
-    });
-
-
-    const https_key = `/${props.environment}/regional/calc/endpoints/device/url`;
-    this.appsync.addLambdaResolver('GetServerSettings', {
-      id: 'GetServerSettings',
-      typeName: 'Query',
-      fieldName: 'getServerSettings',
-      codePath: 'src/graphql/resolver/query/getServerSettings/data.ts',
-      environmentVariables: {
-        https_key,
-        apikey: config.env.domain.sub.device.apikey,
-        graphql: this.appsync.graphqlUrl,
-        appid: config.env.domain.sub.device.appid
-      },
-      auth: {
-        license: true
-      },
-      policyStatements: [
-        {
-          effect: Effect.ALLOW,
-          actions: ['ssm:GetParameter'],
-          resources: [`arn:aws:ssm:*:*:parameter${https_key}`]
-        }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('GetUser', {
-      id: 'GetUser',
-      typeName: 'Query',
-      fieldName: 'getUser',
-      codePath: 'src/graphql/resolver/query/getUsers/current.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read },
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      cognito: [ { pool: cognito, access: CognitoAccess.administrateUsers }]
-    });
-    this.appsync.addLambdaResolver('AcceptUserTerms', {
-      id: 'AcceptUserTerms',
-      typeName: 'Mutation',
-      fieldName: 'acceptUserTerms',
-      codePath: 'src/graphql/resolver/mutations/user/accept-terms.ts',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.readWrite }
-      ]
-    });
-
-    const stripeSecret = MttSecret.fromName(context, `${this.EnvironmentTagName}/stripe`, 'stripeSecret');
-    this.appsync.addLambdaResolver('GetUserPaymentSession', {
-      id: 'GetUserPaymentSession',
-      typeName: 'Query',
-      fieldName: 'getUserPaymentSession',
-      codePath: 'src/graphql/resolver/query/getUsers/payment-session.ts',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.read }
-      ],
-      secrets: [{ secret: stripeSecret, access: MTTSecretAccess.read }]
-    });
-
-    this.appsync.addLambdaResolver('UpdateUser', {
-      id: 'UpdateUser',
-      typeName: 'Mutation',
-      fieldName: 'updateUser',
-      codePath: 'src/graphql/resolver/mutations/user/info.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.readWrite }
-      ],
-      policyStatements: [
-        {
-          actions: ['cognito-idp:ListUsers'],
-          resources: [cognito.userPool.userPoolArn]
-        }
-      ],
-      environmentVariables: {
-        UserPoolId: userPoolId
-      }
-    });
-
-    this.appsync.addLambdaResolver('userLicenseChange', {
-      id: 'userLicenseChange',
-      typeName: 'Mutation',
-      fieldName: 'userLicenseChange',
-      codePath: 'src/graphql/resolver/mutations/license/license-updated.ts',
-      environmentVariables: {
-        STRONGLY_CONSISTENT_READ: 'true'
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite },
-        { table: dataTable, access: DynamoDBAccess.readWrite }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('ChangeLicense', {
-      id: 'ChangeLicense',
-      typeName: 'Mutation',
-      fieldName: 'changeLicense',
-      codePath: 'src/graphql/resolver/mutations/license/change-license.ts',
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.readWrite, indexes: ['', MttIndexes.license ] },
-        { table: dataTable, access: DynamoDBAccess.readWrite, indexes: ['', MttIndexes.license ] }
-      ],
-      cognito: [{ pool: cognito, access: CognitoAccess.administrateGroups }], 
-      environmentVariables: {
-        UserPoolId: userPoolId
-      },
-      secrets: [{ secret: stripeSecret, access: MTTSecretAccess.read }],
-      appsync: [{ api: this.appsync, access: { mutations: ['userLicenseChange']} }]
-    });
-
-    const noneSource = this.appsync.addNoneDataSource('NoneDataSource', {
-      name: 'NoneDataSource',
-      description: 'NoneDataSource'
-    });
-    this.appsync.createResolver('onUserLicenseChange', {
-      typeName: 'Subscription',
-      fieldName: 'onUserLicenseChange',
-      code: Code.fromAsset('./src/graphql/resolver/authorization/user-id-match.js'),
-      runtime: FunctionRuntime.JS_1_0_0,
-      dataSource: noneSource
-    });
-
-    this.appsync.createResolver('userStudentAccessSubCheck', {
-      typeName: 'Subscription',
-      fieldName: 'onStudentDataChange',
-      code: Code.fromAsset('./src/graphql/resolver/authorization/user-id-match.js'),
-      runtime: FunctionRuntime.JS_1_0_0,
-      dataSource: noneSource
-    });
-
-    this.appsync.createResolver('studentDataChange', {
-      typeName: 'Mutation',
-      fieldName: 'studentDataChange',
-      code: Code.fromAsset('./src/graphql/resolver/mutations/passthrough.js'),
-      runtime: FunctionRuntime.JS_1_0_0,
-      dataSource: noneSource
-    });
-
-    this.appsync.addLambdaResolver('emailSupport', {
-      id: 'emailSupport',
-      typeName: 'Mutation',
-      fieldName: 'emailSupport',
-      codePath: './src/graphql/resolver/mutations/support/email.ts',
-      sendEmail: true,
-      environmentVariables: {
-          TemplatePath: 'mytaptrack/templates',
-          SystemEmail: config.env.system?.email
-      },
-      tables: [
-        { table: primaryTable, access: DynamoDBAccess.read }
-      ]
-    });
-
-    this.appsync.addLambdaResolver('updateInvite', {
-      id: 'updateInvite',
-      typeName: 'Mutation',
-      fieldName: 'updateInvite',
-      codePath: './src/graphql/resolver/mutations/user/invite.ts',
-      tables: [
-        { table: dataTable, access: DynamoDBAccess.readWrite },
-        { table: primaryTable, access: DynamoDBAccess.read }
-      ]
+    AppSyncStack.addResolversToAppSync({
+      appsync: this.appsync, 
+      primaryTable, dataTable, reportDataQueue, 
+      eventBus: context.getEventBus(),
+      dataBucket,
+      cognito,
+      config,
+      props,
+      region: this.region,
+      account: this.account
     });
 
     // const get_student_device_collection = this.appsync.addLambdaResolver('GetStudentDeviceCollection', {
@@ -810,5 +207,624 @@ export class AppSyncStack extends Stack {
     });
 
     console.info('Stack outline complete');
+  }
+
+  static addResolversToAppSync(resources: {
+    appsync: AppSyncApi, 
+    primaryTable: MttDynamoDB, 
+    dataTable: MttDynamoDB, 
+    reportDataQueue: MttSqs, 
+    eventBus: IEventBus,
+    dataBucket: MttS3,
+    cognito: MttCognito, 
+    region: string, 
+    account: string, 
+    props: any, 
+    config: Config
+  }) {
+    resources.appsync.addLambdaResolver('GetGlobalServiceReport', {
+      id: 'GetGlobalServiceReport',
+      codePath: 'src/graphql/resolver/query/getGlobalServiceReport/data.ts',
+      handler: 'handler',
+      typeName: 'Query',
+      fieldName: 'getGlobalServiceReport',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('ResolverGetStudents', {
+      id: 'ResolverGetStudents',
+      typeName: 'Query',
+      fieldName: 'getStudents',
+      codePath: 'src/graphql/resolver/query/getStudent/get-students.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      auth: {
+        student: {}
+      }
+    });
+
+    resources.appsync.addLambdaResolver('FindStudent', {
+      id: 'FindStudent',
+      typeName: 'Query',
+      fieldName: 'findStudent',
+      codePath: 'src/graphql/resolver/query/getStudent/find-students.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read, indexes: [ MttIndexes.license ] }
+      ],
+      auth: {
+        license: true
+      }
+    });
+
+    resources.appsync.addLambdaResolver('getLicenses', {
+      id: 'GetLicenses',
+      typeName: 'Query',
+      fieldName: 'getLicenses',
+      codePath: 'src/graphql/resolver/query/getLicenses/data.ts',
+      tables: [{ table: resources.dataTable, access: DynamoDBAccess.read }]
+    });
+
+
+
+    resources.appsync.addLambdaResolver('GetStudentData', {
+      id: 'GetStudentData',
+      codePath: 'src/graphql/resolver/query/getStudent/data.ts',
+      typeName: 'Query',
+      fieldName: 'getStudent',
+      environmentVariables: {
+        'STRONGLY_CONSISTENT_READ': 'true',
+      },
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read }, 
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      auth: {
+        student: {
+          data: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetDataReport', {
+      id: 'GetDataReport',
+      codePath: 'src/graphql/resolver/query/getData/data.ts',
+      typeName: 'Query',
+      fieldName: 'getData',
+      tables: [ 
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ],
+      auth: {
+        student: {
+          data: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetNotes', {
+      id: 'GetNotes',
+      codePath: 'src/graphql/resolver/query/getData/notes.ts',
+      typeName: 'Query',
+      fieldName: 'getNotes',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ],
+      buckets: [
+        { bucket: resources.dataBucket, access: S3Access.read, pattern: 'student/*' }
+      ],
+      auth: {
+        student: {
+          comments: AccessLevel.read
+        }
+      }
+    });
+    resources.appsync.addLambdaResolver('UpdateNotes', {
+      id: 'UpdateNotes',
+      codePath: 'src/graphql/resolver/mutations/report/notes.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateNotes',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite }
+      ],
+      auth: {
+        student: {
+          comments: AccessLevel.admin
+        }
+      }
+    });
+    resources.appsync.addLambdaResolver("OnStudentNote", {
+      id: 'OnStudentNote',
+      codePath: 'src/graphql/resolver/subscriptions/report/notes.ts',
+      typeName: 'Subscription',
+      fieldName: 'onStudentNote',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      auth: {
+        student: {
+          comments: AccessLevel.read
+        }
+      }
+    });
+    
+    resources.appsync.addLambdaResolver('UpdateDateInclusion', {
+      id: 'urdi',
+      codePath: 'src/graphql/resolver/mutations/report/date-inclusion.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateReportDateInclusion',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ],
+      auth: {
+        student: {
+          data: AccessLevel.admin
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('UpdateUserDashboard', {
+      id: 'UpdateUserDashboard',
+      codePath: 'src/graphql/resolver/mutations/user/dashboard.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateUserBehaviorDashboardSettings',
+      tables: [ 
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite } 
+      ],
+      auth: {
+        student: {
+          data: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('UpdateStudentData', {
+      id: 'UpdateStudentData',
+      codePath: 'src/graphql/resolver/mutations/student/update-info/data.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateStudent',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite }, 
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ],
+      auth: {
+        student: {}
+      }
+    });
+
+    resources.appsync.addLambdaResolver('DeleteStudents', {
+      id: 'DeleteStudents',
+      codePath: 'src/graphql/resolver/mutations/student/update-info/delete.ts',
+      typeName: 'Mutation',
+      fieldName: 'deleteStudent',
+      environmentVariables: {
+        STRONGLY_CONSISTENT_READ: 'true'
+      },
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite }, 
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.student, MttIndexes.license ] }
+      ],
+      auth: {
+        student: {}
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetDataSources', {
+      id: 'GetDataSources',
+      codePath: 'src/graphql/resolver/query/getStudent/data-sources.ts',
+      typeName: 'Query',
+      fieldName: 'getStudentSources',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read }, 
+        { table: resources.dataTable, access: DynamoDBAccess.read, indexes: ['', 'Student'] }
+      ],
+      auth: {
+        student: {
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('ListSnapshots', {
+      id: 'ListSnapshots',
+      codePath: 'src/graphql/resolver/query/getSnapshot/list.ts',
+      typeName: 'Query',
+      fieldName: 'listSnapshots',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ],
+      buckets: [
+        { bucket: resources.dataBucket, access: S3Access.read, pattern: 'student/*' }
+      ],
+      auth: {
+        student: {
+          reports: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetSnapshot', {
+      id: 'GetSnapshot',
+      codePath: 'src/graphql/resolver/query/getSnapshot/get.ts',
+      typeName: 'Query',
+      fieldName: 'getSnapshot',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ],
+      buckets: [
+        { bucket: resources.dataBucket, access: S3Access.read, pattern: 'student/*' }
+      ],
+      auth: {
+        student: {
+          reports: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('SaveSnapshot', {
+      id: 'SaveSnapshot',
+      codePath: 'src/graphql/resolver/mutations/snapshot/save.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateSnapshot',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      buckets: [
+        { bucket: resources.dataBucket, access: S3Access.write, pattern: 'student/*' }
+      ],
+      auth: {
+        student: {
+          reports: AccessLevel.admin
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('UpdateDataInReport', {
+      id: 'UpdateDataInReport',
+      codePath: 'src/graphql/resolver/mutations/report/data.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateDataInReport',
+      events: [{ eventBus: resources.eventBus, access: EventBusAccess.sendMessage }],
+      tables: [{ table: resources.dataTable, access: DynamoDBAccess.read }],
+      sqs: [{ sqs: resources.reportDataQueue, access: SqsAccess.sendMessage}],
+      auth: {
+        student: {
+          data: AccessLevel.admin
+        }
+      },
+    });
+
+    resources.appsync.addLambdaResolver('UpdateReportDaySchedule', {
+      id: 'UpdateReportDaySchedule',
+      codePath: 'src/graphql/resolver/mutations/report/schedule.ts',
+      typeName: 'Mutation',
+      fieldName: 'updateReportDaySchedule',
+      environmentVariables: {
+          STRONGLY_CONSISTENT_READ: 'true'
+      },
+      tables: [{ table: resources.dataTable, access: DynamoDBAccess.readWrite }],
+      auth: {
+        student: {
+          data: AccessLevel.admin
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('DeleteNotifications', {
+      id: 'DeleteNotifications',
+      typeName: 'Mutation',
+      fieldName: 'deleteNotifications',
+      codePath: 'src/graphql/resolver/mutations/student/notifications/delete-notifications.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ],
+      auth: {
+        student: {
+          data: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetAppList', {
+      id: 'GetAppList',
+      typeName: 'Query',
+      fieldName: 'getAppList',
+      codePath: 'src/graphql/resolver/query/getDevices/apps.ts',
+      environmentVariables: {
+        'STRONGLY_CONSISTENT_READ': 'true'
+      },
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      auth: {
+        license: true
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetApp', {
+      id: 'GetApp',
+      typeName: 'Query',
+      fieldName: 'getApp',
+      codePath: 'src/graphql/resolver/query/getDevices/app.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.read, indexes: [ '', MttIndexes.device ] }
+      ],
+      auth: {
+        license: true
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetAppToken', {
+      id: 'GetAppToken',
+      typeName: 'Query',
+      fieldName: 'getAppToken',
+      codePath: 'src/graphql/resolver/query/getDevices/appToken.ts',
+      environmentVariables: {
+        TokenEncryptKey: resources.config.env.app.secrets.tokenKey.name,
+        appid: resources.config.env.domain.sub.device.appid
+      },
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      policyStatements: [
+        {
+          effect: Effect.ALLOW,
+          actions: ['ssm:GetParameter'],
+          resources: [`arn:aws:ssm:${resources.region}:${resources.account}:parameter${resources.config.env.app.secrets.tokenKey.name}`]
+        }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('GetAppsForDevice', {
+      id: 'GetAppsForDevice',
+      typeName: 'Query',
+      fieldName: 'getAppsForDevice',
+      codePath: 'src/graphql/resolver/query/getDevices/apps-for-device.ts',
+      environmentVariables: {
+        STRONGLY_CONSISTENT_READ: 'true'
+      },
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
+      ]
+    });
+    resources.appsync.addLambdaResolver('GetAppsForLicense', {
+      id: 'GetAppsForLicense',
+      typeName: 'Query',
+      fieldName: 'getAppsForLicense',
+      codePath: 'src/graphql/resolver/query/getDevices/apps-for-license.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('getTrackForDevice', {
+      id: 'GetTrackForDevice',
+      typeName: 'Query',
+      fieldName: 'getTrackForDevice',
+      codePath: 'src/graphql/resolver/query/getDevices/track-for-dsn.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('UpdateApp', {
+      id: 'UpdateApp',
+      typeName: 'Mutation',
+      fieldName: 'updateApp',
+      codePath: 'src/graphql/resolver/mutations/app/update.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite, indexes: [ '', MttIndexes.device ] }
+      ],
+      auth: {
+        license: true
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetSubscriptionsForStudent', {
+      id: 'gsfs',
+      typeName: 'Query',
+      fieldName: 'getSubscriptionsForStudent',
+      codePath: 'src/graphql/resolver/query/getStudent/subscriptions.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read, indexes: [ '', MttIndexes.device ] }
+      ],
+      auth: {
+        student: {
+          notifications: AccessLevel.read
+        }
+      }
+    });
+
+    resources.appsync.addLambdaResolver('GetUsersForLicense', {
+      id: 'GetUsersForLicense',
+      typeName: 'Query',
+      fieldName: 'getUsersForLicense',
+      codePath: 'src/graphql/resolver/query/getUsers/manage.ts',
+      environmentVariables: {
+        STRONGLY_CONSISTENT_READ: 'true'
+      },
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read, indexes: [ '', MttIndexes.license ] }
+      ],
+      auth: {
+        license: true
+      }
+    });
+
+
+    const https_key = `/${resources.props.environment}/regional/calc/endpoints/device/url`;
+    resources.appsync.addLambdaResolver('GetServerSettings', {
+      id: 'GetServerSettings',
+      typeName: 'Query',
+      fieldName: 'getServerSettings',
+      codePath: 'src/graphql/resolver/query/getServerSettings/data.ts',
+      environmentVariables: {
+        https_key,
+        apikey: resources.config.env.domain.sub.device.apikey,
+        graphql: resources.appsync.graphqlUrl,
+        appid: resources.config.env.domain.sub.device.appid
+      },
+      auth: {
+        license: true
+      },
+      policyStatements: [
+        {
+          effect: Effect.ALLOW,
+          actions: ['ssm:GetParameter'],
+          resources: [`arn:aws:ssm:*:*:parameter${https_key}`]
+        }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('GetUser', {
+      id: 'GetUser',
+      typeName: 'Query',
+      fieldName: 'getUser',
+      codePath: 'src/graphql/resolver/query/getUsers/current.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read }
+      ],
+      cognito: [ { pool: resources.cognito, access: CognitoAccess.administrateUsers }]
+    });
+    resources.appsync.addLambdaResolver('AcceptUserTerms', {
+      id: 'AcceptUserTerms',
+      typeName: 'Mutation',
+      fieldName: 'acceptUserTerms',
+      codePath: 'src/graphql/resolver/mutations/user/accept-terms.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('UpdateUser', {
+      id: 'UpdateUser',
+      typeName: 'Mutation',
+      fieldName: 'updateUser',
+      codePath: 'src/graphql/resolver/mutations/user/info.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ],
+      cognito: [{ pool: resources.cognito, access: CognitoAccess.listUsers }]
+    });
+
+    const noneSource = resources.appsync.addNoneDataSource('NoneDataSource', {
+      name: 'NoneDataSource',
+      description: 'NoneDataSource'
+    });
+    resources.appsync.createResolver('onUserLicenseChange', {
+      typeName: 'Subscription',
+      fieldName: 'onUserLicenseChange',
+      code: Code.fromAsset('./src/graphql/resolver/authorization/user-id-match.js'),
+      runtime: FunctionRuntime.JS_1_0_0,
+      dataSource: noneSource
+    });
+
+    resources.appsync.createResolver('userStudentAccessSubCheck', {
+      typeName: 'Subscription',
+      fieldName: 'onStudentDataChange',
+      code: Code.fromAsset('./src/graphql/resolver/authorization/user-id-match.js'),
+      runtime: FunctionRuntime.JS_1_0_0,
+      dataSource: noneSource
+    });
+
+    resources.appsync.createResolver('studentDataChange', {
+      typeName: 'Mutation',
+      fieldName: 'studentDataChange',
+      code: Code.fromAsset('./src/graphql/resolver/mutations/passthrough.js'),
+      runtime: FunctionRuntime.JS_1_0_0,
+      dataSource: noneSource
+    });
+
+    resources.appsync.addLambdaResolver('updateInvite', {
+      id: 'updateInvite',
+      typeName: 'Mutation',
+      fieldName: 'updateInvite',
+      codePath: './src/graphql/resolver/mutations/user/invite.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('updateExcludeDate', {
+      id: 'UpdateExcludeDate',
+      typeName: 'Mutation',
+      fieldName: 'updateExcludeDate',
+      codePath: './src/graphql/resolver/mutations/report/update-exclude-date.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('ChangeLicense', {
+      id: 'ChangeLicense',
+      typeName: 'Mutation',
+      fieldName: 'changeLicense',
+      codePath: './src/graphql/resolver/mutations/license/change-license.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('getManageStudents', {
+      id: 'GetManageStudents',
+      typeName: 'Query',
+      fieldName: 'getManageStudents',
+      codePath: './src/graphql/resolver/query/getManageStudents/get-manage-students.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('getStudentTeam', {
+      id: 'getStudentTeam',
+      typeName: 'Query',
+      fieldName: 'getStudentTeam',
+      codePath: './src/graphql/resolver/query/getStudentTeam/get-student-team.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('deleteStudentTeamMember', {
+      id: 'deleteTeamMember',
+      typeName: 'Mutation',
+      fieldName: 'deleteStudentTeamMember',
+      codePath: './src/graphql/resolver/mutations/student/delete-team-member.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ]
+    });
+
+    resources.appsync.addLambdaResolver('updateStudentTeamMember', {
+      id: 'updateTeamMember',
+      typeName: 'Mutation',
+      fieldName: 'updateStudentTeamMember',
+      codePath: './src/graphql/resolver/mutations/student/update-team-member.ts',
+      tables: [
+        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
+      ]
+    });
   }
 }

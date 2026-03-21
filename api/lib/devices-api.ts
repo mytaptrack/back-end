@@ -6,9 +6,8 @@ import {
   MttStepFunction, MttIoTThing, MttIoTEndpoint, ConfigFile,
   Config
 } from '@mytaptrack/cdk';
-import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { IEventBus } from 'aws-cdk-lib/aws-events';
-import { MttEventType } from '@mytaptrack/lib';
+import { MttEventType, MttIndexes } from '@mytaptrack/lib';
 import { Condition } from 'aws-cdk-lib/aws-stepfunctions';
 import { Effect } from 'aws-cdk-lib/aws-iam';
 

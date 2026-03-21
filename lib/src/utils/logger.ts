@@ -23,7 +23,7 @@ export class MttLogger {
     }
 
     debug(...args: any[]) {
-        if(this.level >= LoggingLevel.debug) {
+        if(this.level > LoggingLevel.debug) {
             return;
         }
 
@@ -31,7 +31,7 @@ export class MttLogger {
     }
 
     info(...args: any[]) {
-        if(this.level >= LoggingLevel.info) {
+        if(this.level > LoggingLevel.info) {
             return;
         }
 
@@ -39,7 +39,7 @@ export class MttLogger {
     }
 
     warn(...args: any[]) {
-        if(this.level >= LoggingLevel.warn) {
+        if(this.level > LoggingLevel.warn) {
             return;
         }
 
@@ -47,7 +47,7 @@ export class MttLogger {
     }
 
     error(...args: any[]) {
-        if(this.level >= LoggingLevel.error) {
+        if(this.level > LoggingLevel.error) {
             return;
         }
 

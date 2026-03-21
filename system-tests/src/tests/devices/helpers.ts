@@ -6,7 +6,7 @@ import { webApi, wait, appTokenTrack, Logger, LoggingLevel } from '../../lib';
 import { AppRetrieveDataPostResponse, Student } from '@mytaptrack/types';
 import { license, data, primary } from '../../config';
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('DevicesHelpersV1', LoggingLevel.warn);
 
 export async function testTracking(student: Student, appDefinitions: AppRetrieveDataPostResponse, mobileAppId: string) {
     logger.info('Validating student tracking', student.studentId);

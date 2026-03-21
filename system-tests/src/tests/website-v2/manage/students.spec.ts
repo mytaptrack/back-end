@@ -3,7 +3,7 @@ import { license } from "../../../config";
 import { cleanUp, setupStudent, testBehavior } from "../helpers";
 import { AccessLevel, UserSummaryStatus } from "@mytaptrack/types";
 
-const logger = new Logger('QLManageStudents', LoggingLevel.info);
+const logger = new Logger('QLManageStudents', LoggingLevel.debug);
 
 describe('QLManageStudents', () => {
     beforeAll(async () => {
@@ -26,13 +26,13 @@ describe('QLManageStudents', () => {
         }
 
         logger.info('Checking to see if we can see student team');
-        const student3TeamCall2 = await qlApi.getStudentTeam(student1WithBehaviors.studentId);
+        const student3TeamCall2 = await qlApi.getStudentTeam(student1WithBehaviors.studentId!);
         expect(student3TeamCall2.find((x: any) => x.userId == user.id)).toBeFalsy();
 
         logger.info('Adding current user to student team');
         await qlApi.updateStudentTeamMember({
             studentId: student1WithBehaviors.studentId, 
-            userId: '', 
+            userId: '',
             restrictions: {
                 info: AccessLevel.admin,
                 data: AccessLevel.admin,
@@ -60,8 +60,9 @@ describe('QLManageStudents', () => {
             sendEmail: false
         });
 
-        const student3TeamCall3 = await qlApi.getStudentTeam(student1WithBehaviors.studentId);
-        expect(student3TeamCall3.find((x: any) => x.userId == user.id)).toBeTruthy();
+        const student3TeamCall3 = await qlApi.getStudentTeam(student1WithBehaviors.studentId!);
+        logger.debug('student3TeamCall3', student3TeamCall3);
+        expect(student3TeamCall3.find((x) => x.userId == user.id)).toBeTruthy();
 
         await cleanUp(student1WithBehaviors);
     }, 2 * 60 * 1000);
@@ -75,7 +76,7 @@ describe('QLManageStudents', () => {
 
         expect(user).toBeDefined();
         expect(manageStudentResponse.students.length).toBeGreaterThan(0);
-        expect(manageStudentResponse.students.find((x: any) => x.studentId == student1WithBehaviors.studentId)).toBeDefined();
+        expect(manageStudentResponse.students.find((x: any) => x?.studentId == student1WithBehaviors.studentId)).toBeDefined();
         await cleanUp(student1WithBehaviors);
     }, 2 * 60 * 1000);
 

@@ -15,6 +15,7 @@ import { eventHandler as appDelete } from '../device/functions/appApi/appDelete'
 import { put as appTokenRetrieve } from '../device/functions/appApi/appTokenRetrieve';
 import { put as appTokenTrack } from '../device/functions/appApi/appTokenTrack';
 import { put as notesPut } from '../device/functions/appApi/notesPut';
+import { check as firmwarePost } from '../device/functions/api/firmwarePost';
 
 // Convert Express request to API Gateway event
 function toAPIGatewayEvent(req: express.Request): APIGatewayProxyEvent {
@@ -111,3 +112,8 @@ async function start() {
         console.log(`Device API server running on http://localhost:${PORT}`);
     });
 }
+
+start().catch((error) => {
+    console.error('Failed to start device server:', error);
+    process.exit(1);
+});

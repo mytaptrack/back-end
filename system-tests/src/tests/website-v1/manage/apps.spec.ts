@@ -12,8 +12,7 @@ import {
 import { cleanUp, setupStudent, setupBehaviors } from "../helpers";
 import { uuid } from 'short-uuid';
 
-const logger = new Logger(LoggingLevel.DEBUG);
-
+const logger = new Logger('ManageAppsV1', LoggingLevel.debug);
 
 describe('ManageApps', () => {
     beforeAll(async () => {

@@ -4,7 +4,7 @@ import {
     AppSyncApi, CognitoAccess, DynamoDBAccess, MttCognito, MttContext, MttDynamoDB, 
     MttFunction,MttRestApi, MttS3, MttSqs, S3Access, SqsAccess, Config
 } from "@mytaptrack/cdk";
-import { MttIndexes } from "@mytaptrack/lib/dist/v2/dals/dal";
+import { MttIndexes } from "@mytaptrack/lib";
 
 export interface AppStudentApiStackProps extends NestedStackProps {
     apiSource: MttRestApi,

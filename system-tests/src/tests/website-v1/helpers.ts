@@ -7,7 +7,7 @@ import {
 } from "../../lib";
 import { AccessLevel, Student, User, UserSummaryStatus } from "@mytaptrack/types";
 
-const logger = new Logger(LoggingLevel.WARN);
+const logger = new Logger('helpersV1', LoggingLevel.warn);
 
 let user: User;
 

@@ -1,24 +1,37 @@
 // Load .env file first
 import * as dotenv from 'dotenv';
 
-console.log = () => {};
-dotenv.config({ path: require('path').join(__dirname, '../../.env'), override: true });
-
 const environment = process.env.STAGE ?? 'dev';
+
+// Only load .env file for local mode, or load selectively for AWS mode
+if (process.env.USE_LOCAL === 'true') {
+    dotenv.config({ path: require('path').join(__dirname, '../../.env'), override: true });
+} else {
+    process.env.DataTable = `mytaptrack-${environment}-data`;
+    process.env.PrimaryTable = `mytaptrack-${environment}-primary`;
+}
+
+
+console.log = () => {};
 
 import { ConfigFile } from '@mytaptrack/cdk';
 import { Dal, MttLogger } from '@mytaptrack/lib';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { Logger, LoggingLevel } from './lib/logging';
 
-const logger = new Logger('config', LoggingLevel.warn);
+const logger = new Logger('config', LoggingLevel.debug);
 
 MttLogger.getLogger = () => { return logger; }
 
 // Only create SSM client if not in local mode
-const ssm = process.env.USE_LOCAL === 'true' ? null : new SSMClient({
-    maxAttempts: 3 // Retry up to 3 times
-});
+let ssm: SSMClient = null;
+
+if(process.env.USE_LOCAL !== 'true') {
+    logger.info('Loading ssm');
+    ssm = new SSMClient({
+        maxAttempts: 3 // Retry up to 3 times
+    });
+}
 
 const configFile = new ConfigFile(process.env.CONFIG_PATH ?? '../config', environment);
 export const config = configFile.config;
@@ -42,6 +55,7 @@ export async function getClientId() {
         if (!ssm) {
             throw new Error('SSM client not available in local mode');
         }
+        logger.info(`/${environment}/regional/calc/cognito/clientid`);
         const result = await ssm.send(new GetParameterCommand({
             Name: `/${environment}/regional/calc/cognito/clientid`
         }));
@@ -69,7 +83,7 @@ export function getApiKey() {
 let deviceEndpoint: string;
 export async function getDeviceEndpoint() {
     if (process.env.USE_LOCAL === 'true') {
-        return 'localhost';
+        return '127.0.0.1';
     }
     
     if(deviceEndpoint) {
@@ -87,7 +101,7 @@ export async function getDeviceEndpoint() {
 let apiEndpoint: string;
 export async function getApiEndpoint() {
     if (process.env.USE_LOCAL === 'true') {
-        return 'localhost';
+        return '127.0.0.1';
     }
     
     if(apiEndpoint) {

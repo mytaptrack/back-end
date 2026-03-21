@@ -8,8 +8,7 @@ import {
     testIntensity
 } from './helpers';
 
-const logger = new Logger(LoggingLevel.WARN);
-
+const logger = new Logger('StudentsV1', LoggingLevel.warn);
 
 describe('students', () => {
     beforeAll(async () => {

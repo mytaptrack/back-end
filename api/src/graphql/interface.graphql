@@ -9,7 +9,7 @@ type Query {
     getAppList(license: String!, studentId: String): [AppSummary] @aws_iam @aws_cognito_user_pools
     getApp(license: String!, deviceId: String!): AppDefinition @aws_iam @aws_cognito_user_pools
     getAppsForDevice(deviceId: String!, auth: String!, apps: [AppClaimInput]): DeviceAppDefinition @aws_iam
-    getAppsForLicense(license: String!): [AppDefinition] @aws_iam
+    getAppsForLicense(license: String!): [AppDefinition] @aws_iam @aws_cognito_user_pools
     getAppToken(license: String!, deviceId: String!, expiration: Long): AppToken @aws_iam @aws_cognito_user_pools
 
     getTrackForDevice(dsn: String!, auth: String!): Track20 @aws_iam
@@ -47,7 +47,6 @@ type Mutation {
     acceptUserTerms(accept: Boolean): Boolean @aws_iam @aws_cognito_user_pools
 
     changeLicense(input: LicenseUpdateInput): LicenseUserDetails @aws_iam @aws_cognito_user_pools
-    userLicenseChange(userId: String!): LicenseUserDetails @aws_iam @aws_cognito_user_pools
 
     updateServiceDefinition(service: ServiceInput!): Service @aws_iam @aws_cognito_user_pools
     deleteServiceDefinition(serviceId: String!): Service @aws_iam @aws_cognito_user_pools
@@ -88,7 +87,6 @@ type Mutation {
 
 type Subscription {
     onStudentNotificationChange: [StudentNotification] @aws_subscribe(mutations: ["studentNotificationChange"]) @aws_cognito_user_pools
-    onUserLicenseChange(userId: String!): LicenseUserDetails @aws_subscribe(mutations: ["userLicenseChange", "changeLicense"]) @aws_cognito_user_pools
     onStudentDataChange(userId: String!, studentId: String!): ReportEventData @aws_subscribe(mutations: ["studentDataChange"]) @aws_cognito_user_pools
     onStudentNote(studentId: String!): StudentNote @aws_subscribe(mutations: ["updateNotes"]) @aws_cognito_user_pools
 }
