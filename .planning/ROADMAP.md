@@ -45,7 +45,13 @@ Plans:
   3. Every GraphQL mutation operation is processed by the local server without falling through to AWS
   4. GraphQL subscriptions either work locally or return a clear graceful-skip response rather than an unhandled error
   5. The local GraphQL server correctly constructs AppSync-style context before invoking Lambda resolver functions
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Wave 0: resolver-wrapper.spec.ts unit tests for AppSync context shape (RED/GREEN contract)
+- [ ] 02-02-PLAN.md — Fix container:start script (server.ts bug) and add identity.claims to resolver-wrapper.ts
+- [ ] 02-03-PLAN.md — Add NoneDataSource subscription stubs and remove dead code in graphql-server.ts
+- [ ] 02-04-PLAN.md — Phase gate: human verifies docker compose up and subscription graceful skip (checkpoint)
 
 ### Phase 3: Test Validation
 **Goal**: The full system test suite is green against the local Docker stack and the AWS deployment is unaffected
@@ -76,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Config Detection | 3/3 | Complete | 2026-03-23 |
-| 2. Local Stack Completeness | 0/TBD | Not started | - |
+| 2. Local Stack Completeness | 0/4 | Planned | - |
 | 3. Test Validation | 0/TBD | Not started | - |
 | 4. Documentation | 0/TBD | Not started | - |
