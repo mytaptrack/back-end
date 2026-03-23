@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Create Wave 0 unit test stubs for all USE_LOCAL routing paths
-- [ ] 01-02-PLAN.md — Harden USE_LOCAL routing: strict equality fix, AWS-mode guard, table name alignment
+- [x] 01-01-PLAN.md — Create Wave 0 unit test stubs for all USE_LOCAL routing paths
+- [x] 01-02-PLAN.md — Harden USE_LOCAL routing: strict equality fix, AWS-mode guard, table name alignment
 - [ ] 01-03-PLAN.md — Phase gate: run unit tests and verify handler signatures unchanged (checkpoint)
 
 ### Phase 2: Local Stack Completeness

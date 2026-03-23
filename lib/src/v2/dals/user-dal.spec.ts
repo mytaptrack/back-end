@@ -79,7 +79,7 @@ describe('UserDal', () => {
                 await UserDal.updateUserEvent(userId, null, i);
             }
         }));
-        
+
         console.log('Adding new event');
         const event = {
             studentId,
@@ -95,7 +95,7 @@ describe('UserDal', () => {
 
         console.log('Updating existing event');
         event.awaitingResponse = true;
-        event.count = 2;        
+        event.count = 2;
         await UserDal.updateUserEvent(userId, event, 0);
         user = await UserDal.getUserConfig(userId);
         userEvent = user.events.find(x => x.studentId == studentId);
@@ -116,5 +116,46 @@ describe('UserDal', () => {
         user = await UserDal.getUserConfig(userId);
         userEvent = user.events.find(x => x.studentId == studentId);
         expect(userEvent).toBeUndefined();
+    });
+});
+
+/**
+ * Unit test stubs: Cognito null guard when USE_LOCAL=true
+ *
+ * Documents the contract that UserDal.cognito is null in local mode and a
+ * CognitoIdentityProviderClient instance in AWS mode.
+ *
+ * Wave 0 — tests should RUN; behavior is already implemented so these pass.
+ */
+describe('USE_LOCAL routing', () => {
+    // Each test resets the module registry so the user-dal singleton is
+    // re-instantiated with the current value of process.env.USE_LOCAL.
+
+    beforeEach(() => {
+        jest.resetModules();
+    });
+
+    afterEach(() => {
+        delete process.env.USE_LOCAL;
+    });
+
+    it('UserDal.cognito is null when USE_LOCAL=true', () => {
+        process.env.USE_LOCAL = 'true';
+        // Re-require AFTER setting env var and resetting modules so the
+        // module-level `cognito = process.env.USE_LOCAL == 'true' ? null : new Client()`
+        // assignment re-evaluates with USE_LOCAL='true'.
+        const { UserDal: freshUserDal } = require('./user-dal');
+        expect(freshUserDal.cognito).toBeNull();
+    });
+
+    it('UserDal.cognito is a CognitoIdentityProviderClient when USE_LOCAL is not set', () => {
+        delete process.env.USE_LOCAL;
+        // Re-require AFTER removing USE_LOCAL so the singleton is instantiated
+        // without the local override — cognito should be a real client instance.
+        const { UserDal: freshUserDal } = require('./user-dal');
+        // The global test-setup mocks CognitoIdentityProviderClient as jest.fn(),
+        // so the instance is a mock object; check it is truthy (non-null).
+        expect(freshUserDal.cognito).not.toBeNull();
+        expect(freshUserDal.cognito).toBeDefined();
     });
 });
