@@ -58,6 +58,7 @@
 | CFG-01 | Phase 1 | Pending |
 | CFG-02 | Phase 1 | Pending |
 | CFG-03 | Phase 1 | Pending |
+| AWS-02 | Phase 1 | Pending |
 | CFG-04 | Phase 2 | Pending |
 | GQL-01 | Phase 2 | Pending |
 | GQL-02 | Phase 2 | Pending |
@@ -67,15 +68,14 @@
 | TST-02 | Phase 3 | Pending |
 | TST-03 | Phase 3 | Pending |
 | AWS-01 | Phase 3 | Pending |
-| AWS-02 | Phase 1 | Pending |
 | DOC-01 | Phase 4 | Pending |
 | DOC-02 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
 - Mapped to phases: 15
-- Unmapped: 0 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after initial definition*
+*Last updated: 2026-03-23 after roadmap creation*
