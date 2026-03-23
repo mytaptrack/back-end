@@ -31,7 +31,7 @@ interface UserIdStorage {
 }
 
 class UserDalClass extends DalBaseClass {
-    public cognito = process.env.USE_LOCAL == 'true'? null : new CognitoIdentityProviderClient({});
+    public cognito = process.env.USE_LOCAL === 'true' ? null : new CognitoIdentityProviderClient({});
 
     async getUserId(email: string, defaultUserId: string) {
         const key = { pk: `U#${email.toLowerCase()}#E`, sk: 'P'};

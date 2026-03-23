@@ -10,6 +10,11 @@ if (process.env.USE_LOCAL === 'true') {
     process.env.AWS_SECRET_ACCESS_KEY = 'local';
     process.env.AWS_REGION = 'us-east-1';
     process.env.STRONGLY_CONSISTENT_READ = 'true';
+} else {
+    // Ensure AWS mode is explicit — prevents SSM calls failing due to absent env var
+    if (!process.env.USE_LOCAL) {
+        process.env.USE_LOCAL = 'false';
+    }
 }
 
 // Jest setup file to handle AWS credential issues gracefully
