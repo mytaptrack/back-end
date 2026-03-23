@@ -35,6 +35,7 @@ module.exports = async function globalSetup() {
 
     // ── Set env vars BEFORE any lib require() calls ────────────────────────
     process.env.DYNAMODB_ENDPOINT        = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000';
+    // Must stay in sync with system-tests/src/jest.setup.ts USE_LOCAL=true block
     process.env.PrimaryTable             = 'mytaptrack-local-primary';
     process.env.DataTable                = 'mytaptrack-local-data';
     process.env.USE_DATABASE_ABSTRACTION = 'false';
