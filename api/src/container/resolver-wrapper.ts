@@ -6,7 +6,9 @@ export function wrapResolver(handler: Function) {
     const selectionSetList = info?.fieldNodes?.[0]?.selectionSet?.selections?.map((selection: any) => selection.name.value) || [];
     
     const appsyncContext: Context = {
+      env: (process.env as Record<string, string>) || {},
       arguments: args,
+      args,
       source: {},
       result: {},
       prev: { result: {} },
