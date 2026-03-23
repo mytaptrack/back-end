@@ -7,9 +7,9 @@
 
 ### Config & Environment
 
-- [ ] **CFG-01**: System detects local vs AWS mode via `USE_LOCAL` env var and routes all service clients (DynamoDB, EventBridge, etc.) accordingly
-- [ ] **CFG-02**: System tests correctly target local Docker stack when `USE_LOCAL=true`
-- [ ] **CFG-03**: System tests correctly target AWS resources when `USE_LOCAL` is unset/false
+- [x] **CFG-01**: System detects local vs AWS mode via `USE_LOCAL` env var and routes all service clients (DynamoDB, EventBridge, etc.) accordingly
+- [x] **CFG-02**: System tests correctly target local Docker stack when `USE_LOCAL=true`
+- [x] **CFG-03**: System tests correctly target AWS resources when `USE_LOCAL` is unset/false
 - [ ] **CFG-04**: `docker compose up` starts all required services and APIs cleanly with no manual steps
 
 ### GraphQL Local Server
@@ -28,7 +28,7 @@
 ### AWS Compatibility
 
 - [ ] **AWS-01**: All existing CDK stacks deploy cleanly with no regressions
-- [ ] **AWS-02**: Lambda handlers unchanged — no modifications to resolver/handler signatures
+- [x] **AWS-02**: Lambda handlers unchanged — no modifications to resolver/handler signatures
 
 ### Documentation
 
@@ -55,10 +55,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CFG-01 | Phase 1 | Pending |
-| CFG-02 | Phase 1 | Pending |
-| CFG-03 | Phase 1 | Pending |
-| AWS-02 | Phase 1 | Pending |
+| CFG-01 | Phase 1 | Complete |
+| CFG-02 | Phase 1 | Complete |
+| CFG-03 | Phase 1 | Complete |
+| AWS-02 | Phase 1 | Complete |
 | CFG-04 | Phase 2 | Pending |
 | GQL-01 | Phase 2 | Pending |
 | GQL-02 | Phase 2 | Pending |
