@@ -26,7 +26,9 @@ export function wrapResolver(handler: Function) {
         headers: context.headers || {},
         domainName: null
       },
-      identity: context.identity || null,
+      identity: context.identity
+        ? { ...context.identity, claims: context.identity }
+        : null,
       error: null
     };
 
