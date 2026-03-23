@@ -17,7 +17,7 @@
         "buildlibs": "cd ../types && tsc -d && cd ../lib && tsc -d",
         "stage-changeset": "cdk deploy --all --no-execute --change-set-name pipeline-deployment --require-approval never",
         "local-api": "npx ts-node src/start-api.ts",
-        "container:start": "npx ts-node --transpile-only src/container/server.ts",
+        "container:start": "npx ts-node --transpile-only src/container/graphql-server.ts",
         "container:init-tables": "npx ts-node --transpile-only src/container/init-tables.ts",
         "device:start": "npx ts-node --transpile-only src/container/device-server.ts",
         "device:watch": "npx nodemon --watch src --ext ts --exec 'npx ts-node --transpile-only src/container/device-server.ts'",
