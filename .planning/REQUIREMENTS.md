@@ -10,14 +10,14 @@
 - [x] **CFG-01**: System detects local vs AWS mode via `USE_LOCAL` env var and routes all service clients (DynamoDB, EventBridge, etc.) accordingly
 - [x] **CFG-02**: System tests correctly target local Docker stack when `USE_LOCAL=true`
 - [x] **CFG-03**: System tests correctly target AWS resources when `USE_LOCAL` is unset/false
-- [ ] **CFG-04**: `docker compose up` starts all required services and APIs cleanly with no manual steps
+- [x] **CFG-04**: `docker compose up` starts all required services and APIs cleanly with no manual steps
 
 ### GraphQL Local Server
 
-- [ ] **GQL-01**: All GraphQL query operations handled by local server
-- [ ] **GQL-02**: All GraphQL mutation operations handled by local server
-- [ ] **GQL-03**: GraphQL subscriptions handled or gracefully skipped in local mode
-- [ ] **GQL-04**: Local GraphQL server correctly translates AppSync-style context to Lambda invocation format
+- [x] **GQL-01**: All GraphQL query operations handled by local server
+- [x] **GQL-02**: All GraphQL mutation operations handled by local server
+- [x] **GQL-03**: GraphQL subscriptions handled or gracefully skipped in local mode
+- [x] **GQL-04**: Local GraphQL server correctly translates AppSync-style context to Lambda invocation format
 
 ### System Tests
 
@@ -59,11 +59,11 @@
 | CFG-02 | Phase 1 | Complete |
 | CFG-03 | Phase 1 | Complete |
 | AWS-02 | Phase 1 | Complete |
-| CFG-04 | Phase 2 | Pending |
-| GQL-01 | Phase 2 | Pending |
-| GQL-02 | Phase 2 | Pending |
-| GQL-03 | Phase 2 | Pending |
-| GQL-04 | Phase 2 | Pending |
+| CFG-04 | Phase 2 | Complete |
+| GQL-01 | Phase 2 | Complete |
+| GQL-02 | Phase 2 | Complete |
+| GQL-03 | Phase 2 | Complete |
+| GQL-04 | Phase 2 | Complete |
 | TST-01 | Phase 3 | Pending |
 | TST-02 | Phase 3 | Pending |
 | TST-03 | Phase 3 | Pending |

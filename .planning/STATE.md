@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: "Completed 02-local-stack-completeness Plan 02 — container:start fix and identity.claims"
-last_updated: "2026-03-23T23:29:08.139Z"
+stopped_at: Completed 02-local-stack-completeness Plan 03 — subscription stubs and dead code cleanup
+last_updated: "2026-03-23T23:31:17.001Z"
 last_activity: 2026-03-23 — Phase 1 complete (all 3 plans done, human approved)
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 25
 ---
 
@@ -54,6 +54,7 @@ Progress: [██░░░░░░░░] 25%
 | Phase 01-config-detection P01 | 2 | 5 files | 35 min |
 | Phase 02-local-stack-completeness P01 | 2 | 1 tasks | 4 files |
 | Phase 02-local-stack-completeness P02 | 1min | 2 tasks | 2 files |
+| Phase 02-local-stack-completeness P03 | 5 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 02-local-stack-completeness]: resolver-wrapper.ts Context shape updated: @aws-appsync/utils v1.5+ requires env and args fields
 - [Phase 02-local-stack-completeness]: identity spread+claims alias: { ...context.identity, claims: context.identity } satisfies both graphQLWrapper and apiWrapperEx without breaking changes
 - [Phase 02-local-stack-completeness]: container:start now points directly to graphql-server.ts — no shim, fewer indirection layers
+- [Phase 02-local-stack-completeness]: NoneDataSource stubs registered directly on root map (not in loadResolvers) because createResolver() fields bypass addLambdaResolver
+- [Phase 02-local-stack-completeness]: Dead YAML/Object.entries blocks removed — superseded by AppSyncStack dynamic loading since plan 02-01
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T23:29:08.137Z
-Stopped at: Completed 02-local-stack-completeness Plan 02 — container:start fix and identity.claims
+Last session: 2026-03-23T23:31:16.998Z
+Stopped at: Completed 02-local-stack-completeness Plan 03 — subscription stubs and dead code cleanup
 Resume file: None
