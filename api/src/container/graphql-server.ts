@@ -64,10 +64,6 @@ class MockStack extends MockConstruct {
 
 // Load resolver mappings from YAML file
 function loadResolverMappings(): Record<string, string> {
-  // const yamlPath = path.join(__dirname, 'graphql-mappings.yml');
-  // const yamlContent = fs.readFileSync(yamlPath, 'utf8');
-  // const config = yaml.load(yamlContent) as any;
-
   // Mock the stack props and dependencies
   const mockProps: any = {
     environment: 'dev',
@@ -109,21 +105,6 @@ function loadResolverMappings(): Record<string, string> {
   lambdaResolvers.forEach(config => {
     resolverMap[config.codePath] = config.fieldName;
   })
-  
-  // Object.entries(config.Query || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
-  //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
-  //   resolverMap[filePath] = fieldName;
-  // });
-  
-  // Object.entries(config.Mutation || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
-  //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
-  //   resolverMap[filePath] = fieldName;
-  // });
-  
-  // Object.entries(config.Subscription || {}).forEach(([fieldName, resolverConfig]: [string, any]) => {
-  //   const filePath = typeof resolverConfig === 'string' ? resolverConfig : resolverConfig.handler;
-  //   resolverMap[filePath] = fieldName;
-  // });
   
   return resolverMap;
 }
@@ -209,6 +190,21 @@ function wrapResolver(handler: Function) {
 }
 
 const root = loadResolvers();
+
+// NoneDataSource stubs — these fields use createResolver() in app-sync.ts and are not
+// captured by addLambdaResolver. Per GQL-03, return null (graceful skip) instead of throwing.
+root['onUserLicenseChange'] = async (_args: any, _context: any, _info: any) => {
+  logger.log('onUserLicenseChange: subscription not supported in local mode, returning null');
+  return null;
+};
+root['onStudentDataChange'] = async (_args: any, _context: any, _info: any) => {
+  logger.log('onStudentDataChange: subscription not supported in local mode, returning null');
+  return null;
+};
+root['studentDataChange'] = async (_args: any, _context: any, _info: any) => {
+  logger.log('studentDataChange: NoneDataSource passthrough — returning null in local mode');
+  return null;
+};
 
 const app = express();
 
