@@ -84,6 +84,26 @@ async function setupDynamoDB(licenseNumber, users) {
     // Require AFTER env vars are set so the Dal picks up the right endpoint
     const { UserDal, LicenseDal } = require('@mytaptrack/lib');
 
+    // Probe DynamoDB before attempting writes — fail gracefully when Docker is not running
+    try {
+        const endpoint = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000';
+        await new Promise((resolve, reject) => {
+            const url = new URL(endpoint);
+            const net = require('net');
+            const socket = net.createConnection(
+                { host: url.hostname, port: parseInt(url.port || '8000', 10) },
+                () => { socket.destroy(); resolve(); }
+            );
+            socket.setTimeout(2000);
+            socket.on('error', reject);
+            socket.on('timeout', () => { socket.destroy(); reject(new Error('timeout')); });
+        });
+    } catch (err) {
+        const reason = err.message || err.code || 'ECONNREFUSED';
+        console.warn(`[Global Setup] DynamoDB not available (${reason}). Tests requiring DynamoDB will fail.`);
+        return;
+    }
+
     await LicenseDal.save({
         license: licenseNumber,
         customer: 'System Tests',
