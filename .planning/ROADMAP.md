@@ -28,7 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. System tests read USE_LOCAL and select local or AWS config without any code changes between runs
   3. System tests targeting AWS run correctly when USE_LOCAL is unset or false
   4. No Lambda handler signatures or resolver function exports are modified
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Create Wave 0 unit test stubs for all USE_LOCAL routing paths
+- [ ] 01-02-PLAN.md — Harden USE_LOCAL routing: strict equality fix, AWS-mode guard, table name alignment
+- [ ] 01-03-PLAN.md — Phase gate: run unit tests and verify handler signatures unchanged (checkpoint)
 
 ### Phase 2: Local Stack Completeness
 **Goal**: All GraphQL query, mutation, and subscription operations are handled by the local server, and the full Docker stack starts cleanly in one command
@@ -70,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Config Detection | 0/TBD | Not started | - |
+| 1. Config Detection | 0/3 | Planning complete | - |
 | 2. Local Stack Completeness | 0/TBD | Not started | - |
 | 3. Test Validation | 0/TBD | Not started | - |
 | 4. Documentation | 0/TBD | Not started | - |
