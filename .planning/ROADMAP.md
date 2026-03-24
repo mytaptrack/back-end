@@ -13,7 +13,7 @@ This milestone threads a translation layer between local Docker services and the
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Config Detection** - USE_LOCAL routing works correctly for all service clients and test runners
-- [ ] **Phase 2: Local Stack Completeness** - All GraphQL operations handled locally; docker compose up starts cleanly
+- [x] **Phase 2: Local Stack Completeness** - All GraphQL operations handled locally; docker compose up starts cleanly
 - [ ] **Phase 3: Test Validation** - Full system test suite passes in both local and AWS modes with no regressions
 - [ ] **Phase 4: Documentation** - README covers local setup and system test execution in both modes
 
@@ -48,10 +48,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Wave 0: resolver-wrapper.spec.ts unit tests for AppSync context shape (RED/GREEN contract)
-- [ ] 02-02-PLAN.md — Fix container:start script (server.ts bug) and add identity.claims to resolver-wrapper.ts
-- [ ] 02-03-PLAN.md — Add NoneDataSource subscription stubs and remove dead code in graphql-server.ts
-- [ ] 02-04-PLAN.md — Phase gate: human verifies docker compose up and subscription graceful skip (checkpoint)
+- [x] 02-01-PLAN.md — Wave 0: resolver-wrapper.spec.ts unit tests for AppSync context shape (RED/GREEN contract)
+- [x] 02-02-PLAN.md — Fix container:start script (server.ts bug) and add identity.claims to resolver-wrapper.ts
+- [x] 02-03-PLAN.md — Add NoneDataSource subscription stubs and remove dead code in graphql-server.ts
+- [x] 02-04-PLAN.md — Phase gate: human verifies docker compose up and subscription graceful skip (checkpoint)
 
 ### Phase 3: Test Validation
 **Goal**: The full system test suite is green against the local Docker stack and the AWS deployment is unaffected
@@ -82,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Config Detection | 3/3 | Complete | 2026-03-23 |
-| 2. Local Stack Completeness | 0/4 | Planned | - |
+| 2. Local Stack Completeness | 4/4 | Complete | 2026-03-24 |
 | 3. Test Validation | 0/TBD | Not started | - |
 | 4. Documentation | 0/TBD | Not started | - |
