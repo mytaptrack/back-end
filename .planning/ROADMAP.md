@@ -62,7 +62,12 @@ Plans:
   2. Running the system test suite without USE_LOCAL produces all passing results against the AWS deployment
   3. Switching between modes requires only changing the USE_LOCAL environment variable — no test file edits
   4. All existing CDK stacks (core, api, data-prop) deploy cleanly with no CloudFormation errors or changed Lambda handler contracts
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Fix local suite: diagnose and fix test failures against Docker stack (TST-01, TST-03)
+- [ ] 03-02-PLAN.md — Fix AWS suite: repair test:aws npm script env propagation bug (TST-02, TST-03)
+- [ ] 03-03-PLAN.md — CDK regression gate: cdk synth on all three stacks + handler count (AWS-01)
 
 ### Phase 4: Documentation
 **Goal**: A developer who has never run the project locally can follow the README to start the stack and run tests in either mode
@@ -83,5 +88,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Config Detection | 3/3 | Complete | 2026-03-23 |
 | 2. Local Stack Completeness | 4/4 | Complete | 2026-03-24 |
-| 3. Test Validation | 0/TBD | Not started | - |
+| 3. Test Validation | 0/3 | Not started | - |
 | 4. Documentation | 0/TBD | Not started | - |
