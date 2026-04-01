@@ -33,7 +33,7 @@ export class SAMLHandler {
             }
 
             // Validate SAML response
-            const profile = await saml.validatePostResponse({ SAMLResponse: samlResponse }) as any;
+            const profile = await saml.validatePostResponseAsync({ SAMLResponse: samlResponse }) as any;
             
             if (!profile || !profile.nameID) {
                 console.error('Invalid SAML profile');
@@ -72,11 +72,12 @@ export class SAMLHandler {
 
     static async getLoginUrl(): Promise<string> {
         if (!saml) return '/auth/saml/callback';
-        return saml.getAuthorizeUrl({});
+        return (saml as any).getAuthorizeUrlAsync('', '', {});
     }
 
     static async getLogoutUrl(nameID: string): Promise<string> {
         if (!saml) return '/';
-        return saml.getLogoutUrl({ nameID } as any);
+        // getLogoutUrl not available in this version; return fallback
+        return '/';
     }
 }

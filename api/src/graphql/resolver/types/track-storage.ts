@@ -1,4 +1,4 @@
-import { DalKey } from "@mytaptrack/lib/dist/v2/dals/dal";
+import { DalKey } from "@mytaptrack/lib/dist/v2/dals/dal-types";
 
 export interface LicenseTrack2PiiStorage extends DalKey {
     pksk: string;

@@ -4,7 +4,8 @@ import {
     WebError, WebUtils, generateDataKey, getAppGlobalKey, getStudentAppKey, getStudentPrimaryKey,
     moment
 } from '@mytaptrack/lib';
-import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 import { GraphQLAppServiceItem, GraphQLAppStudentEx, QLAppDeviceConfiguration } from '@mytaptrack/types';
 import { LicenseAppConfigStorage, LicenseAppConfigStorageStudent, LicenseAppPiiStorage, getAppGlobalV2Key } from '../../types';
 import { TransactWriteCommand, TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';

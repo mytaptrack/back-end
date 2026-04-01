@@ -1,6 +1,7 @@
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 import { DeviceDal, StudentConfigStorage, StudentPiiStorage, WebUtils, getStudentPrimaryKey } from '@mytaptrack/lib';
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 import { QLApp, GraphQLAppStudent, GraphQLDeviceCollection, GraphQLIoTClicker, GraphQLAppServiceItem } from '@mytaptrack/types';
 import { LicenseAppConfigStorage, LicenseAppPiiStorage } from '../../types';
 

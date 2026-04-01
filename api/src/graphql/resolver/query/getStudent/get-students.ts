@@ -3,7 +3,8 @@ import {
 } from '@mytaptrack/lib';
 import { AccessLevel, QLStudentSummary } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 
 const dataDal = new Dal('data');
 const primaryDal = new Dal('primary');

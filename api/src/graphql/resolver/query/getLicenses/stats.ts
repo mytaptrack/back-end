@@ -5,7 +5,8 @@ import {
     QLLicenseStats,
 } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
-import { Dal, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 
 const dataDal = new Dal('data');
 

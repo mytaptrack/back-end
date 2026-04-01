@@ -26,8 +26,17 @@ import { handleEvent as devicesGet } from '../v2/student/devices/general/get';
 import { handleEvent as appPut } from '../v2/student/devices/app/put';
 import { handleEvent as appDelete } from '../v2/student/devices/app/delete';
 import { handleEvent as appTokenGet } from '../v2/student/devices/app/tokenGet';
-import { handleEvent as userGet } from '../v2/user/userGet';
-import { handleEvent as userPut } from '../v2/user/userPut';
+import { handleEvent as deviceAppGet } from '../v2/student/devices/app/get';
+import { handleEvent as deviceAppQrCodeGet } from '../v2/student/devices/app/qrCodeGet';
+import { handleEvent as deviceTrackGet } from '../v2/student/devices/track/get';
+import { handleEvent as deviceTrackPut } from '../v2/student/devices/track/put';
+import { handleEvent as deviceTrackDelete } from '../v2/student/devices/track/delete';
+import { handleEvent as deviceTrackTermGet } from '../v2/student/devices/track/termGet';
+import { handleEvent as deviceTrackTermPut } from '../v2/student/devices/track/termPut';
+import { handleEvent as deviceTrackRegisterPut } from '../v2/student/devices/track/registerPut';
+import { handleEvent as deviceTrackResyncPost } from '../v2/student/devices/track/resyncPost';
+import { get as userGet } from '../v2/user/userGet';
+import { put as userPut } from '../v2/user/userPut';
 import { handleEvent as manageAbcPut } from '../v2/manage/abc/put';
 import { handleEvent as manageLicenseGet } from '../v2/manage/license/get';
 import { handleEvent as manageStatsGet } from '../v2/manage/license/statsGet';
@@ -92,12 +101,12 @@ import { handleEvent as licenseDisplayTagsPut } from '../v2/manage/license/displ
 import { handleEvent as licenseStudentDelete } from '../v2/manage/license/studentDelete';
 
 // User APIs
-import { handleEvent as userAlertsGet } from '../v2/user/alertStatsGet';
+import { get as userAlertsGet } from '../v2/user/alertStatsGet';
 
 // Convert Express request to API Gateway event
 function toAPIGatewayEvent(req: express.Request): APIGatewayProxyEvent {
     // Extract and validate JWT token
-    let claims = {
+    let claims: Record<string, string> = {
         sub: 'local-test-user',
         'cognito:username': 'local-test-user',
         email: 'test@local.dev'
@@ -339,17 +348,6 @@ app.put('/api/v2/student/devices/track/register', (req, res) => handleLambda(dev
 app.post('/api/v2/student/devices/track/resync', (req, res) => handleLambda(deviceTrackResyncPost, req, res));
 app.get('/api/v2/student/devices/app', (req, res) => handleLambda(deviceAppGet, req, res));
 app.get('/api/v2/student/devices/app/qrcode', (req, res) => handleLambda(deviceAppQrCodeGet, req, res));
-app.get('/api/v2/student/devices/app', (req, res) => handleLambda(deviceAppGet, req, res));
-app.get('/api/v2/student/devices/app/qrcode', (req, res) => handleLambda(deviceAppQrCodeGet, req, res));
-
-// Student device track routes
-app.get('/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackGet, req, res));
-app.put('/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackPut, req, res));
-app.delete('/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackDelete, req, res));
-app.get('/api/v2/student/devices/track/term', (req, res) => handleLambda(deviceTrackTermGet, req, res));
-app.put('/api/v2/student/devices/track/term', (req, res) => handleLambda(deviceTrackTermPut, req, res));
-app.put('/api/v2/student/devices/track/register', (req, res) => handleLambda(deviceTrackRegisterPut, req, res));
-app.post('/api/v2/student/devices/track/resync', (req, res) => handleLambda(deviceTrackResyncPost, req, res));
 
 // Student info routes
 app.get('/api/v2/student', (req, res) => handleLambda(studentInfoGet, req, res));

@@ -11,7 +11,7 @@ import { join } from 'path';
 import { AuthManager } from './auth-manager';
 import { LoggingLevel, MttLogger } from '@mytaptrack/lib';
 
-const logger = new MttLogger('GraphQL Server', LoggingLevel.error);
+const logger = new MttLogger('GraphQL Server', LoggingLevel.warn);
 
 const PORT = process.env.GRAPHQL_PORT || 4000;
 

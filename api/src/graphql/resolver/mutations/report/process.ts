@@ -8,7 +8,8 @@ import {
     AccessLevel,
     QLReportData, QLReportService
 } from '@mytaptrack/types';
-import { Dal, DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey, MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 import { ReportDataStorage, ReportServiceDataStorage, StudentReportStorage } from '../../types/reports';
 import { SQSEvent } from 'aws-lambda';
 

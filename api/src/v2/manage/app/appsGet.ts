@@ -1,7 +1,7 @@
 import { getStudentPrimaryKey, LambdaAppsyncQueryClient, StudentPiiStorage, v2, WebError, WebUserDetails, WebUtils } from '@mytaptrack/lib';
 import { MobileDevice, QLApp, QLAppDeviceConfiguration } from '@mytaptrack/types';
 // import { type LicenseAppConfigStorage, type LicenseAppPiiStorage } from '../../../graphql/resolver/types/app-storage';
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 
 export const handleEvent = WebUtils.apiWrapperEx<any>(handler, { processBody: 'None' });
 const primary = new Dal('primary');

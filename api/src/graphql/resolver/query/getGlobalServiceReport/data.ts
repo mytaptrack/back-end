@@ -204,7 +204,7 @@ async function getStudentServiceStats(studentIds: string[]): Promise<StudentServ
                     currentWeek: projections.currentWeek,
                     yearToDate: projections.yearToDate,
                     percentGoal: reportKeys.length > 0? s.weeklyServiceSummary[reportKeys[reportKeys.length - 1]]?.avgPercent : 0,
-                    mitigations: s.detailedTargets.filter(t => t.type == ScheduleItemType.Makeup && t.date > now.getDate().getTime()),
+                    mitigations: s.detailedTargets.filter(t => t.type == ScheduleItemType.Makeup && t.date > now.toDate().getTime()),
                     startDate: s.startDate,
                     weeklyServiceSummary
                 } as StudentServiceEstimateStatsRaw;

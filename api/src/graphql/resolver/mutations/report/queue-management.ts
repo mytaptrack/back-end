@@ -2,7 +2,8 @@ import { WebUtils, MttEventType } from '@mytaptrack/lib';
 import {
     QLReportData, QLReportService
 } from '@mytaptrack/types';
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 import { EventBridgeEvent, SQSEvent } from 'aws-lambda';
 import { SQS } from '@aws-sdk/client-sqs';
 

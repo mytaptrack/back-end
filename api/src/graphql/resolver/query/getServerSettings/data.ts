@@ -1,10 +1,11 @@
 import {
     WebUtils
 } from '@mytaptrack/lib';
-import { 
-    SystemSettings 
-} from '@mytaptrack/types';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
+
+interface SystemSettings {
+    token: string;
+}
 
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 
