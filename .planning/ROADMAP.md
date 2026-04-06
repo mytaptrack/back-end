@@ -65,7 +65,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Fix local suite: diagnose and fix test failures against Docker stack (TST-01, TST-03)
+- [x] 03-01-PLAN.md — Fix local suite: diagnose and fix test failures against Docker stack (TST-01, TST-03) — 64/64 tests green, awaiting human verify
 - [ ] 03-02-PLAN.md — Fix AWS suite: repair test:aws npm script env propagation bug (TST-02, TST-03)
 - [ ] 03-03-PLAN.md — CDK regression gate: cdk synth on all three stacks + handler count (AWS-01)
 
@@ -88,5 +88,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Config Detection | 3/3 | Complete | 2026-03-23 |
 | 2. Local Stack Completeness | 4/4 | Complete | 2026-03-24 |
-| 3. Test Validation | 0/3 | Not started | - |
+| 3. Test Validation | 1/3 | In Progress | - |
 | 4. Documentation | 0/TBD | Not started | - |

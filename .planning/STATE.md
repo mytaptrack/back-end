@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 02-local-stack-completeness Plan 04 — human verification gate approved
-last_updated: "2026-03-24T00:00:00Z"
-last_activity: 2026-03-24 — Phase 2 complete (all 4 plans done, human approved)
+status: in-progress
+stopped_at: "Completed 03-test-validation Plan 01 — awaiting human-verify checkpoint (Task 3)"
+last_updated: "2026-04-06T02:37:29Z"
+last_activity: "2026-04-05 — Phase 3 Plan 01 complete (64/64 tests green, awaiting checkpoint)"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 50
+  total_plans: 8
+  completed_plans: 8
+  percent: 62
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Lambda handlers run unmodified in both local Docker and AWS — the translation layer absorbs all environment differences.
-**Current focus:** Phase 3 — Test Validation
+**Current focus:** Phase 3 — Test Validation (Plan 01 complete, awaiting human-verify checkpoint)
 
 ## Current Position
 
-Phase: 2 of 4 (Local Stack Completeness) — COMPLETE
-Plan: 4 of 4 complete
-Status: Ready to plan Phase 3
-Last activity: 2026-03-24 — Phase 2 complete (all 4 plans done, human approved)
+Phase: 3 of 4 (Test Validation) — IN PROGRESS
+Plan: 1 of 1 complete (checkpoint gate pending human verification)
+Status: 64/64 tests green, awaiting human approval at Task 3 checkpoint
+Last activity: 2026-04-05 — Phase 3 Plan 01 — all tests passing, checkpoint awaiting verification
 
-Progress: [████░░░░░░] 50%
+Progress: [██████░░░░] 62%
 
 ## Performance Metrics
 
@@ -77,17 +77,21 @@ Recent decisions affecting current work:
 - [Phase 02-local-stack-completeness]: container:start now points directly to graphql-server.ts — no shim, fewer indirection layers
 - [Phase 02-local-stack-completeness]: NoneDataSource stubs registered directly on root map (not in loadResolvers) because createResolver() fields bypass addLambdaResolver
 - [Phase 02-local-stack-completeness]: Dead YAML/Object.entries blocks removed — superseded by AppSyncStack dynamic loading since plan 02-01
+- [Phase 03-test-validation P01]: Use strict === undefined in cleanObject — loose == makes null == undefined true in JavaScript, causing null fields to be stripped from DynamoDB writes
+- [Phase 03-test-validation P01]: getSnapshot reads/writes from S3 (local mock at :9000) — putSnapshot always used S3; old DynamoDB local path was inconsistent and buggy
+- [Phase 03-test-validation P01]: reports/settings GET returns student-level (shared) dashboard, not user-specific overlay — matches AppSync getStudent.dashboard path
+- [Phase 03-test-validation P01]: Nullable GraphQL scalar fields normalize to null in local mode (not undefined) to match AppSync behavior
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-None yet.
+None — awaiting human verification at Task 3 checkpoint to confirm 64/64 test suite green.
 
 ## Session Continuity
 
-Last session: 2026-03-24T00:00:00Z
-Stopped at: Completed 02-local-stack-completeness Plan 04 — human verification gate approved, Phase 2 complete
+Last session: 2026-04-06T02:37:29Z
+Stopped at: Completed 03-test-validation Plan 01 — Task 3 checkpoint (human-verify: confirm tests green)
 Resume file: None

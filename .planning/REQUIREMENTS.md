@@ -21,9 +21,9 @@
 
 ### System Tests
 
-- [ ] **TST-01**: Full system test suite passes against local Docker stack
+- [x] **TST-01**: Full system test suite passes against local Docker stack
 - [ ] **TST-02**: Full system test suite passes against AWS deployment
-- [ ] **TST-03**: Tests can be run in either mode without code changes (env var only)
+- [x] **TST-03**: Tests can be run in either mode without code changes (env var only)
 
 ### AWS Compatibility
 
@@ -64,9 +64,9 @@
 | GQL-02 | Phase 2 | Complete |
 | GQL-03 | Phase 2 | Complete |
 | GQL-04 | Phase 2 | Complete |
-| TST-01 | Phase 3 | Pending |
+| TST-01 | Phase 3 | Complete |
 | TST-02 | Phase 3 | Pending |
-| TST-03 | Phase 3 | Pending |
+| TST-03 | Phase 3 | Complete |
 | AWS-01 | Phase 3 | Pending |
 | DOC-01 | Phase 4 | Pending |
 | DOC-02 | Phase 4 | Pending |
