@@ -5,7 +5,7 @@
         "start": "npm test",
         "pretest": "rm -rf logs",
         "test": "jest",
-        "test:local": "USE_LOCAL=true jest",
+        "test:local": "USE_LOCAL=true jest --maxWorkers=1",
         "test:aws": "USE_LOCAL=false && node src/aws-test-setup.js && USE_LOCAL=false jest",
         "clean": "npx ts-node ./src/clean.ts",
         "presetDebug": "npm uninstall @mytaptrack/types",
