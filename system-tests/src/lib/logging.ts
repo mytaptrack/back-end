@@ -87,9 +87,7 @@ export class Logger extends MttLogger {
         
         const sanitizedTestName = currentTestName.replace(/ /g, '_').replace(/[\/\\:*?"<>|]/g, '_');
 
-        if(!fs.existsSync('./logs')) {
-            fs.mkdirSync('./logs');
-        }
+        fs.mkdirSync('./logs', { recursive: true });
         // Append log to file or create the file if it doesn't exist
         const logFilePath = path.join('.', 'logs', `${sanitizedTestName}.log`);
         fs.appendFileSync(logFilePath, args.join(' ') + '\n');
