@@ -100,16 +100,10 @@ export class AppSyncStack extends Stack {
         { table: primaryTable, access: DynamoDBAccess.readWrite }
       ],
       sqs: [{ sqs: reportDataQueue, access: SqsAccess.subscribe}],
+      events: [{ access: EventBusAccess.sendMessage }],
       environmentVariables: {
-        'STRONGLY_CONSISTENT_READ': 'true',
-        EVENT_BUS: context.getEventBus().eventBusName
+        'STRONGLY_CONSISTENT_READ': 'true'
       },
-      policyStatements: [
-        {
-          actions: ['events:PutEvents'],
-          resources: [`arn:aws:events:${context.region}:${this.account}:event-bus/*`]
-        }
-      ],
       appsync: [{ api: this.appsync, access: { mutations: ['studentDataChange'] } }]
     });
 
