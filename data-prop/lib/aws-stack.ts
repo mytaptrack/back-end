@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { CognitoAccess, DynamoDBAccess, EventBusAccess, MttCognito, MttContext, MttDynamoDB, MttFunction, MttS3, S3Access } from '@mytaptrack/cdk';
-import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 import { EventBus } from 'aws-cdk-lib/aws-events';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { DefinitionBody, StateMachine, Wait, WaitTime } from 'aws-cdk-lib/aws-stepfunctions';

@@ -14,7 +14,7 @@ import { OAuthScope, UserPool, UserPoolEmail, UserPoolIdentityProviderGoogle } f
 import { EventBus } from 'aws-cdk-lib/aws-events';
 import { AttributeType } from 'aws-cdk-lib/aws-dynamodb';
 import { SecurityStack } from './security-stack';
-import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { MttIndexes } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 import { Alias } from 'aws-cdk-lib/aws-kms';
 import * as yaml from 'yaml';
 import * as fs from 'fs';
