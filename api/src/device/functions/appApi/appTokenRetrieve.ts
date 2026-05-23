@@ -10,7 +10,8 @@ import {
     TrackedTarget
 } from '@mytaptrack/types';
 import { generateToken, getTokenKey } from './token-utils';
-import { Dal, DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 
 const dataDal = new Dal('data');
 
@@ -141,7 +142,7 @@ async function handler(event: APIGatewayEvent) {
     const startOfWeek = moment().startOf('week').toDate().getTime();
     appData.forEach(data => {
         const key = generateDataKey(data.studentId, startOfWeek);
-        if(!studentDataKeys.find(x => data.pk == key.pk)) {
+        if(!studentDataKeys.find(x => x.pk == key.pk)) {
             studentDataKeys.push(key);
         }
     })

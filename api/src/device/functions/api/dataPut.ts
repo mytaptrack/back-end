@@ -1,6 +1,6 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { WebUtils, ProcessButtonRequest, IoTClickType, v2, moment, LambdaAppsyncQueryClient, WebError } from '@mytaptrack/lib';
-import { TrackDataRequest, TrackDataResponse } from '@mytaptrack/stack-lib';
+import { TrackDataRequest, TrackDataResponse } from '../../library/types/Button2Types';
 import { IoTDevice } from "@mytaptrack/types";
 
 export const put = WebUtils.lambdaWrapper(handler);

@@ -1,6 +1,8 @@
 // Load local environment setup FIRST
 process.env.CONFIG_PATH = "../config/";
 process.env.CONFIG_FILE = 'example_test.yml';
+// Allow internal REST→AppSync calls with license-based auth (mirrors IAM auth in production)
+process.env.LicenseAdminPermissions = 'true';
 import { validateDynamoDB, initRabbitMQ, docClient, rabbitChannel } from './local-env-setup';
 
 import express from 'express';
@@ -158,10 +160,26 @@ function wrapResolver(handler: Function) {
       // Extract selection set from GraphQL info
       const selectionSetList = info?.fieldNodes?.[0]?.selectionSet?.selections?.map((selection: any) => selection.name.value) || [];
       
+      // When no user identity is present (e.g. internal REST→AppSync calls that use IAM
+      // auth in production), provide a system identity so graphQLWrapper does not crash
+      // on null identity. In production these calls use IAM auth which bypasses Cognito;
+      // locally we emulate this with a system identity that has the test license in its groups.
+      const testLicense = process.env.License || '000000-000000-000000';
+      const effectiveIdentity = context.identity || {
+        username: 'system',
+        sub: 'system',
+        groups: [`licenses/${testLicense}`],
+        claims: {
+          sub: 'system',
+          'cognito:username': 'system',
+          'cognito:groups': `licenses/${testLicense}`
+        }
+      };
+
       const event = {
         arguments: args,
         source: {},
-        identity: context.identity || null,
+        identity: effectiveIdentity,
         request: {
           headers: context.headers || {}
         },

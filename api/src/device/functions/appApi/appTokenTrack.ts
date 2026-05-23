@@ -4,7 +4,7 @@ import {
     ProcessButtonRequest, WebError, EventDal, MttEventType
 } from '@mytaptrack/lib';
 import { APIGatewayEvent } from 'aws-lambda';
-import { AppTrackRequest } from '@mytaptrack/stack-lib';
+import { AppTrackRequest } from '../../library/types/app';
 import { put as handleNote} from './notesPut';
 import { AppServiceTrackRequest, QLAppDeviceConfiguration } from '@mytaptrack/types';
 import { getTokenKey } from './token-utils';

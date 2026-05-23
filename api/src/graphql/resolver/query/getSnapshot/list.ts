@@ -121,88 +121,54 @@ export async function getSnapshot(studentId: string, date: Moment, timezone: str
     try {
         let body: string;
         if(restrictions.reports == AccessLevel.admin) {
-            if(process.env.USE_LOCAL == 'true') {
-                report = await primary.get({ pk: `S#${studentId}`, sk: `SST#${date.millisecond()}`})
-                
-                if(report) {
-                    body = 'exists';
-                }
-
-                console.log('Existing private report', report);
-            } else {
-                try {
-                    console.info('Getting snapshot saved data');
-                    const Key = getSnapshotSavedKey(studentId, reportType, requestDate);
-                    console.info('Getting saved data', process.env.dataBucket, Key);
-                    const s3Response = await s3Client.send(new GetObjectCommand({
-                        Bucket: process.env.dataBucket,
-                        Key
-                    }));
-                    body = await s3Response.Body!.transformToString();
-                    published = false;
-                } catch (err) {
-                    console.log(err);
-                }
+            try {
+                console.info('Getting snapshot saved data');
+                const Key = getSnapshotSavedKey(studentId, reportType, requestDate);
+                console.info('Getting saved data', process.env.dataBucket, Key);
+                const s3Response = await s3Client.send(new GetObjectCommand({
+                    Bucket: process.env.dataBucket,
+                    Key
+                }));
+                body = await s3Response.Body!.transformToString();
+                published = false;
+            } catch (err) {
+                console.log(err);
             }
         }
 
         if(!body) {
-            if(process.env.USE_LOCAL == 'true') {
-                report = await primary.get({ pk: `S#${studentId}`, sk: `SS#${date.millisecond()}`})
+            console.info('Getting published snapshot')
+            const Key = getSnapshotKey(studentId, reportType, requestDate);
 
-                console.log('Existing public report', report);
-
-                if(!report) {
-                    published = false;
-                    report = {
-                        date: date.format('yyyy-mm-dd'),
-                        studentId,
-                        message: '',
-                        lastModified: {
-                            userId: '',
-                            date: moment().format('MM/DD/yyyy')
-                        },
-                        type: reportType,
-                        behaviors: [],
-                        legend: [],
-                        published: false
-                    };
+            console.log('Retrieving S3 data', process.env.dataBucket, Key);
+            try {
+                const s3Response = await s3Client.send(new GetObjectCommand({
+                    Bucket: process.env.dataBucket,
+                    Key
+                }));
+                body = await s3Response.Body!.transformToString();
+            } catch (err) {
+                console.log(err);
+                if(err.Code != 'NoSuchKey' && err.name != 'NoSuchKey') {
+                    throw err;
                 }
-                body = 'exists';
-            } else {
-                console.info('Getting published snapshot')
-                const Key = getSnapshotKey(studentId, reportType, requestDate);
-
-                console.log('Retrieving S3 data', process.env.dataBucket, Key);
-                try {
-                    const s3Response = await s3Client.send(new GetObjectCommand({
-                        Bucket: process.env.dataBucket,
-                        Key
-                    }));
-                    body = await s3Response.Body!.transformToString();
-                } catch (err) {
-                    console.log(err);
-                    if(err.Code != 'NoSuchKey') {
-                        throw err;
-                    }
-                    body = JSON.stringify({
-                        studentId,
-                        lastModified: {
-                            userId: '',
-                            date: ''
-                        },
-                        message: '',
-                        date: date.format('yyyy-MM-DD'),
-                        type: 'Weekly',
-                        behaviors: [],
-                        legend: [],
-                        published: false
-                    } as QLSnapshotReport);
-                }
-
-                console.debug(body);
-                report = JSON.parse(body);
+                body = JSON.stringify({
+                    studentId,
+                    lastModified: {
+                        userId: '',
+                        date: ''
+                    },
+                    message: '',
+                    date: date.format('yyyy-MM-DD'),
+                    type: reportType,
+                    behaviors: [],
+                    legend: [],
+                    published: false
+                } as QLSnapshotReport);
             }
+
+            console.debug(body);
+            report = JSON.parse(body);
         }
     } catch (err) {
         if(err.Code !== 'AccessDenied') {
@@ -210,12 +176,12 @@ export async function getSnapshot(studentId: string, date: Moment, timezone: str
         }
         published = false;
         report = {
-            date: date.format('yyyy-mm-dd'),
+            date: date.format('yyyy-MM-DD'),
             studentId,
             message: '',
             lastModified: {
                 userId: '',
-                date: moment().format('MM/DD/yyyy')
+                date: ''
             },
             type: reportType,
             behaviors: [],

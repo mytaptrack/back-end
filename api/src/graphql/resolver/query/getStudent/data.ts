@@ -364,7 +364,7 @@ function setFrequencyColorIfBoolean(setting: BehaviorSettings, color: string) {
     }
 }
 
-function updateDashboardSettings(settings: StudentDashboardSettings | undefined, student: StudentConfigStorage) {
+export function updateDashboardSettings(settings: StudentDashboardSettings | undefined, student: StudentConfigStorage) {
     if(!settings) {
         return;
     }
@@ -434,7 +434,7 @@ function updateDashboardSettings(settings: StudentDashboardSettings | undefined,
     return settings;
 }
 
-function getDashboardSettings(student: StudentConfigStorage): StudentDashboardSettings {
+export function getDashboardSettings(student: StudentConfigStorage): StudentDashboardSettings {
     let settings = student.dashboard;
 
     if (!settings) {

@@ -1,13 +1,11 @@
-import { 
-    v2, WebError, WebUserDetails, WebUtils, moment, LambdaAppsyncQueryClient 
+import {
+    v2, WebError, WebUserDetails, WebUtils, moment, LambdaAppsyncQueryClient,
+    EventDal, MttEventType, IoTClickType
 } from '@mytaptrack/lib';
-import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 import { QLReportData, QLReportDataInput, ReportData, typesV2 } from '@mytaptrack/types';
-import { request } from '../../../graphql/resolver/mutations/student/service/update-definition/data';
+import { ProcessButtonRequest } from '@mytaptrack/lib/dist/v2/types/iotEvents';
 
-const data = new Dal('data');
-
-const appsync = new LambdaAppsyncQueryClient(process.env.appsyncUrl);
+const appsync = process.env.appsyncUrl ? new LambdaAppsyncQueryClient(process.env.appsyncUrl) : null;
 
 export const handleEvent = WebUtils.apiWrapperEx(trackPut, {
     schema: typesV2.StudentDataPutSchema
@@ -28,6 +26,43 @@ export async function trackPut(request: typesV2.StudentDataPut, userDetails: Web
     }
 
     const dateEpoc = moment(request.eventDate).toDate().getTime();
+
+    // In local mode, bypass AppSync and send the event directly to the event bus.
+    // In production, AppSync is called with IAM auth; locally there is no IAM so we
+    // replicate the same event that data.ts resolver emits.
+    if (process.env.USE_LOCAL === 'true' || !appsync) {
+        const message: ProcessButtonRequest = {
+            studentId: request.studentId,
+            behaviorId: request.behaviorId,
+            dateEpoc,
+            abc: request.abc as any,
+            intensity: request.intensity,
+            clickType: isManual ? IoTClickType.manual : IoTClickType.clickCount,
+            remainingLife: 1500,
+            isManual,
+            isDuration: false,
+            source: {
+                device: 'website',
+                rater: userDetails.userId
+            },
+            remove: false,
+            redoDurations: true,
+            serialNumber: '',
+        };
+
+        await EventDal.sendEvents('website', [{
+            type: MttEventType.trackEvent,
+            data: message
+        }]);
+
+        return {
+            behavior: request.behaviorId,
+            dateEpoc,
+            abc: request.abc,
+            intensity: request.intensity,
+            isManual,
+        };
+    }
 
     const result = await appsync.query<QLReportData>(`
         mutation updateDataInReport($data: ReportDataInput!, $studentId: String!) {

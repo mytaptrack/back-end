@@ -15,6 +15,13 @@ export interface TokenSegments {
 
 export async function getTokenKey() {
     if (!cachedTokenKey) {
+        // In local mode, use the TOKEN_ENCRYPT_KEY env var directly (no SSM available).
+        if (process.env.USE_LOCAL === 'true' || process.env.TOKEN_ENCRYPT_KEY) {
+            cachedTokenKey = process.env.TOKEN_ENCRYPT_KEY || 'local-token-encryption-key-change-in-production';
+            console.info('Using local token key');
+            return cachedTokenKey;
+        }
+
         const result = await ssm.send(new GetParameterCommand({
             Name: process.env.TokenEncryptKey,
             WithDecryption: true

@@ -5,7 +5,7 @@ import { WebUtils, v2, moment, WebError, LambdaAppsyncQueryClient } from '@mytap
 import { TrackDataRequest, TrackDataResponse } from '../../library';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { DeleteSessionCommand, LexRuntimeServiceClient, PostContentCommand, PutSessionCommand } from '@aws-sdk/client-lex-runtime-service'
-import { VoiceManifest } from '@mytaptrack/stack-lib';
+import { VoiceManifest } from '../../library/types/Button2Types';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { PassThrough, Readable } from "stream";
 import * as fs from "fs";

@@ -1,6 +1,6 @@
 import { 
     WebUtils, generateDataKey, moment, Moment, StudentConfigStorage, getStudentPrimaryKey, 
-    ProcessServiceRequest, ProcessButtonRequest, EventDal, MttEventType, ProcessButtonRequestExtended, UserStudentTeam, LambdaAppsyncQueryClient,
+    ProcessServiceRequest, ProcessButtonRequest, EventDal, MttEventType, UserStudentTeam, LambdaAppsyncQueryClient,
     MttLogger,
     LoggingLevel
 } from '@mytaptrack/lib';
@@ -312,7 +312,7 @@ export async function processData(dataInput: ProcessServiceRequest | ProcessButt
                     clickType: data.clickType,
                     remove: data.remove,
                     isDuration: data.isDuration
-                } as ProcessButtonRequestExtended
+                } as ProcessButtonRequest
             }]);
         }
 

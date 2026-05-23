@@ -337,6 +337,10 @@ app.get('/api/v2/student/devices', (req, res) => handleLambda(devicesGet, req, r
 app.put('/api/v2/student/devices/app', (req, res) => handleLambda(appPut, req, res));
 app.delete('/api/v2/student/devices/app', (req, res) => handleLambda(appDelete, req, res));
 app.get('/api/v2/student/devices/app/token', (req, res) => handleLambda(appTokenGet, req, res));
+app.get('/prod/api/v2/student/devices', (req, res) => handleLambda(devicesGet, req, res));
+app.put('/prod/api/v2/student/devices/app', (req, res) => handleLambda(appPut, req, res));
+app.delete('/prod/api/v2/student/devices/app', (req, res) => handleLambda(appDelete, req, res));
+app.get('/prod/api/v2/student/devices/app/token', (req, res) => handleLambda(appTokenGet, req, res));
 
 // Student device track routes
 app.get('/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackGet, req, res));
@@ -348,6 +352,15 @@ app.put('/api/v2/student/devices/track/register', (req, res) => handleLambda(dev
 app.post('/api/v2/student/devices/track/resync', (req, res) => handleLambda(deviceTrackResyncPost, req, res));
 app.get('/api/v2/student/devices/app', (req, res) => handleLambda(deviceAppGet, req, res));
 app.get('/api/v2/student/devices/app/qrcode', (req, res) => handleLambda(deviceAppQrCodeGet, req, res));
+app.get('/prod/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackGet, req, res));
+app.put('/prod/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackPut, req, res));
+app.delete('/prod/api/v2/student/devices/track', (req, res) => handleLambda(deviceTrackDelete, req, res));
+app.get('/prod/api/v2/student/devices/track/term', (req, res) => handleLambda(deviceTrackTermGet, req, res));
+app.put('/prod/api/v2/student/devices/track/term', (req, res) => handleLambda(deviceTrackTermPut, req, res));
+app.put('/prod/api/v2/student/devices/track/register', (req, res) => handleLambda(deviceTrackRegisterPut, req, res));
+app.post('/prod/api/v2/student/devices/track/resync', (req, res) => handleLambda(deviceTrackResyncPost, req, res));
+app.get('/prod/api/v2/student/devices/app', (req, res) => handleLambda(deviceAppGet, req, res));
+app.get('/prod/api/v2/student/devices/app/qrcode', (req, res) => handleLambda(deviceAppQrCodeGet, req, res));
 
 // Student info routes
 app.get('/api/v2/student', (req, res) => handleLambda(studentInfoGet, req, res));

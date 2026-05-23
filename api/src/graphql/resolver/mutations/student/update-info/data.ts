@@ -47,7 +47,7 @@ function cleanObject(obj: any, skipKeys: boolean = false) {
 
     if(typeof obj == 'object') {
         Object.keys(obj).forEach(key => {
-            if(obj[key] == undefined && !skipKeys) {
+            if(obj[key] === undefined && !skipKeys) {
                 delete obj[key];
             }
             cleanObject(obj[key]);

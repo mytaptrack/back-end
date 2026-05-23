@@ -11,7 +11,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '../../../.env'
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mytaptrack:mytaptrack@localhost:5672';
 
 export class RabbitMQConsumer {
-  private connection: amqp.Connection | null = null;
+  private connection: amqp.ChannelModel | null = null;
   private channel: amqp.Channel | null = null;
 
   async connect() {

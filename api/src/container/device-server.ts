@@ -86,18 +86,31 @@ async function handleLambda(handler: any, req: express.Request, res: express.Res
     }
 }
 
-// Device API routes
+// Device API routes (bare paths)
 app.get('/time', (req, res) => handleLambda(timeGet, req, res));
 app.put('/data', (req, res) => handleLambda(dataPut, req, res));
 app.put('/audio', (req, res) => handleLambda(audioPut, req, res));
 app.post('/firmware', (req, res) => handleLambda(firmwarePost, req, res));
 
-// App API routes
+// App API routes (bare paths)
 app.delete('/app', (req, res) => handleLambda(appDelete, req, res));
 app.post('/app', (req, res) => handleLambda(appTokenRetrieve, req, res));
 app.post('/v3/app', (req, res) => handleLambda(appTokenRetrieve, req, res));
 app.put('/app', (req, res) => handleLambda(appTokenTrack, req, res));
 app.put('/app/notes', (req, res) => handleLambda(notesPut, req, res));
+
+// Device API routes with /prod prefix (matches config dev.yml device.path = /prod)
+app.get('/prod/time', (req, res) => handleLambda(timeGet, req, res));
+app.put('/prod/data', (req, res) => handleLambda(dataPut, req, res));
+app.put('/prod/audio', (req, res) => handleLambda(audioPut, req, res));
+app.post('/prod/firmware', (req, res) => handleLambda(firmwarePost, req, res));
+
+// App API routes with /prod prefix
+app.delete('/prod/app', (req, res) => handleLambda(appDelete, req, res));
+app.post('/prod/app', (req, res) => handleLambda(appTokenRetrieve, req, res));
+app.post('/prod/v3/app', (req, res) => handleLambda(appTokenRetrieve, req, res));
+app.put('/prod/app', (req, res) => handleLambda(appTokenTrack, req, res));
+app.put('/prod/app/notes', (req, res) => handleLambda(notesPut, req, res));
 
 // Health check
 app.get('/health', (req, res) => {

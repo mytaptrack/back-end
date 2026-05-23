@@ -1,5 +1,9 @@
 .PHONY: install install-graphql install-deps build deploy test update-env clean unit_tests deploy-core deploy-graphql deploy-api deploy-device deploy-data-prop container-up container-down container-logs container-init container-services test-local device-start rest-start device-watch rest-watch graphql-watch rabbitmq-consumer rabbitmq-watch start-all
 
+# AWS configuration — override on command line: make deploy-core AWS_PROFILE=myprofile STAGE=dev
+AWS_PROFILE ?= default
+STAGE ?= dev
+
 # Container commands
 container-up:
 	docker-compose up -d
@@ -55,10 +59,10 @@ install: install-deps build configure-env set-env deploy
 env-setup: install-deps set-env
 
 set-env:
-	cd utils && npm ci && npm run set-env ${STAGE}
+	cd utils && npm ci && AWS_PROFILE=$(AWS_PROFILE) npm run set-env $(STAGE)
 
 del-env:
-	cd utils && npm ci && npm run del-env ${STAGE}
+	cd utils && npm ci && AWS_PROFILE=$(AWS_PROFILE) npm run del-env $(STAGE)
 
 # Install dependencies for all services
 install-deps:
@@ -81,19 +85,19 @@ deploy: set-env deploy-core deploy-data-prop deploy-graphql deploy-api deploy-de
 
 # Individual deployment targets
 deploy-core:
-	cd core && cdk deploy --require-approval never && cd ..
+	cd core && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk deploy --require-approval never && cd ..
 
 deploy-graphql:
-	cd api && cdk deploy --require-approval never graphql && cd ..
+	cd api && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk deploy --require-approval never graphql && cd ..
 
 deploy-api:
-	cd api && cdk deploy --require-approval never api && cd ..
+	cd api && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk deploy --require-approval never api && cd ..
 
 deploy-device:
-	cd api && cdk deploy --require-approval never device && cd ..
+	cd api && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk deploy --require-approval never device && cd ..
 
 deploy-data-prop:
-	cd data-prop && cdk deploy --require-approval never && cd ..
+	cd data-prop && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk deploy --require-approval never && cd ..
 
 # Install only GraphQL service
 install-graphql: 

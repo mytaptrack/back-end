@@ -137,7 +137,7 @@ export async function eventHandler(context: MttAppSyncContext<QueryParams, any, 
         if(x.serviceTracking) {
             majorFeatures.serviceTracking = true;
         }
-        if(x.restrictions.data == AccessLevel.admin) {
+        if(x.restrictions?.data == AccessLevel.admin) {
             majorFeatures.tracking = true;
         }
     });

@@ -1,6 +1,6 @@
 import { v2, WebUtils, moment, LambdaAppsyncQueryClient } from '@mytaptrack/lib';
 import { APIGatewayEvent } from 'aws-lambda';
-import { AppNotesRequest } from '@mytaptrack/stack-lib';
+import { AppNotesRequest } from '../../library/types/app';
 import { getTokenKey, getTokenSegments } from './token-utils';
 import { QLAppDeviceConfiguration, QLStudentNote } from '@mytaptrack/types';
 

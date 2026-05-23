@@ -720,7 +720,9 @@ class StudentDalClass extends DalBaseClass {
             const abc = license.abcCollections.find(x => !x.tags.find(y => !student.tags.find(z => z === y)));
             if (abc && student.details && JSON.stringify(student.abc) !== JSON.stringify(abc)) {
                 console.log('Updating student for abc collection', student.studentId, abc.name);
-                student.abc = abc;
+                // Strip the overwrite flag — it is a license-management hint, not a student attribute
+                const { overwrite: _, ...abcWithoutOverwrite } = abc;
+                student.abc = abcWithoutOverwrite as typesV2.AbcCollection;
             }
         }
     }
