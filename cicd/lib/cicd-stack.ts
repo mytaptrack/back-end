@@ -20,6 +20,15 @@ export class CicdStack extends cdk.Stack {
       type: 'String',
       description: 'The config key name located in the config bucket'
     });
+    const connectionArn = new cdk.CfnParameter(this, 'ConnectionArn', {
+      type: 'String',
+      description: 'ARN of the AWS CodeConnections (CodeStar) connection to GitHub'
+    });
+    const branch = new cdk.CfnParameter(this, 'Branch', {
+      type: 'String',
+      description: 'The GitHub branch to build and deploy',
+      default: 'main'
+    });
 
     // Create a code pipeline v2
     const pipeline = new cdk.aws_codepipeline.Pipeline(this, 'Pipeline', {
@@ -29,16 +38,16 @@ export class CicdStack extends cdk.Stack {
     });
 
     const sourceArtifact = new cdk.aws_codepipeline.Artifact('SourceArtifact')
-    const sourceStage = pipeline.addStage({
+    pipeline.addStage({
       stageName: 'Source',
       actions: [
         /* Add action for open source repo https://github.com/mytaptrack/back-end.git */
-        new cdk.aws_codepipeline_actions.GitHubSourceAction({
+        new cdk.aws_codepipeline_actions.CodeStarConnectionsSourceAction({
           actionName: 'GitHub',
           owner: 'mytaptrack',
           repo: 'back-end',
-          branch: 'main',
-          oauthToken: cdk.SecretValue.secretsManager('github-token'),
+          branch: branch.valueAsString,
+          connectionArn: connectionArn.valueAsString,
           output: sourceArtifact,
           runOrder: 1
         })

@@ -11,12 +11,24 @@ function synth() {
 }
 
 describe('CicdStack', () => {
-  test('builds the main branch from GitHub with CodeBuild', () => {
+  test('builds the Branch parameter (default main) from GitHub through a CodeConnections connection', () => {
     const template = synth();
+    template.hasParameter('Branch', { Default: 'main' });
+    template.hasParameter('ConnectionArn', { Type: 'String' });
     template.hasResourceProperties('AWS::CodePipeline::Pipeline', {
       Name: 'mytaptrack-back-end',
       Stages: Match.arrayWith([
-        Match.objectLike({ Name: 'Source', Actions: [Match.objectLike({ Configuration: Match.objectLike({ Branch: 'main' }) })] }),
+        Match.objectLike({
+          Name: 'Source',
+          Actions: [Match.objectLike({
+            ActionTypeId: Match.objectLike({ Provider: 'CodeStarSourceConnection' }),
+            Configuration: Match.objectLike({
+              FullRepositoryId: 'mytaptrack/back-end',
+              BranchName: { Ref: 'Branch' },
+              ConnectionArn: { Ref: 'ConnectionArn' }
+            })
+          })]
+        }),
         Match.objectLike({ Name: 'Build' })
       ])
     });
@@ -45,6 +57,16 @@ describe('CicdStack', () => {
             Effect: 'Allow',
             Resource: { 'Fn::Join': ['', Match.arrayWith([Match.stringLikeRegexp(':role/cdk-\\*$')])] }
           })
+        ])
+      }
+    });
+  });
+
+  test('pipeline role may use the GitHub connection', () => {
+    synth().hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({ Action: 'codestar-connections:UseConnection', Resource: { Ref: 'ConnectionArn' } })
         ])
       }
     });
