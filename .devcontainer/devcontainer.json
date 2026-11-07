@@ -1,0 +1,30 @@
+{
+    "name": "mytaptrack back-end",
+    // The root compose file provides the local services; the second file adds the workspace.
+    // Relative paths in both resolve from the repo root.
+    "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
+    "service": "workspace",
+    "runServices": ["workspace", "dynamodb-local", "rabbitmq", "redis"],
+    "workspaceFolder": "/workspaces/back-end",
+    "shutdownAction": "stopCompose",
+    "remoteUser": "node",
+    "features": {
+        "ghcr.io/devcontainers/features/aws-cli:1": {}
+    },
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    // DynamoDB (8000), RabbitMQ (5672, 15672) and Redis (6379) are published by the root compose file.
+    "forwardPorts": [3000, 3001, 4000],
+    "portsAttributes": {
+        "3000": { "label": "REST API" },
+        "3001": { "label": "Device API" },
+        "4000": { "label": "GraphQL API" }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "amazonwebservices.aws-toolkit-vscode",
+                "GraphQL.vscode-graphql"
+            ]
+        }
+    }
+}

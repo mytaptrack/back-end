@@ -349,7 +349,7 @@ jobs:
 ```json
 {
   "scripts": {
-    "test:database": "jest --testPathPattern=testing",
+    "test:database": "vitest run src/v2/testing",
     "test:database:quick": "node -e \"require('./dist/v2/testing').quickTest().then(r => process.exit(r ? 0 : 1))\"",
     "test:database:full": "node -e \"require('./dist/v2/testing').fullTest().then(r => process.exit(r ? 0 : 1))\"",
     "test:performance": "node -e \"require('./dist/v2/testing').performanceTest().then(() => process.exit(0))\""

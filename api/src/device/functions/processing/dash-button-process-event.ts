@@ -4,7 +4,7 @@ import {
     DeviceDal, EventDal, IoTDeviceExtended, MttEventType, StudentDal 
 } from '@mytaptrack/lib';
 import { DeviceReports } from '@mytaptrack/types';
-import { SendNotificationRequest } from '@mytaptrack/stack-lib';
+import { SendNotificationRequest } from '../../library';
 import { EventBridgeEvent } from 'aws-lambda';
 
 const s3 = new S3Client({});

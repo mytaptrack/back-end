@@ -1,15 +1,10 @@
-const AWS = require('aws-sdk');
+const { SSMClient, GetParameterCommand } = require('@aws-sdk/client-ssm');
 const fs = require('fs');
 const path = require('path');
 
 async function setEnvironmentVariables() {
-  // Configure AWS SDK
-  AWS.config.update({ region: 'us-west-2' });
-
   // SSM Parameter Store client
-  const ssm = new AWS.SSM();
-  // Secrets Manager client
-  const secretsManager = new AWS.SecretsManager();
+  const ssm = new SSMClient({ region: 'us-west-2' });
 
   // Environment variables to set based on config.ts
   const envVarsToSet = {
@@ -37,7 +32,7 @@ async function setEnvironmentVariables() {
         WithDecryption: true
       };
 
-      const ssmResult = await ssm.getParameter(ssmParams).promise();
+      const ssmResult = await ssm.send(new GetParameterCommand(ssmParams));
       
       // Set environment variable
       process.env[envVar] = ssmResult.Parameter.Value;

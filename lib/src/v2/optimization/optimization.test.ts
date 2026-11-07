@@ -260,7 +260,7 @@ describe('Database Optimization Features', () => {
       // Next request should be rejected immediately
       try {
         await cbDAL.get({ primary: 'test', sort: 'item' });
-        fail('Should have thrown CircuitBreakerOpenError');
+        expect.fail('Should have thrown CircuitBreakerOpenError');
       } catch (error) {
         expect((error as Error).name).toBe('CircuitBreakerOpenError');
       }

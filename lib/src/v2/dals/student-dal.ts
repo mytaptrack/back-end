@@ -13,7 +13,8 @@ import { moment } from '../../utils';
 import { LookupDal } from '.';
 import { 
     getLicenseKey, getStudentPrimaryKey, getStudentUserDashboardKey, 
-    getUserStudentSummaryKey
+    getUserStudentSummaryKey,
+    getStudentLicenseIndexKey, getStudentLicenseIndexQuery
 } from '../utils';
 
 function cleanObject<T>(obj: T) {
@@ -218,8 +219,8 @@ class StudentDalClass extends DalBaseClass {
                 ':firstName': student.details.firstName,
                 ':lastName': student.details.lastName,
                 ':license': student.license? student.license : undefined,
-                ':lpk': student.license? `${student.license}#S` : undefined,
-                ':lsk': student.license? 'P#' + student.studentId : undefined,
+                ':lpk': student.license? getStudentLicenseIndexKey(student.license, student.studentId).lpk : undefined,
+                ':lsk': student.license? getStudentLicenseIndexKey(student.license, student.studentId).lsk : undefined,
                 ':nickname': student.details.nickname? student.details.nickname : null,
                 ':behaviorLookup': student.behaviors? student.behaviors.map(b => ({
                     id: b.id,
@@ -251,8 +252,8 @@ class StudentDalClass extends DalBaseClass {
             ];
             const confValues = {
                 ':license': student.license? student.license : undefined,
-                ':lpk': student.license? `${student.license}#S` : undefined,
-                ':lsk': student.license? 'P#' + student.studentId : undefined,
+                ':lpk': student.license? getStudentLicenseIndexKey(student.license, student.studentId).lpk : undefined,
+                ':lsk': student.license? getStudentLicenseIndexKey(student.license, student.studentId).lsk : undefined,
                 ':behaviors': student.behaviors? student.behaviors.map(b => ({
                     id: b.id,
                     daytime: b.daytime,
@@ -331,8 +332,7 @@ class StudentDalClass extends DalBaseClass {
                     lastUpdatedDate: now,
                     lastActive: now,
                     license: student.license,
-                    lpk: `${student.license}#S`,
-                    lsk: `P#${student.studentId}`,
+                    ...getStudentLicenseIndexKey(student.license, student.studentId),
                     licenseDetails: {
                         fullYear: student.licenseDetails?.fullYear ?? false,
                         flexible: student.licenseDetails?.flexible ?? false,
@@ -371,8 +371,7 @@ class StudentDalClass extends DalBaseClass {
                     ...key,
                     pksk: `${key.pk}#${key.sk}`,
                     license: student.license? student.license : null,
-                    lpk: `${student.license}#S`,
-                    lsk: `P#${student.studentId}`,
+                    ...getStudentLicenseIndexKey(student.license, student.studentId),
                     studentId: student.studentId,
                     tsk: 'P',
                     firstName: student.details.firstName,
@@ -534,8 +533,8 @@ class StudentDalClass extends DalBaseClass {
             attributeValues: {
                 ':license': license,
                 ':licenseDetails': licenseDetails,
-                ':lpk': `${license}#S`,
-                ':lsk': `P#${studentId}`
+                ':lpk': getStudentLicenseIndexKey(license, studentId).lpk,
+                ':lsk': getStudentLicenseIndexKey(license, studentId).lsk
             }
         };
 
@@ -567,19 +566,13 @@ class StudentDalClass extends DalBaseClass {
         const [piis, configs] = await Promise.all([
             this.primary.query<StudentPiiStorage>({
                 keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
-                attributeValues: { 
-                    ':lpk': `${license}#S`,
-                    ':lsk': 'P'
-                },
+                attributeValues: getStudentLicenseIndexQuery(license),
                 indexName: MttIndexes.license,
                 projectionExpression: 'studentId, firstName, lastName, nickname, subtext, behaviorLookup, responseLookup, tags'
             }),
             this.data.query<StudentConfigStorage>({
                 keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
-                attributeValues: { 
-                    ':lpk': `${license}#S`,
-                    ':lsk': 'P'
-                },
+                attributeValues: getStudentLicenseIndexQuery(license),
                 indexName: MttIndexes.license,
                 projectionExpression: 'studentId, licenseDetails, behaviors, responses, archived'
             })
@@ -641,7 +634,7 @@ class StudentDalClass extends DalBaseClass {
     async getStudentDedicatedCountByLicense(license: string): Promise<number> {
         const results = await this.data.query<StudentConfigStorage>({
             keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
-            attributeValues: { ':lpk': license, ':lsk': 'P#' },
+            attributeValues: getStudentLicenseIndexQuery(license),
             indexName: MttIndexes.license,
             projectionExpression: 'licenseDetails'
         });

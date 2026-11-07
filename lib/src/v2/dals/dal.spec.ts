@@ -6,32 +6,32 @@
  * Wave 0 — RED stubs. Tests run and assert the correct contract; they should
  * pass against the current implementation (which already has this behavior).
  *
- * Strategy: jest.resetModules() + require() inside each test so env var
- * changes take effect. Re-require the mock to get the same instance as Dal uses.
+ * Strategy: vi.resetModules() + import() inside each test so env var
+ * changes take effect. Re-import the mock to get the same instance as Dal uses.
  */
 
-jest.mock('@aws-sdk/client-dynamodb', () => {
-    const mockDynamoDBClient = jest.fn().mockImplementation(() => ({
-        destroy: jest.fn(),
-    }));
+vi.mock('@aws-sdk/client-dynamodb', () => {
+    const mockDynamoDBClient = vi.fn(function () {
+        return { destroy: vi.fn() };
+    });
     return { DynamoDBClient: mockDynamoDBClient };
 });
 
-jest.mock('@aws-sdk/lib-dynamodb', () => ({
+vi.mock('@aws-sdk/lib-dynamodb', () => ({
     DynamoDBDocumentClient: {
-        from: jest.fn().mockReturnValue({
-            send: jest.fn().mockResolvedValue({ Items: [], Item: null }),
+        from: vi.fn().mockReturnValue({
+            send: vi.fn().mockResolvedValue({ Items: [], Item: null }),
         }),
     },
-    GetCommand: jest.fn(),
-    PutCommand: jest.fn(),
-    UpdateCommand: jest.fn(),
-    DeleteCommand: jest.fn(),
-    QueryCommand: jest.fn(),
-    ScanCommand: jest.fn(),
-    BatchGetCommand: jest.fn(),
-    TransactWriteCommand: jest.fn(),
-    TransactGetCommand: jest.fn(),
+    GetCommand: vi.fn(),
+    PutCommand: vi.fn(),
+    UpdateCommand: vi.fn(),
+    DeleteCommand: vi.fn(),
+    QueryCommand: vi.fn(),
+    ScanCommand: vi.fn(),
+    BatchGetCommand: vi.fn(),
+    TransactWriteCommand: vi.fn(),
+    TransactGetCommand: vi.fn(),
 }));
 
 describe('Dal', () => {
@@ -44,7 +44,7 @@ describe('Dal', () => {
 
     afterEach(() => {
         delete process.env.DYNAMODB_ENDPOINT;
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('with DYNAMODB_ENDPOINT set', () => {
@@ -52,23 +52,23 @@ describe('Dal', () => {
             process.env.DYNAMODB_ENDPOINT = 'http://localhost:8000';
         });
 
-        it('should configure DynamoDBClient with the endpoint URL', () => {
-            const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-            const { Dal } = require('./dal');
+        it('should configure DynamoDBClient with the endpoint URL', async () => {
+            const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
+            const { Dal } = await import('./dal');
             new Dal('primary');
 
             expect(DynamoDBClient).toHaveBeenCalledTimes(1);
-            const callConfig = (DynamoDBClient as jest.Mock).mock.calls[0][0];
+            const callConfig = (DynamoDBClient as vi.Mock).mock.calls[0][0];
             expect(callConfig.endpoint).toBe('http://localhost:8000');
         });
 
-        it('should configure DynamoDBClient with local credentials when endpoint is set', () => {
-            const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-            const { Dal } = require('./dal');
+        it('should configure DynamoDBClient with local credentials when endpoint is set', async () => {
+            const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
+            const { Dal } = await import('./dal');
             new Dal('primary');
 
             expect(DynamoDBClient).toHaveBeenCalledTimes(1);
-            const callConfig = (DynamoDBClient as jest.Mock).mock.calls[0][0];
+            const callConfig = (DynamoDBClient as vi.Mock).mock.calls[0][0];
             expect(callConfig.credentials).toEqual({
                 accessKeyId: 'local',
                 secretAccessKey: 'local',
@@ -81,23 +81,23 @@ describe('Dal', () => {
             delete process.env.DYNAMODB_ENDPOINT;
         });
 
-        it('should create DynamoDBClient with no endpoint override', () => {
-            const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-            const { Dal } = require('./dal');
+        it('should create DynamoDBClient with no endpoint override', async () => {
+            const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
+            const { Dal } = await import('./dal');
             new Dal('primary');
 
             expect(DynamoDBClient).toHaveBeenCalledTimes(1);
-            const callConfig = (DynamoDBClient as jest.Mock).mock.calls[0][0];
+            const callConfig = (DynamoDBClient as vi.Mock).mock.calls[0][0];
             expect(callConfig.endpoint).toBeUndefined();
         });
 
-        it('should create DynamoDBClient with no local credentials', () => {
-            const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-            const { Dal } = require('./dal');
+        it('should create DynamoDBClient with no local credentials', async () => {
+            const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
+            const { Dal } = await import('./dal');
             new Dal('primary');
 
             expect(DynamoDBClient).toHaveBeenCalledTimes(1);
-            const callConfig = (DynamoDBClient as jest.Mock).mock.calls[0][0];
+            const callConfig = (DynamoDBClient as vi.Mock).mock.calls[0][0];
             expect(callConfig.credentials).toBeUndefined();
         });
     });

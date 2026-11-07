@@ -1,5 +1,5 @@
 import { EventBridgeEvent } from 'aws-lambda';
-import { DeviceEventRequest } from '@mytaptrack/stack-lib';
+import { DeviceEventRequest } from '../../library';
 import { IoTDeviceSubscription, IoTDeviceEventType } from '@mytaptrack/types';
 import { UserDal, MailClient, WebUtils, MttEvent, MttEventType } from '@mytaptrack/lib';
 

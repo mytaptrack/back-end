@@ -1,51 +1,39 @@
+// The shared setup mocks the signer; this spec needs the real one, because the bug it
+// guards against lives in how the signer hands the request to fetch.
+vi.unmock('aws-sigv4-fetch');
+
 import { LambdaAppsyncQueryClient } from './appsync-client';
 
-describe('appsync-client', () => {
-    test.skip('query', async () => {
-        const client = new LambdaAppsyncQueryClient('https://uxdgbiiwerdnldarsz33cq2d5u.appsync-api.us-west-2.amazonaws.com/graphql');
+const URL = 'https://example.appsync-api.us-west-2.amazonaws.com/graphql';
 
-        const result = await client.query(`
-        query getAppsForDevice($deviceId: String!, $auth: String!, $apps: [AppClaimInput]) {
-            getAppsForDevice(deviceId: $deviceId, auth: $auth, apps: $apps) {
-              deviceId
-              qrExpiration
-              studentConfigs {
-                abc {
-                  antecedents
-                  consequences
-                  name
-                  tags
-                  overwrite
-                }
-                behaviors {
-                  id
-                  isDuration
-                  name
-                  trackAbc
-                }
-                studentName
-                responses {
-                  id
-                  isDuration
-                  name
-                  trackAbc
-                }
-                services {
-                  trackAbc
-                  name
-                  isDuration
-                  id
-                }
-                studentId
-              }
-              timezone
-            }
-        }
-        `, {
-            deviceId: '0c84ae18eaa4b491',
-            auth: ''
-        }, '');
+describe('LambdaAppsyncQueryClient against AWS', () => {
+    const saved = { ...process.env };
+    let fetchSpy: ReturnType<typeof vi.fn>;
 
-        console.log('Result', result);
+    beforeEach(() => {
+        Object.assign(process.env, {
+            USE_LOCAL: 'false', NODE_ENV: 'production', AWS_REGION: 'us-west-2',
+            AWS_ACCESS_KEY_ID: 'AKIDEXAMPLE', AWS_SECRET_ACCESS_KEY: 'secret', AWS_SESSION_TOKEN: 'token'
+        });
+        fetchSpy = vi.fn(async () => new Response(JSON.stringify({ data: { getThing: { id: '1' } } }), {
+            status: 200, headers: { 'content-type': 'application/json' }
+        }));
+        vi.stubGlobal('fetch', fetchSpy);
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        process.env = { ...saved };
+    });
+
+    it('sends a SigV4-signed request to the AppSync URL and returns the field', async () => {
+        const client = new LambdaAppsyncQueryClient(URL);
+
+        await expect(client.query('query { getThing { id } }', {}, 'getThing')).resolves.toEqual({ id: '1' });
+
+        const request = fetchSpy.mock.calls[0][0] as Request;
+        expect(request.url).toBe(URL);
+        expect(request.method).toBe('POST');
+        expect(request.headers.get('authorization')).toMatch(/^AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE\/\d{8}\/us-west-2\/appsync\//);
     });
 });

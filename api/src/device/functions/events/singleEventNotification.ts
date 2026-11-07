@@ -7,7 +7,7 @@ import {
     NotificationDetailsBehavior, NotificationType, QLAppDeviceConfiguration, Student, StudentBehavior, 
     StudentSubscriptions, StudentSubscriptionsGroup 
 } from '@mytaptrack/types';
-import { SendNotificationRequest } from '@mytaptrack/stack-lib';
+import { SendNotificationRequest } from '../../library';
 import { EventBridgeEvent } from 'aws-lambda';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
 

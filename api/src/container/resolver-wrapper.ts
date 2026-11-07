@@ -1,43 +1,62 @@
-import { Context } from '@aws-appsync/utils';
+import type { FieldNode, GraphQLResolveInfo } from 'graphql';
+import { MttAppSyncContext, MttAppSyncIdentity } from '@mytaptrack/lib';
 
-export function wrapResolver(handler: Function) {
-  return async (args: any, context: any, info: any) => {
-    // Extract selection set from GraphQL info
-    const selectionSetList = info?.fieldNodes?.[0]?.selectionSet?.selections?.map((selection: any) => selection.name.value) || [];
-    
-    const appsyncContext: Context = {
-      env: (process.env as Record<string, string>) || {},
-      arguments: args,
-      args,
-      source: {},
-      result: {},
-      prev: { result: {} },
-      stash: {
-        permissions: context.permissions || {}
-      },
-      info: {
-        fieldName: info?.fieldName || '',
-        parentTypeName: info?.parentType?.name || '',
-        variables: info?.variableValues || {},
-        selectionSetList: selectionSetList,
-        selectionSetGraphQL: info?.fieldNodes?.[0]?.selectionSet ? '' : ''
-      },
-      request: {
-        headers: context.headers || {},
-        domainName: null
-      },
-      identity: context.identity
-        ? { ...context.identity, claims: context.identity }
-        : null,
-      error: null
-    };
+/** What the GraphQL server passes to each root resolver as its context. */
+export interface ContainerGraphQLContext {
+  docClient?: unknown;
+  rabbitChannel?: unknown;
+  identity?: MttAppSyncIdentity | null;
+  headers?: Record<string, unknown>;
+  permissions?: unknown;
+}
 
-    const result = await handler(appsyncContext);
-    return result;
+type ResolverEvent<Args> = MttAppSyncContext<Args, any, any, any>;
+type ResolverHandler<Args> = (event: ResolverEvent<Args>) => unknown;
+
+function selectedFields(info?: Partial<GraphQLResolveInfo>): string[] {
+  return (info?.fieldNodes?.[0]?.selectionSet?.selections ?? [])
+    .filter((selection): selection is FieldNode => selection.kind === 'Field')
+    .map(selection => selection.name.value);
+}
+
+/** Builds the event AppSync would send, so Lambda resolvers run unchanged in containers. */
+export function createAppSyncContext<Args>(
+  args: Args,
+  context: ContainerGraphQLContext,
+  info?: Partial<GraphQLResolveInfo>
+): ResolverEvent<Args> {
+  return {
+    arguments: args,
+    source: {},
+    result: {},
+    prev: { result: {} },
+    stash: {
+      permissions: context.permissions ?? {}
+    },
+    info: {
+      fieldName: info?.fieldName ?? '',
+      parentTypeName: info?.parentType?.name ?? '',
+      variables: info?.variableValues ?? {},
+      selectionSetList: selectedFields(info),
+      selectionSetGraphQL: ''
+    },
+    request: {
+      headers: context.headers ?? {},
+      domainName: null
+    },
+    identity: context.identity
+      ? { ...context.identity, claims: context.identity.claims ?? context.identity }
+      : null,
+    transformedTemplate: ''
   };
 }
 
-export function createContext(docClient: any, rabbitChannel: any, identity?: any) {
+export function wrapResolver<Args>(handler: ResolverHandler<Args>) {
+  return async (args: Args, context: ContainerGraphQLContext, info?: Partial<GraphQLResolveInfo>) =>
+    handler(createAppSyncContext(args, context, info));
+}
+
+export function createContext(docClient: unknown, rabbitChannel: unknown, identity?: MttAppSyncIdentity): ContainerGraphQLContext {
   return {
     docClient,
     rabbitChannel,

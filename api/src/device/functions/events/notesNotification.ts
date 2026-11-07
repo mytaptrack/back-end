@@ -53,8 +53,9 @@ export async function handler(event: EventBridgeEvent<'note-event', NoteNotifica
             ToAddresses: [noteNotification.email]
         },
         FromEmailAddress: process.env.sourceEmail,
-        ListManagementOptions: {
+        // Absent when the environment has SES resources off, and SES rejects an empty name.
+        ListManagementOptions: process.env.EmailContactList ? {
             ContactListName: process.env.EmailContactList
-        }
+        } : undefined
     }));
 }

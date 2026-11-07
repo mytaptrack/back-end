@@ -34,7 +34,8 @@ export async function eventHandler(context: MttAppSyncContext<UpdateDataArgs, an
         // Required fields with defaults for website submissions
         remainingLife: 0,
         serialNumber: '',
-        clickType: IoTClickType.SINGLE,
+        clickType: IoTClickType.single,
+        isDuration: false,
     };
 
     await processData(buttonRequest, studentId);

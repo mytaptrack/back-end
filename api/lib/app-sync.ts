@@ -719,6 +719,18 @@ export class AppSyncStack extends Stack {
       cognito: [{ pool: resources.cognito, access: CognitoAccess.listUsers }]
     });
 
+    resources.appsync.addLambdaResolver('DeleteMyAccount', {
+      id: 'DeleteMyAccount',
+      typeName: 'Mutation',
+      fieldName: 'deleteMyAccount',
+      codePath: 'src/graphql/resolver/mutations/user/delete-account.ts',
+      tables: [
+        { table: resources.primaryTable, access: DynamoDBAccess.readWrite },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+      ],
+      cognito: [{ pool: resources.cognito, access: CognitoAccess.deleteUser }]
+    });
+
     const noneSource = resources.appsync.addNoneDataSource('NoneDataSource', {
       name: 'NoneDataSource',
       description: 'NoneDataSource'
@@ -784,7 +796,8 @@ export class AppSyncStack extends Stack {
       fieldName: 'getManageStudents',
       codePath: './src/graphql/resolver/query/getManageStudents/get-manage-students.ts',
       tables: [
-        { table: resources.dataTable, access: DynamoDBAccess.readWrite }
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite, indexes: ['', 'License'] },
+        { table: resources.primaryTable, access: DynamoDBAccess.read }
       ]
     });
 
@@ -794,7 +807,7 @@ export class AppSyncStack extends Stack {
       fieldName: 'getStudentTeam',
       codePath: './src/graphql/resolver/query/getStudentTeam/get-student-team.ts',
       tables: [
-        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.read, indexes: ['', 'Student'] },
         { table: resources.primaryTable, access: DynamoDBAccess.read }
       ]
     });
@@ -805,7 +818,7 @@ export class AppSyncStack extends Stack {
       fieldName: 'deleteStudentTeamMember',
       codePath: './src/graphql/resolver/mutations/student/delete-team-member.ts',
       tables: [
-        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite },
         { table: resources.primaryTable, access: DynamoDBAccess.read }
       ]
     });
@@ -816,9 +829,11 @@ export class AppSyncStack extends Stack {
       fieldName: 'updateStudentTeamMember',
       codePath: './src/graphql/resolver/mutations/student/update-team-member.ts',
       tables: [
-        { table: resources.dataTable, access: DynamoDBAccess.read },
+        { table: resources.dataTable, access: DynamoDBAccess.readWrite },
         { table: resources.primaryTable, access: DynamoDBAccess.read }
-      ]
+      ],
+      // Looks up an invited member's user id by email.
+      cognito: [{ pool: resources.cognito, access: CognitoAccess.listUsers }]
     });
   }
 }

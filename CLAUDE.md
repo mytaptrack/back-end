@@ -40,7 +40,7 @@ types → cdk → lib → [core, api, data-prop]
 - **Infrastructure**: AWS CDK v2
 - **Package Manager**: npm (use `npm i`, not `npm ci`)
 - **AWS Services**: Lambda, DynamoDB, S3, Timestream, Cognito, EventBridge, SNS, SQS, API Gateway, AppSync, IoT Core, CloudWatch
-- **Key Libraries**: AWS SDK v3, graphql, @aws-appsync/utils, lodash, moment-timezone, uuid, jest, @lumigo/tracer
+- **Key Libraries**: AWS SDK v3, graphql, @aws-appsync/utils, lodash, moment-timezone, uuid, vitest (unit tests), jest (system-tests), @lumigo/tracer
 
 ## Common Commands
 
@@ -81,3 +81,6 @@ make uninstall                  # Destroy all AWS stacks
 - Environment configs in `config/*.yml`, CDK context in `*/cdk.json`
 - Decorators enabled for CDK constructs
 - Source maps enabled for debugging
+- Unit tests in `api`, `lib`, `data-prop` and `cicd` use Vitest; `system-tests` uses Jest
+- Handler specs in `api` use `api/src/testing/unit-kit.ts`; a confirmed bug gets an `it.fails` test tagged `KNOWN BUG` that goes red when fixed, and `vitest.config.mts` enforces a coverage floor
+- `vi.mock` cannot intercept native `require()`, so use `mockNativeModule` (`lib/src/v2/testing/native-module-mock.ts`) for lazily required modules such as `amqplib`

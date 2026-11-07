@@ -247,7 +247,8 @@ export class MttFunction {
             ...props.sqs?.map(x => ({ obj: x.sqs, access: x.access })) ?? [],
             ...props.ssm?.map(x => ({ obj: x.param, access: x.access })) ?? [],
             ...props.bedrock?.map(x => ({ obj: x.model, access: x.access })) ?? [],
-            ...props.appsync?.map(x => ({ obj: x.api, access: x.access })) ?? []
+            ...props.appsync?.map(x => ({ obj: x.api, access: x.access })) ?? [],
+            ...props.stepFunctions?.map(x => ({ obj: x.stateMachine, access: undefined })) ?? []
         ];
         
         envEnabledObjects.forEach(x => {
@@ -392,6 +393,9 @@ export class MttFunction {
             props.bedrock.forEach(access => {
                 access.model.grant(lambda, access.access);
             });
+        }
+        if(props.stepFunctions) {
+            props.stepFunctions.forEach(sf => sf.stateMachine.grantStartExecution(lambda));
         }
         
         if(hasPhi) {

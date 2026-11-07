@@ -1,4 +1,4 @@
-import { MttAppSyncContext, StudentConfigStorage, StudentPiiStorage, StudentStorageModel, WebError, WebUtils } from '@mytaptrack/lib';
+import { MttAppSyncContext, StudentConfigStorage, StudentPiiStorage, StudentStorageModel, WebError, WebUtils, getStudentLicenseIndexQuery } from '@mytaptrack/lib';
 import { Dal, MttIndexes } from '@mytaptrack/lib';
 import { Student } from '@mytaptrack/types';
 
@@ -21,11 +21,8 @@ export async function handleEvent(context: MttAppSyncContext<{ license: string }
         // Query for all students in the license
         const students = await data.query<StudentConfigStorage>({
             indexName: MttIndexes.license,
-            keyExpression: 'lpk = :licensePk and begins_with(lsk, :studentPrefix)',
-            attributeValues: {
-                ':licensePk': `L#${license}`,
-                ':studentPrefix': 'S#'
-            }
+            keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
+            attributeValues: getStudentLicenseIndexQuery(license)
         });
 
         console.log(`Found ${students.length} students for license ${license}`);

@@ -61,6 +61,8 @@ export class AppSyncApi implements IGraphqlApi, EnvironmentEnabled {
     }
 
     private _api: IGraphqlApi;
+    get graphQlApiRef() { return this._api.graphQlApiRef; }
+    with(...mixins: Parameters<IGraphqlApi['with']>) { return this._api.with(...mixins); }
     private dataSources: { tables: ITable[], resolver: DynamoDbDataSource }[] = [];
     private _envVariable: string;
     private _graphqlUrl: string;
@@ -252,7 +254,7 @@ export class AppSyncApi implements IGraphqlApi, EnvironmentEnabled {
     }
 
     addPipelineResolver(id: string, props: PipelineResolverProps) {
-        const functions: MttAppsyncFunction[] = [...(props.functions ?? [])] || [];
+        const functions: MttAppsyncFunction[] = [...(props.functions ?? [])];
         if (props.path) {
             const func = this.addFunction(id + 'Function', {
                 path: props.path,

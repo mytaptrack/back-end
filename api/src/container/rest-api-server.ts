@@ -1,8 +1,9 @@
 // Load local environment setup FIRST
-require('./local-env-setup');
+import './local-env-setup';
 
 import express from 'express';
-import { APIGatewayProxyEvent, Context } from 'aws-lambda';
+import { MttCognitoClaims, MttRestHandler } from '@mytaptrack/lib';
+import { runLambda } from './lambda-adapter';
 import { AuthManager } from './auth-manager';
 import { SAMLHandler } from './saml-handler';
 
@@ -103,10 +104,9 @@ import { handleEvent as licenseStudentDelete } from '../v2/manage/license/studen
 // User APIs
 import { get as userAlertsGet } from '../v2/user/alertStatsGet';
 
-// Convert Express request to API Gateway event
-function toAPIGatewayEvent(req: express.Request): APIGatewayProxyEvent {
-    // Extract and validate JWT token
-    let claims: Record<string, string> = {
+// Extract and validate the JWT into the claims the Cognito authorizer would supply
+function claimsFor(req: express.Request): MttCognitoClaims {
+    const defaults: MttCognitoClaims = {
         sub: 'local-test-user',
         'cognito:username': 'local-test-user',
         email: 'test@local.dev'
@@ -118,90 +118,25 @@ function toAPIGatewayEvent(req: express.Request): APIGatewayProxyEvent {
             const token = authHeader.substring(7);
             const jwt = require('jsonwebtoken');
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'local-dev-secret');
-            
-            claims = {
+
+            return {
                 sub: decoded.sub,
                 'cognito:username': decoded.sub,
                 email: decoded.email,
                 name: decoded.name,
-                'cognito:groups': Array.isArray(decoded['cognito:groups']) 
-                    ? decoded['cognito:groups'].join(',') 
+                'cognito:groups': Array.isArray(decoded['cognito:groups'])
+                    ? decoded['cognito:groups'].join(',')
                     : decoded['cognito:groups'] || ''
             };
         } catch (error) {
             console.warn('JWT validation failed:', error.message);
         }
     }
-
-    return {
-        body: req.body ? JSON.stringify(req.body) : null,
-        headers: req.headers as any,
-        multiValueHeaders: {},
-        httpMethod: req.method,
-        isBase64Encoded: false,
-        path: req.path,
-        pathParameters: req.params,
-        queryStringParameters: req.query as any,
-        multiValueQueryStringParameters: {},
-        stageVariables: null,
-        requestContext: {
-            accountId: 'local',
-            apiId: 'local',
-            protocol: 'HTTP/1.1',
-            httpMethod: req.method,
-            path: req.path,
-            stage: 'prod',
-            requestId: Math.random().toString(36),
-            requestTime: new Date().toISOString(),
-            requestTimeEpoch: Date.now(),
-            authorizer: {
-                claims
-            },
-            identity: {
-                sourceIp: req.ip,
-                userAgent: req.get('user-agent') || '',
-            } as any,
-            resourceId: 'local',
-            resourcePath: req.path,
-        } as any,
-        resource: req.path,
-    };
+    return defaults;
 }
 
-// Mock Lambda context
-const mockContext: Context = {
-    functionName: 'local',
-    functionVersion: '1',
-    invokedFunctionArn: 'local',
-    memoryLimitInMB: '1024',
-    awsRequestId: 'local',
-    logGroupName: 'local',
-    logStreamName: 'local',
-    getRemainingTimeInMillis: () => 30000,
-    done: () => {},
-    fail: () => {},
-    succeed: () => {},
-    callbackWaitsForEmptyEventLoop: false,
-};
-
-// Helper to handle Lambda responses
-async function handleLambda(handler: any, req: express.Request, res: express.Response) {
-    try {
-        const event = toAPIGatewayEvent(req);
-        const result = await handler(event, mockContext, () => {});
-        
-        res.status(parseInt(result.statusCode || '200'));
-        if (result.headers) {
-            Object.entries(result.headers).forEach(([key, value]) => {
-                res.setHeader(key, value as string);
-            });
-        }
-        res.send(result.body);
-    } catch (error) {
-        console.error('Handler error:', error);
-        res.status(500).json({ error: error.message });
-    }
-}
+const handleLambda = (handler: MttRestHandler, req: express.Request, res: express.Response) =>
+    runLambda(handler, req, res, { stage: 'prod', claims: claimsFor(req) });
 
 // Auth routes
 app.get('/auth/saml/login', async (req, res) => {

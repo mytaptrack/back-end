@@ -1,6 +1,6 @@
 import { v2, WebUtils, moment } from '@mytaptrack/lib';
 import { typesV2 } from '@mytaptrack/types';
-import { EnsureNotifyParams } from '@mytaptrack/stack-lib';
+import { EnsureNotifyParams } from '../../library';
 import { processRecord as processRecordImpl } from './singleEventNotification';
 
 let processRecord = processRecordImpl;

@@ -14,25 +14,25 @@ import {
 
 describe('DatabaseLogger', () => {
   let logger: DatabaseLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
     // Spy on all console methods
-    jest.spyOn(console, 'debug').mockImplementation();
-    jest.spyOn(console, 'info').mockImplementation();
-    jest.spyOn(console, 'warn').mockImplementation();
-    jest.spyOn(console, 'error').mockImplementation();
-    consoleSpy = jest.spyOn(console, 'info'); // Default to info for most tests
+    vi.spyOn(console, 'debug').mockImplementation();
+    vi.spyOn(console, 'info').mockImplementation();
+    vi.spyOn(console, 'warn').mockImplementation();
+    vi.spyOn(console, 'error').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'info'); // Default to info for most tests
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('Basic Logging', () => {
     it('should log debug messages when level is DEBUG', () => {
-      const debugSpy = jest.spyOn(console, 'debug');
+      const debugSpy = vi.spyOn(console, 'debug');
       logger.debug('Test debug message', { operation: 'test' });
       
       expect(debugSpy).toHaveBeenCalledWith(
@@ -54,7 +54,7 @@ describe('DatabaseLogger', () => {
     });
 
     it('should include timestamp in log entries', () => {
-      const infoSpy = jest.spyOn(console, 'info');
+      const infoSpy = vi.spyOn(console, 'info');
       logger.info('Test message');
       
       expect(infoSpy).toHaveBeenCalledWith(
@@ -63,7 +63,7 @@ describe('DatabaseLogger', () => {
     });
 
     it('should serialize error objects properly', () => {
-      const errorSpy = jest.spyOn(console, 'error');
+      const errorSpy = vi.spyOn(console, 'error');
       const error = new Error('Test error');
       logger.error('Error occurred', error);
       
@@ -78,7 +78,7 @@ describe('DatabaseLogger', () => {
 
   describe('Child Loggers', () => {
     it('should create child logger with inherited context', () => {
-      const infoSpy = jest.spyOn(console, 'info');
+      const infoSpy = vi.spyOn(console, 'info');
       const childLogger = logger.child({ provider: 'dynamodb' });
       childLogger.info('Child message', { operation: 'get' });
       
@@ -91,7 +91,7 @@ describe('DatabaseLogger', () => {
     });
 
     it('should merge context from parent and child', () => {
-      const infoSpy = jest.spyOn(console, 'info');
+      const infoSpy = vi.spyOn(console, 'info');
       const baseLogger = new DatabaseLogger(LogLevel.DEBUG, { component: 'test' });
       const childLogger = baseLogger.child({ provider: 'mongodb' });
       
@@ -108,10 +108,10 @@ describe('DatabaseLogger', () => {
 
   describe('Log Levels', () => {
     it('should respect log level hierarchy', () => {
-      const warnSpy = jest.spyOn(console, 'warn');
-      const errorSpy = jest.spyOn(console, 'error');
-      const debugSpy = jest.spyOn(console, 'debug');
-      const infoSpy = jest.spyOn(console, 'info');
+      const warnSpy = vi.spyOn(console, 'warn');
+      const errorSpy = vi.spyOn(console, 'error');
+      const debugSpy = vi.spyOn(console, 'debug');
+      const infoSpy = vi.spyOn(console, 'info');
       
       logger.setLevel(LogLevel.WARN);
       
@@ -131,12 +131,12 @@ describe('DatabaseLogger', () => {
 describe('PerformanceLogger', () => {
   let logger: DatabaseLogger;
   let performanceLogger: PerformanceLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
     performanceLogger = new PerformanceLogger(logger, 1000);
-    consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
   });
 
   afterEach(() => {
@@ -187,12 +187,12 @@ describe('PerformanceLogger', () => {
 describe('ConnectionLogger', () => {
   let logger: DatabaseLogger;
   let connectionLogger: ConnectionLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
     connectionLogger = new ConnectionLogger(logger);
-    consoleSpy = jest.spyOn(console, 'info').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'info').mockImplementation();
   });
 
   afterEach(() => {
@@ -214,7 +214,7 @@ describe('ConnectionLogger', () => {
   });
 
   it('should sanitize sensitive configuration', () => {
-    const infoSpy = jest.spyOn(console, 'info');
+    const infoSpy = vi.spyOn(console, 'info');
     connectionLogger.logConnectionAttempt('mongodb', {
       connectionString: 'mongodb://user:password@localhost:27017',
       password: 'secret123'
@@ -276,11 +276,11 @@ describe('LoggerFactory', () => {
 
 describe('withLogging utility', () => {
   let logger: DatabaseLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
-    consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
   });
 
   afterEach(() => {
@@ -288,7 +288,7 @@ describe('withLogging utility', () => {
   });
 
   it('should log operation start and completion', async () => {
-    const operation = jest.fn().mockResolvedValue('result');
+    const operation = vi.fn().mockResolvedValue('result');
     
     const result = await withLogging(
       logger,
@@ -308,8 +308,8 @@ describe('withLogging utility', () => {
   });
 
   it('should log operation failure', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    const operation = jest.fn().mockRejectedValue(new Error('Test error'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation();
+    const operation = vi.fn().mockRejectedValue(new Error('Test error'));
     
     await expect(
       withLogging(logger, 'test_operation', 'dynamodb', operation)
@@ -323,7 +323,7 @@ describe('withLogging utility', () => {
   });
 
   it('should include duration in completion log', async () => {
-    const operation = jest.fn().mockImplementation(
+    const operation = vi.fn().mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve('result'), 100))
     );
     
@@ -337,11 +337,11 @@ describe('withLogging utility', () => {
 
 describe('logDatabaseOperation utility', () => {
   let logger: DatabaseLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
-    consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
   });
 
   afterEach(() => {

@@ -100,7 +100,7 @@ export async function handleEvent(event: MttAppSyncContext<QueryParams, never, n
             details: {
                 firstName: pii?.firstName ?? 'No first name',
                 lastName: pii?.lastName ?? 'No last name',
-                nickname: pii?.nickname ?? pii?.subtext ?? `${pii?.firstName} ${pii?.lastName}` ?? 'No name found',
+                nickname: pii?.nickname ?? pii?.subtext ?? `${pii?.firstName} ${pii?.lastName}`,
                 schoolId: pii?.schoolStudentId
             },
             tracking: {

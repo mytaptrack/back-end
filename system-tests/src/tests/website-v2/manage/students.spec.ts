@@ -81,11 +81,8 @@ describe('QLManageStudents', () => {
     }, 2 * 60 * 1000);
 
     test('QLGetManagedStats', async () => {
-        try {
-            await qlApi.getManageStats(license);
-            fail('Expected API to return 400 error');
-        } catch (error) {
-            expect(String(error)).toContain('400');
-        }
+        // getManageStats has no resolver and the query names fields LicenseStats lacks, so it
+        // must be rejected: the local server answers 400, AppSync a 200 with a validation error.
+        await expect(qlApi.getManageStats(license)).rejects.toThrow(/400|Validation error/);
     }, 2 * 60 * 1000);
 });

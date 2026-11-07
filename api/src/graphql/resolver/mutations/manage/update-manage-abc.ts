@@ -1,5 +1,5 @@
 import { Context } from '@aws-appsync/utils';
-import { handleEvent as manageAbcPut } from '../../../v2/manage/abc/put';
+import { handleEvent as manageAbcPut } from '../../../../v2/manage/abc/put';
 
 export async function handler(event: Context) {
     const { abcCollections } = event.arguments;

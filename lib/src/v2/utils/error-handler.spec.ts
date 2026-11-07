@@ -24,12 +24,12 @@ import { DatabaseLogger, LogLevel } from './database-logger';
 describe('DatabaseErrorHandler', () => {
   let errorHandler: DatabaseErrorHandler;
   let logger: DatabaseLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     logger = new DatabaseLogger(LogLevel.DEBUG);
     errorHandler = new DatabaseErrorHandler(logger);
-    consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation();
   });
 
   afterEach(() => {
@@ -53,7 +53,7 @@ describe('DatabaseErrorHandler', () => {
     });
 
     it.skip('should log retryable errors as warnings', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation();
       const connectionError = new ConnectionError('Connection lost');
       const context: ErrorContext = {
         operation: 'get',
@@ -266,11 +266,11 @@ describe('DatabaseErrorHandler', () => {
 
 describe('ErrorAggregator', () => {
   let aggregator: ErrorAggregator;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     aggregator = new ErrorAggregator(100);
-    consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation();
   });
 
   afterEach(() => {

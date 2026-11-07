@@ -7,20 +7,20 @@
  * Wave 0 — tests run and assert correct routing. Both behaviors are already
  * implemented so tests should pass once mocking is set up correctly.
  *
- * Note: event-dal.ts uses require('amqplib') dynamically inside sendEvents().
- * jest.mock() intercepts dynamic require() calls so the mock is in effect.
+ * Note: event-dal.ts uses require('amqplib') dynamically inside sendEvents(), which
+ * vi.mock() cannot see, so mockNativeModule seeds the require cache instead.
  * The EventBridgeClient singleton is created at module load time; we mock the
  * constructor to intercept its send() calls.
  */
 
-// jest.mock() calls are hoisted before imports.
-const mockConnect = jest.fn();
-const mockSendToQueue = jest.fn().mockResolvedValue(undefined);
-const mockPublish = jest.fn().mockResolvedValue(undefined);
-const mockAssertQueue = jest.fn().mockResolvedValue(undefined);
-const mockAssertExchange = jest.fn().mockResolvedValue(undefined);
-const mockChannelClose = jest.fn().mockResolvedValue(undefined);
-const mockConnectionClose = jest.fn().mockResolvedValue(undefined);
+// vi.mock() calls are hoisted before imports.
+const mockConnect = vi.fn();
+const mockSendToQueue = vi.fn().mockResolvedValue(undefined);
+const mockPublish = vi.fn().mockResolvedValue(undefined);
+const mockAssertQueue = vi.fn().mockResolvedValue(undefined);
+const mockAssertExchange = vi.fn().mockResolvedValue(undefined);
+const mockChannelClose = vi.fn().mockResolvedValue(undefined);
+const mockConnectionClose = vi.fn().mockResolvedValue(undefined);
 
 const mockChannel = {
     assertQueue: mockAssertQueue,
@@ -31,33 +31,35 @@ const mockChannel = {
 };
 
 const mockConnection = {
-    createChannel: jest.fn().mockResolvedValue(mockChannel),
+    createChannel: vi.fn().mockResolvedValue(mockChannel),
     close: mockConnectionClose,
 };
 
-jest.mock('amqplib', () => ({
-    connect: mockConnect,
-}));
-
-const mockEBSend = jest.fn().mockResolvedValue({});
-jest.mock('@aws-sdk/client-eventbridge', () => ({
-    EventBridgeClient: jest.fn().mockImplementation(() => ({
-        send: mockEBSend,
-        destroy: jest.fn(),
-    })),
-    PutEventsCommand: jest.fn().mockImplementation((input) => ({ input })),
+const { mockEBSend } = vi.hoisted(() => ({ mockEBSend: vi.fn().mockResolvedValue({}) }));
+vi.mock('@aws-sdk/client-eventbridge', () => ({
+    EventBridgeClient: vi.fn(function () {
+        return { send: mockEBSend, destroy: vi.fn() };
+    }),
+    PutEventsCommand: vi.fn(function (input) {
+        return { input };
+    }),
 }));
 
 import { MttEventType } from '..';
+import { mockNativeModule } from '../testing/native-module-mock';
 
 describe('EventDal', () => {
+    let restoreAmqp: () => void;
+
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
+        restoreAmqp = mockNativeModule('amqplib', { connect: mockConnect }, __dirname);
         mockConnect.mockResolvedValue(mockConnection);
         mockEBSend.mockResolvedValue({});
     });
 
     afterEach(() => {
+        restoreAmqp();
         delete process.env.USE_LOCAL;
         delete process.env.NODE_ENV;
         delete process.env.RABBITMQ_URL;
@@ -71,7 +73,7 @@ describe('EventDal', () => {
         });
 
         it('should call amqplib.connect when USE_LOCAL=true', async () => {
-            const { EventDal } = require('./event-dal');
+            const { EventDal } = await import('./event-dal');
             const event = { type: MttEventType.trackEvent, data: { test: true } };
             await EventDal.sendEvents('test-source', [event]);
 
@@ -79,7 +81,7 @@ describe('EventDal', () => {
         });
 
         it('should NOT call EventBridgeClient.send when USE_LOCAL=true', async () => {
-            const { EventDal } = require('./event-dal');
+            const { EventDal } = await import('./event-dal');
             const event = { type: MttEventType.trackEvent, data: { test: true } };
             await EventDal.sendEvents('test-source', [event]);
 
@@ -95,7 +97,7 @@ describe('EventDal', () => {
         });
 
         it('should call EventBridgeClient.send when USE_LOCAL is unset', async () => {
-            const { EventDal } = require('./event-dal');
+            const { EventDal } = await import('./event-dal');
             const event = { type: MttEventType.trackEvent, data: { test: true } };
             await EventDal.sendEvents('test-source', [event]);
 
@@ -108,7 +110,7 @@ describe('EventDal', () => {
         });
 
         it('should NOT call amqplib.connect when USE_LOCAL is unset', async () => {
-            const { EventDal } = require('./event-dal');
+            const { EventDal } = await import('./event-dal');
             const event = { type: MttEventType.trackEvent, data: { test: true } };
             await EventDal.sendEvents('test-source', [event]);
 

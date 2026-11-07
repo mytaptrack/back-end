@@ -7,8 +7,7 @@ import {
     StudentPiiStorage, TrackableItem, PiiTrackable, StudentDal,
     WebUtils, WebError, moment, Moment, TeamDal, getUserStudentSummaryKey, StudentPii, ScheduleDal, isEqual, getStudentPrimaryKey, getUserPrimaryKey, getStudentUserDashboardKey, UserDashboardStorage, getLicenseKey, LicenseStorage,
     LicenseDal,
-    getStudentSchedulePrimaryKey
-} from '@mytaptrack/lib';
+    getStudentSchedulePrimaryKey, getStudentLicenseIndexKey } from '@mytaptrack/lib';
 import {
     MttAppSyncContext
 } from '@mytaptrack/cdk';
@@ -452,8 +451,7 @@ async function createStudent(context: MttAppSyncContext<AppSyncParams, never, ne
         },
         tsk: `S#${student.studentId}`,
         absences: [],
-        lpk: `L#${student.license}`,
-        lsk: `S#${student.studentId}`,
+        ...getStudentLicenseIndexKey(student.license!, student.studentId!),
         version: 4
     };
 

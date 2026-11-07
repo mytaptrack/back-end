@@ -17,14 +17,13 @@
         "genConfigs": "npx ts-node src/gen-configs.ts"
     },
     "dependencies": {
-        "@aws-sdk/client-cognito-identity-provider": "^3.799.0",
-        "@aws-sdk/credential-provider-sso": "^3.840.0",
+        "@aws-sdk/client-cognito-identity-provider": "^3.1161.0",
+        "@aws-sdk/credential-provider-sso": "^3.973.24",
         "@babel/plugin-transform-modules-commonjs": "^7.27.1",
         "@mytaptrack/cdk": "file:../cdk",
         "@mytaptrack/lib": "file:../lib",
         "@mytaptrack/types": "file:../types",
         "@types/moment": "^2.11.29",
-        "aws-sdk": "^2.1692.0",
         "dotenv": "^17.2.3",
         "graphql": "^16.11.0",
         "graphql-request": "^6.1.0",
@@ -36,12 +35,12 @@
         "short-uuid": "^5.2.0"
     },
     "devDependencies": {
-        "@aws-sdk/client-ssm": "^3.799.0",
+        "@aws-sdk/client-ssm": "^3.1161.0",
         "@types/jest": "^29.5.14",
-        "@types/node": "^16.10.3",
+        "@types/node": "^24.0.0",
         "jest": "^29.7.0",
         "ts-jest": "^29.3.2",
-        "typescript": "^5.0.4",
+        "typescript": "^5.9.0",
         "yaml": "^2.8.0"
     },
     "jest": {

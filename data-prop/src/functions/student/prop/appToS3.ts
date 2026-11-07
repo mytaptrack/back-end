@@ -3,7 +3,7 @@ import { EventBridgeEvent } from 'aws-lambda';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal';
+import { DalKey } from '@mytaptrack/lib/dist/v2/dals/dal-types';
 
 const s3 = new S3Client({});
 const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));

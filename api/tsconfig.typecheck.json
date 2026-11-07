@@ -1,0 +1,23 @@
+{
+  // `npm run typecheck`. Jest and the runtimes all transpile without checking, so this is
+  // what holds Lambda handlers and container servers to the shared contract in @mytaptrack/lib.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*"],
+  "files": ["./node_modules/vitest/globals.d.ts"],
+  "exclude": [
+    "vitest.config.mts",
+    "node_modules",
+    "**/*.spec.ts",
+    "**/*.d.ts",
+    "cdk.out",
+    // Never deployed, and cannot compile: the first needs the uninstalled @aws-sdk/client-iot,
+    // the other two call an APIGatewayV2 object that does not exist anywhere in the repo.
+    "src/device/functions/iot/api/register-api.ts",
+    "src/graphql/resolver/query/getDeviceQRCode.ts",
+    "src/graphql/resolver/query/getDeviceTrackTerm.ts"
+  ]
+}

@@ -54,16 +54,14 @@ Unit Tests (Many)
 
 ### Core Testing Stack
 
-#### Jest
-Primary testing framework for unit and integration tests.
+#### Vitest
+Testing framework for unit tests in `api`, `lib`, `data-prop` and `cicd`. The end-to-end suite in `system-tests` uses Jest.
 
 ```json
 {
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false"
+    "test": "vitest run --coverage",
+    "test:watch": "vitest"
   }
 }
 ```
@@ -152,7 +150,7 @@ describe('UserService', () => {
       // Arrange
       const userData = { email: 'test@example.com', name: 'Test User' };
       const mockRepository = {
-        create: jest.fn().mockResolvedValue({ id: '123', ...userData })
+        create: vi.fn().mockResolvedValue({ id: '123', ...userData })
       };
       const userService = new UserService(mockRepository);
 
@@ -205,9 +203,9 @@ class UserService {
 }
 
 // Test with mocks
-const mockRepository = { create: jest.fn() };
-const mockValidator = { validate: jest.fn() };
-const mockLogger = { info: jest.fn() };
+const mockRepository = { create: vi.fn() };
+const mockValidator = { validate: vi.fn() };
+const mockLogger = { info: vi.fn() };
 const service = new UserService(mockRepository, mockValidator, mockLogger);
 ```
 
@@ -216,17 +214,18 @@ Mock external modules and services.
 
 ```typescript
 // Mock AWS SDK
-jest.mock('@aws-sdk/client-dynamodb', () => ({
-  DynamoDBClient: jest.fn().mockImplementation(() => ({
-    send: jest.fn()
-  })),
-  GetItemCommand: jest.fn(),
-  PutItemCommand: jest.fn()
+vi.mock('@aws-sdk/client-dynamodb', () => ({
+  // Mocked classes need a regular function: arrow functions cannot be constructors
+  DynamoDBClient: vi.fn(function () {
+    return { send: vi.fn() };
+  }),
+  GetItemCommand: vi.fn(),
+  PutItemCommand: vi.fn()
 }));
 
 // Mock external API
-jest.mock('../services/external-api', () => ({
-  fetchUserData: jest.fn().mockResolvedValue({ id: '123', name: 'John' })
+vi.mock('../services/external-api', () => ({
+  fetchUserData: vi.fn().mockResolvedValue({ id: '123', name: 'John' })
 }));
 ```
 
@@ -236,8 +235,8 @@ Mock only specific methods when needed.
 ```typescript
 import * as userUtils from '../utils/user-utils';
 
-jest.spyOn(userUtils, 'generateUserId').mockReturnValue('mock-id-123');
-jest.spyOn(userUtils, 'validateEmail').mockReturnValue(true);
+vi.spyOn(userUtils, 'generateUserId').mockReturnValue('mock-id-123');
+vi.spyOn(userUtils, 'validateEmail').mockReturnValue(true);
 ```
 
 ### Testing Async Code
@@ -826,37 +825,36 @@ npm run coverage:upload
 
 ### Test Configuration
 
-#### Jest Configuration
-```javascript
-// jest.config.js
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: [
-    '**/__tests__/**/*.ts',
-    '**/?(*.)+(spec|test).ts'
-  ],
-  transform: {
-    '^.+\\.ts$': 'ts-jest'
-  },
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts'
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
+#### Vitest Configuration
+```typescript
+// vitest.config.mts
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/**/*.{spec,test}.ts'],
+    testTimeout: 30000,
+    coverage: {
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.d.ts', 'src/**/*.spec.ts', 'src/**/*.test.ts'],
+      reporter: ['text', 'lcov', 'html']
     }
-  },
-  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts']
-};
+  }
+});
 ```
+
+#### Handler tests in `api`
+
+`api/src/testing/unit-kit.ts` holds the shared helpers: `callApi` drives a REST handler through the real `WebUtils.apiWrapperEx`, `appSyncContext` builds a resolver context, `stub` replaces methods on a DAL singleton, and `stubTables` routes every `Dal` call to a per-table double. Set `process.env.PrimaryTable` and `DataTable` in `vi.hoisted` when using `stubTables`, because a `Dal` reads its table name as the handler module loads.
+
+A confirmed production bug gets an `it.fails` test asserting the correct behaviour, tagged with a `KNOWN BUG` comment. It goes red when the bug is fixed; change it to `it` at that point. List them with `grep -rn "KNOWN BUG" api/src`.
+
+`api/vitest.config.mts` sets a coverage floor, so `npm test` fails if coverage drops below it.
+
+`vi.mock` does not intercept native `require()`. For modules production code requires lazily, such as `amqplib`, use `mockNativeModule` from `lib/src/v2/testing/native-module-mock.ts`.
+
 
 #### Test Setup
 ```typescript
@@ -876,11 +874,11 @@ afterAll(async () => {
 // Mock console methods in tests
 global.console = {
   ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn()
+  log: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn()
 };
 ```
 
@@ -963,21 +961,12 @@ npm run coverage:check
 Generate test reports for CI/CD.
 
 ```javascript
-// jest.config.js
-module.exports = {
-  // ... other config
-  reporters: [
-    'default',
-    ['jest-junit', {
-      outputDirectory: 'test-results',
-      outputName: 'junit.xml'
-    }],
-    ['jest-html-reporters', {
-      publicPath: 'test-results',
-      filename: 'report.html'
-    }]
-  ]
-};
+// vitest.config.mts, inside test:
+reporters: ['default', 'junit', 'html'],
+outputFile: {
+  junit: 'test-results/junit.xml',
+  html: 'test-results/report.html'
+}
 ```
 
 ## Debugging Tests
@@ -990,11 +979,11 @@ module.exports = {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Jest Tests",
+      "name": "Debug Vitest Tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--runInBand", "--no-cache", "--no-coverage"],
+      "program": "${workspaceFolder}/node_modules/.bin/vitest",
+      "args": ["run", "--no-file-parallelism", "--coverage.enabled=false"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }

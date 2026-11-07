@@ -1,11 +1,7 @@
 // Timestream functionality has been removed
 // This file is kept for compatibility but all methods are disabled
 
-export interface ProcessButtonRequestExtended {
-    attributes: {
-        [key: string]: string;
-    };
-}
+import { ProcessButtonRequestExtended } from '../types/iotEvents';
 
 class TimestreamDalClass {
     async deleteEvent(record: ProcessButtonRequestExtended) {

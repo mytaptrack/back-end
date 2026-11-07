@@ -1,7 +1,6 @@
 import {
     StudentConfigStorage, WebUtils, WebError, Dal, DalKey, 
-    MttIndexes, getStudentPrimaryKey, getLicenseKey
-} from '@mytaptrack/lib';
+    MttIndexes, getStudentPrimaryKey, getLicenseKey, getStudentLicenseIndexQuery } from '@mytaptrack/lib';
 
 import {
     MttAppSyncContext
@@ -25,10 +24,7 @@ export async function handleEvent(context: MttAppSyncContext<AppSyncParams, neve
     const remainingCounts = await data.query({
         keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
         indexName: MttIndexes.license,
-        attributeValues: {
-            ':lpk': `L#${context.arguments.license}`,
-            ':lsk': 'S#',
-        },
+        attributeValues: getStudentLicenseIndexQuery(context.arguments.license),
         projectionExpression: 'pk, sk'
     });
 

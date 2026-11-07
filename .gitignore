@@ -12,6 +12,11 @@ node_modules/*
 
 **/.DS_Store
 
+# Claude Code / GSD tooling (CLAUDE.md stays tracked)
+.claude/
+.planning/
+.mcp.json
+
 # Container environment
 .env
 docker-compose.override.yml

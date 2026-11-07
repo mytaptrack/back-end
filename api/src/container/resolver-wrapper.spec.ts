@@ -19,7 +19,7 @@ const makeInfo = (fieldName: string = 'testField') => ({
 
 describe('wrapResolver — AppSync context shape', () => {
   it('Test 1: identity.groups is passed through as an array', async () => {
-    const mockHandler = jest.fn().mockResolvedValue({ result: 'ok' });
+    const mockHandler = vi.fn().mockResolvedValue({ result: 'ok' });
     const wrapped = wrapResolver(mockHandler);
 
     const context = {
@@ -38,7 +38,7 @@ describe('wrapResolver — AppSync context shape', () => {
   });
 
   it('Test 2: identity.username is passed through as a string', async () => {
-    const mockHandler = jest.fn().mockResolvedValue({ result: 'ok' });
+    const mockHandler = vi.fn().mockResolvedValue({ result: 'ok' });
     const wrapped = wrapResolver(mockHandler);
 
     const context = {
@@ -66,7 +66,7 @@ describe('wrapResolver — AppSync context shape', () => {
    * This test will turn GREEN after that fix lands.
    */
   it('Test 3: identity.claims is set to the raw identity object (RED until Plan 02)', async () => {
-    const mockHandler = jest.fn().mockResolvedValue({ result: 'ok' });
+    const mockHandler = vi.fn().mockResolvedValue({ result: 'ok' });
     const wrapped = wrapResolver(mockHandler);
 
     const identity = { groups: [], username: 'user@test.com', sub: 'abc-123' };
@@ -84,7 +84,7 @@ describe('wrapResolver — AppSync context shape', () => {
   });
 
   it('Test 4: arguments are passed through unchanged', async () => {
-    const mockHandler = jest.fn().mockResolvedValue({ result: 'ok' });
+    const mockHandler = vi.fn().mockResolvedValue({ result: 'ok' });
     const wrapped = wrapResolver(mockHandler);
 
     const args = { studentId: 'stu-456', licenseId: 'lic-789' };
@@ -99,7 +99,7 @@ describe('wrapResolver — AppSync context shape', () => {
   });
 
   it('Test 5: info.fieldName is set from the GraphQL info object', async () => {
-    const mockHandler = jest.fn().mockResolvedValue({ result: 'ok' });
+    const mockHandler = vi.fn().mockResolvedValue({ result: 'ok' });
     const wrapped = wrapResolver(mockHandler);
 
     const info = {

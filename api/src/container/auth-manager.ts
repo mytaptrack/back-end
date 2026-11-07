@@ -1,5 +1,6 @@
 import Redis from 'ioredis';
 import jwt from 'jsonwebtoken';
+import type { MttAppSyncIdentity } from '@mytaptrack/lib';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'local-dev-secret';
 console.log('JWT_SECRET being used:', JWT_SECRET);
@@ -83,17 +84,13 @@ interface TokenPayload {
     exp?: number;
 }
 
-interface CognitoIdentity {
+interface CognitoIdentity extends MttAppSyncIdentity {
     sub: string;
     username: string;
     email: string;
     name?: string;
     'cognito:username': string;
     'cognito:groups'?: string[];
-    groups?: string[];  // AppSync format
-    accountId?: string;
-    cognitoIdentityAuthProvider?: string | null;
-    userArn?: string;
 }
 
 export class AuthManager {

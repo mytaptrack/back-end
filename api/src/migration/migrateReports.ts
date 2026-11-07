@@ -20,7 +20,7 @@ export async function onCreateHandler(event) {
     let token: any;
     do {
         console.log('Scanning db');
-        const scanResults = await data.scan<DataStorage[]>({
+        const scanResults = await data.scan<DataStorage>({
             filterExpression: 'begins_with(pk, :pkVal)',
             attributeValues: {
                 ':pkVal': 'S#'

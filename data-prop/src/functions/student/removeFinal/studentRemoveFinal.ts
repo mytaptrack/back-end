@@ -24,39 +24,28 @@ export async function handler(event: RemoveStudentInput) {
 }
 
 async function removeS3(license: string, studentId: string, bucket: string) {
-    let token;
+    await removePrefix(bucket, `students/plicense=${license}/pstudent=${studentId}/`);
+    await removePrefix(bucket, `apps/plicense=${license}/pstudent=${studentId}/`);
+    await removePrefix(bucket, `student/${studentId}/`);
+}
+
+async function removePrefix(bucket: string, prefix: string) {
+    let marker: string | undefined;
     do {
         const objData: any = await s3.send(new ListObjectsCommand({
             Bucket: bucket,
-            Prefix: `/students/plicense=${license}/pstudent=${studentId}/`,
-            Marker: token
+            Prefix: prefix,
+            Marker: marker
         }));
 
-        token = objData.NextMarker;
-
-        for(const item of objData.Contents) {
+        // S3 omits Contents from an empty page, and NextMarker unless a delimiter is set.
+        const contents: { Key: string }[] = objData.Contents ?? [];
+        for(const item of contents) {
             await s3.send(new DeleteObjectCommand({
                 Bucket: bucket,
                 Key: item.Key
             }));
         }
-    } while(token);
-
-    token = undefined;
-    do {
-        const objData: any = await s3.send(new ListObjectsCommand({
-            Bucket: bucket,
-            Prefix: `/student/${studentId}/`,
-            Marker: token
-        }));
-
-        token = objData.NextMarker;
-
-        for(const item of objData.Contents) {
-            await s3.send(new DeleteObjectCommand({
-                Bucket: bucket,
-                Key: item.Key
-            }));
-        }
-    } while(token);
+        marker = objData.IsTruncated ? objData.NextMarker ?? contents[contents.length - 1]?.Key : undefined;
+    } while(marker);
 }

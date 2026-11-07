@@ -59,20 +59,20 @@ install: install-deps build configure-env set-env deploy
 env-setup: install-deps set-env
 
 set-env:
-	cd utils && npm ci && AWS_PROFILE=$(AWS_PROFILE) npm run set-env $(STAGE)
+	cd utils && npm i && AWS_PROFILE=$(AWS_PROFILE) npm run set-env $(STAGE)
 
 del-env:
-	cd utils && npm ci && AWS_PROFILE=$(AWS_PROFILE) npm run del-env $(STAGE)
+	cd utils && npm i && AWS_PROFILE=$(AWS_PROFILE) npm run del-env $(STAGE)
 
 # Install dependencies for all services
 install-deps:
-	cd types && npm ci && npm run build && cd ..
-	cd cdk && npm ci && npm run build && cd ..
-	cd lib && npm ci && npm run build && cd ..
-	cd core && npm ci && cd ..
-	cd api && npm ci && cd ..
-	cd data-prop && npm ci && cd ..
-	cd system-tests && npm ci && cd ..
+	cd types && npm i && npm run build && cd ..
+	cd cdk && npm i && npm run build && cd ..
+	cd lib && npm i && npm run build && cd ..
+	cd core && npm i && cd ..
+	cd api && npm i && cd ..
+	cd data-prop && npm i && cd ..
+	cd system-tests && npm i && cd ..
 
 # Build all services
 build:
@@ -108,9 +108,9 @@ configure-license:
 	cd utils && npm i && npm run setup-env
 
 uninstall:
-	cd data-prop && cdk destroy
-	cd api && cdk destroy --all
-	cd core && cdk destroy
+	cd data-prop && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk destroy
+	cd api && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk destroy --all
+	cd core && AWS_PROFILE=$(AWS_PROFILE) STAGE=$(STAGE) cdk destroy
 
 # Update environment configurations
 update-env:

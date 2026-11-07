@@ -1,5 +1,5 @@
 import { Context } from '@aws-appsync/utils';
-import { handleEvent as manageLicenseGet } from '../../../v2/manage/license/get';
+import { handleEvent as manageLicenseGet } from '../../../../v2/manage/license/get';
 
 export async function handler(event: Context) {
     const { license } = event.arguments;

@@ -1,4 +1,5 @@
 import { IUserPool, UserPool, UserPoolClient, UserPoolClientOptions, UserPoolProps } from "aws-cdk-lib/aws-cognito";
+import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 import { IGrantable } from "aws-cdk-lib/aws-iam";
 import { EnvironmentEnabled, MttContext } from ".";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -7,7 +8,8 @@ import { IdentityPool, UserPoolAuthenticationProvider } from "aws-cdk-lib/aws-co
 export enum CognitoAccess {
     listUsers,
     administrateGroups,
-    administrateUsers
+    administrateUsers,
+    deleteUser
 };
 
 export interface MttUserPoolProps extends UserPoolProps {
@@ -55,6 +57,8 @@ export class MttCognito implements EnvironmentEnabled {
             );
         } else if (access == CognitoAccess.administrateUsers) {
             this.userPool.grant(grantee, 'cognito-idp:ListUsers', 'cognito-idp:AdminGetUser');
+        } else if (access == CognitoAccess.deleteUser) {
+            this.userPool.grant(grantee, 'cognito-idp:AdminDeleteUser');
         }
     }
 
@@ -88,7 +92,7 @@ export class MttCognito implements EnvironmentEnabled {
             userPool: this.userPool,
             userPoolClient: client
         }));
-        idPool.authenticatedRole.addManagedPolicy({ managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess'} )
+        idPool.authenticatedRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonAPIGatewayInvokeFullAccess'))
         return idPool;
     }
 }

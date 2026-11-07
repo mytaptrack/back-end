@@ -121,7 +121,7 @@ describe('PerformanceMonitor', () => {
     });
 
     it('should log warning for slow operations', (done) => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
       
       performanceMonitor.setWarningThreshold('get', 10);
       const timer = performanceMonitor.startOperation('get');

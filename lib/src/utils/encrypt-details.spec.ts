@@ -1,6 +1,6 @@
 import { EncryptUtils, kms } from './encrypt-details';
 
-const encrypt = jest.fn();
+const encrypt = vi.fn();
 // kms.encrypt = encrypt as any;
 
 describe('EncryptUtils', () => {

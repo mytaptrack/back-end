@@ -1,13 +1,13 @@
 import { AppDal, StudentDal, LicenseDal } from '../dals';
 
-const getAppConfig = jest.fn();
-const updateAppConfig = jest.fn();
-const updateAppPii = jest.fn();
-const deleteDevice = jest.fn();
-const getStudent = jest.fn();
-const getStudentIdsForTemplate = jest.fn();
-const putAppTemplateRegistration = jest.fn();
-const deleteAppTemplateRegistration = jest.fn();
+const getAppConfig = vi.fn();
+const updateAppConfig = vi.fn();
+const updateAppPii = vi.fn();
+const deleteDevice = vi.fn();
+const getStudent = vi.fn();
+const getStudentIdsForTemplate = vi.fn();
+const putAppTemplateRegistration = vi.fn();
+const deleteAppTemplateRegistration = vi.fn();
 AppDal.getAppConfig = getAppConfig;
 AppDal.updateAppConfig = updateAppConfig;
 AppDal.updateAppPii = updateAppPii;
@@ -306,7 +306,7 @@ describe('utils', () => {
         });
         describe('applyTemplatesToApp', () => {
             beforeEach(() => {
-                jest.resetAllMocks();
+                vi.resetAllMocks();
             });
             test('UpdateExisting', async () => {
                 const studentTemplates = getDefaultStudentTemplateMap();

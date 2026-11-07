@@ -13,35 +13,37 @@ import {
 } from '../types/database-errors';
 
 // Mock MongoDB client
-jest.mock('mongodb', () => ({
-  MongoClient: jest.fn().mockImplementation(() => ({
-    connect: jest.fn(),
-    close: jest.fn(),
-    db: jest.fn().mockReturnValue({
-      admin: jest.fn().mockReturnValue({
-        ping: jest.fn()
+vi.mock('mongodb', () => ({
+  MongoClient: vi.fn(function () {
+    return {
+    connect: vi.fn(),
+    close: vi.fn(),
+    db: vi.fn().mockReturnValue({
+      admin: vi.fn().mockReturnValue({
+        ping: vi.fn()
       }),
-      collection: jest.fn().mockReturnValue({
-        findOne: jest.fn(),
-        replaceOne: jest.fn(),
-        insertOne: jest.fn(),
-        findOneAndUpdate: jest.fn(),
-        deleteOne: jest.fn(),
-        find: jest.fn().mockReturnValue({
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn()
+      collection: vi.fn().mockReturnValue({
+        findOne: vi.fn(),
+        replaceOne: vi.fn(),
+        insertOne: vi.fn(),
+        findOneAndUpdate: vi.fn(),
+        deleteOne: vi.fn(),
+        find: vi.fn().mockReturnValue({
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn()
         })
       })
     }),
-    startSession: jest.fn().mockReturnValue({
-      withTransaction: jest.fn(),
-      endSession: jest.fn(),
-      abortTransaction: jest.fn()
+    startSession: vi.fn().mockReturnValue({
+      withTransaction: vi.fn(),
+      endSession: vi.fn(),
+      abortTransaction: vi.fn()
     })
-  }))
+    };
+  })
 }));
 
 describe('MongoDBProvider', () => {
@@ -65,7 +67,7 @@ describe('MongoDBProvider', () => {
     };
 
     provider = new MongoDBProvider(mockConfig);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -88,10 +90,10 @@ describe('MongoDBProvider', () => {
     });
 
     it('should handle connection errors', async () => {
-      const mockClient = require('mongodb').MongoClient;
-      mockClient.mockImplementationOnce(() => ({
-        connect: jest.fn().mockRejectedValue(new Error('Connection failed'))
-      }));
+      const mockClient = vi.mocked((await import('mongodb')).MongoClient);
+      mockClient.mockImplementationOnce(function () { return ({
+        connect: vi.fn().mockRejectedValue(new Error('Connection failed'))
+      }); } as any);
 
       const errorProvider = new MongoDBProvider(mockConfig);
       await expect(errorProvider.connect()).rejects.toThrow(ConnectionError);
@@ -118,11 +120,11 @@ describe('MongoDBProvider', () => {
         const mockDocument = { pk: 'user123', sk: 'profile', name: 'John Doe' };
 
         const mockCollection = {
-          findOne: jest.fn().mockResolvedValue(mockDocument)
+          findOne: vi.fn().mockResolvedValue(mockDocument)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const result = await provider.get(key);
@@ -138,11 +140,11 @@ describe('MongoDBProvider', () => {
         const key: DatabaseKey = { primary: 'nonexistent', sort: 'item' };
 
         const mockCollection = {
-          findOne: jest.fn().mockResolvedValue(null)
+          findOne: vi.fn().mockResolvedValue(null)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const result = await provider.get(key);
@@ -154,11 +156,11 @@ describe('MongoDBProvider', () => {
         const options = { projection: ['name', 'email'] };
 
         const mockCollection = {
-          findOne: jest.fn().mockResolvedValue({ name: 'John', email: 'john@example.com' })
+          findOne: vi.fn().mockResolvedValue({ name: 'John', email: 'john@example.com' })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.get(key, options);
@@ -181,11 +183,11 @@ describe('MongoDBProvider', () => {
         const data = { pk: 'user123', sk: 'profile', name: 'John Doe' };
 
         const mockCollection = {
-          replaceOne: jest.fn().mockResolvedValue({ matchedCount: 0, upsertedCount: 1 })
+          replaceOne: vi.fn().mockResolvedValue({ matchedCount: 0, upsertedCount: 1 })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.put(data);
@@ -210,11 +212,11 @@ describe('MongoDBProvider', () => {
         const options = { ensureNotExists: true };
 
         const mockCollection = {
-          insertOne: jest.fn().mockResolvedValue({ insertedId: 'new_id' })
+          insertOne: vi.fn().mockResolvedValue({ insertedId: 'new_id' })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.put(data, options);
@@ -226,11 +228,11 @@ describe('MongoDBProvider', () => {
         const data = { pk: 'user123', sk: 'profile', name: 'John Doe' };
 
         const mockCollection = {
-          insertOne: jest.fn().mockRejectedValue({ code: 11000, message: 'Duplicate key' })
+          insertOne: vi.fn().mockRejectedValue({ code: 11000, message: 'Duplicate key' })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await expect(provider.put(data, { ensureNotExists: true })).rejects.toThrow(DuplicateKeyError);
@@ -250,13 +252,13 @@ describe('MongoDBProvider', () => {
         };
 
         const mockCollection = {
-          findOneAndUpdate: jest.fn().mockResolvedValue({
+          findOneAndUpdate: vi.fn().mockResolvedValue({
             value: { pk: 'user123', sk: 'profile', name: 'Jane Doe', email: 'jane@example.com' }
           })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const result = await provider.update(input);
@@ -281,11 +283,11 @@ describe('MongoDBProvider', () => {
         };
 
         const mockCollection = {
-          findOneAndUpdate: jest.fn().mockResolvedValue({ value: null })
+          findOneAndUpdate: vi.fn().mockResolvedValue({ value: null })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.update(input);
@@ -303,11 +305,11 @@ describe('MongoDBProvider', () => {
         };
 
         const mockCollection = {
-          findOneAndUpdate: jest.fn().mockResolvedValue({ value: null })
+          findOneAndUpdate: vi.fn().mockResolvedValue({ value: null })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.update(input);
@@ -323,11 +325,11 @@ describe('MongoDBProvider', () => {
         const key: DatabaseKey = { primary: 'user123', sort: 'profile' };
 
         const mockCollection = {
-          deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 })
+          deleteOne: vi.fn().mockResolvedValue({ deletedCount: 1 })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.delete(key);
@@ -339,11 +341,11 @@ describe('MongoDBProvider', () => {
         const key: DatabaseKey = { primary: 'nonexistent', sort: 'item' };
 
         const mockCollection = {
-          deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 })
+          deleteOne: vi.fn().mockResolvedValue({ deletedCount: 0 })
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await expect(provider.delete(key)).rejects.toThrow(ItemNotFoundError);
@@ -373,19 +375,19 @@ describe('MongoDBProvider', () => {
         ];
 
         const mockCursor = {
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn().mockResolvedValue(mockDocuments)
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn().mockResolvedValue(mockDocuments)
         };
 
         const mockCollection = {
-          find: jest.fn().mockReturnValue(mockCursor)
+          find: vi.fn().mockReturnValue(mockCursor)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const results = await provider.query(input);
@@ -406,19 +408,19 @@ describe('MongoDBProvider', () => {
         };
 
         const mockCursor = {
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn().mockResolvedValue([])
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn().mockResolvedValue([])
         };
 
         const mockCollection = {
-          find: jest.fn().mockReturnValue(mockCursor)
+          find: vi.fn().mockReturnValue(mockCursor)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.query(input);
@@ -439,19 +441,19 @@ describe('MongoDBProvider', () => {
         };
 
         const mockCursor = {
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn().mockResolvedValue([])
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn().mockResolvedValue([])
         };
 
         const mockCollection = {
-          find: jest.fn().mockReturnValue(mockCursor)
+          find: vi.fn().mockReturnValue(mockCursor)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         await provider.query(input);
@@ -479,19 +481,19 @@ describe('MongoDBProvider', () => {
         ];
 
         const mockCursor = {
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn().mockResolvedValue(mockDocuments)
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn().mockResolvedValue(mockDocuments)
         };
 
         const mockCollection = {
-          find: jest.fn().mockReturnValue(mockCursor)
+          find: vi.fn().mockReturnValue(mockCursor)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const result = await provider.scan(input);
@@ -511,19 +513,19 @@ describe('MongoDBProvider', () => {
         ];
 
         const mockCursor = {
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn().mockResolvedValue(mockDocuments)
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn().mockResolvedValue(mockDocuments)
         };
 
         const mockCollection = {
-          find: jest.fn().mockReturnValue(mockCursor)
+          find: vi.fn().mockReturnValue(mockCursor)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const result = await provider.scan(input);
@@ -546,19 +548,19 @@ describe('MongoDBProvider', () => {
         ];
 
         const mockCursor = {
-          project: jest.fn().mockReturnThis(),
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          toArray: jest.fn().mockResolvedValue(mockDocuments)
+          project: vi.fn().mockReturnThis(),
+          sort: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          skip: vi.fn().mockReturnThis(),
+          toArray: vi.fn().mockResolvedValue(mockDocuments)
         };
 
         const mockCollection = {
-          find: jest.fn().mockReturnValue(mockCursor)
+          find: vi.fn().mockReturnValue(mockCursor)
         };
         
-        provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-          collection: jest.fn().mockReturnValue(mockCollection)
+        provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+          collection: vi.fn().mockReturnValue(mockCollection)
         });
 
         const results = await provider.batchGet(keys);
@@ -605,21 +607,21 @@ describe('MongoDBProvider', () => {
       ];
 
       const mockSession = {
-        withTransaction: jest.fn().mockImplementation(async (fn) => await fn()),
-        endSession: jest.fn()
+        withTransaction: vi.fn().mockImplementation(async (fn) => await fn()),
+        endSession: vi.fn()
       };
 
-      provider['connectionManager'].getClient = jest.fn().mockReturnValue({
-        startSession: jest.fn().mockReturnValue(mockSession)
+      provider['connectionManager'].getClient = vi.fn().mockReturnValue({
+        startSession: vi.fn().mockReturnValue(mockSession)
       });
 
       const mockCollection = {
-        replaceOne: jest.fn().mockResolvedValue({}),
-        deleteOne: jest.fn().mockResolvedValue({})
+        replaceOne: vi.fn().mockResolvedValue({}),
+        deleteOne: vi.fn().mockResolvedValue({})
       };
       
-      provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-        collection: jest.fn().mockReturnValue(mockCollection)
+      provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+        collection: vi.fn().mockReturnValue(mockCollection)
       });
 
       await provider.executeTransaction(operations);
@@ -640,12 +642,12 @@ describe('MongoDBProvider', () => {
 
     it('should execute native MongoDB operations', async () => {
       const mockDatabase = {
-        collection: jest.fn().mockReturnValue({
-          aggregate: jest.fn().mockResolvedValue([{ count: 5 }])
+        collection: vi.fn().mockReturnValue({
+          aggregate: vi.fn().mockResolvedValue([{ count: 5 }])
         })
       };
       
-      provider['connectionManager'].getDatabase = jest.fn().mockReturnValue(mockDatabase);
+      provider['connectionManager'].getDatabase = vi.fn().mockReturnValue(mockDatabase);
 
       const nativeOperation = (db: any) => {
         return db.collection('test').aggregate([{ $count: 'count' }]);
@@ -673,11 +675,11 @@ describe('MongoDBProvider', () => {
 
     it('should translate MongoDB errors correctly', async () => {
       const mockCollection = {
-        findOne: jest.fn().mockRejectedValue({ code: 50, message: 'Timeout' })
+        findOne: vi.fn().mockRejectedValue({ code: 50, message: 'Timeout' })
       };
       
-      provider['connectionManager'].getDatabase = jest.fn().mockReturnValue({
-        collection: jest.fn().mockReturnValue(mockCollection)
+      provider['connectionManager'].getDatabase = vi.fn().mockReturnValue({
+        collection: vi.fn().mockReturnValue(mockCollection)
       });
 
       const key: DatabaseKey = { primary: 'test', sort: 'item' };

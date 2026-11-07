@@ -255,7 +255,7 @@ describe('TransactionManager', () => {
       } else {
         // For fallback transactions, mock provider operations to fail
         const originalPut = mockProvider.put;
-        mockProvider.put = jest.fn().mockRejectedValue(new Error('Put operation failed'));
+        mockProvider.put = vi.fn().mockRejectedValue(new Error('Put operation failed'));
         
         await transaction.put({ pk: 'test', sk: 'item', data: 'value' });
         
@@ -301,7 +301,7 @@ describe('TransactionManager', () => {
     });
 
     it('should call rollback callback when provided', async () => {
-      const onRollback = jest.fn();
+      const onRollback = vi.fn();
       const transaction = await transactionManager.beginTransaction(mockProvider, {
         onRollback
       });
@@ -450,7 +450,7 @@ describe('EnhancedTransaction', () => {
 
   describe('retry mechanism', () => {
     it('should retry on retryable errors', async () => {
-      const onRetry = jest.fn();
+      const onRetry = vi.fn();
       const retryTransaction = new EnhancedTransaction(
         mockProvider,
         mockTransaction,
@@ -465,7 +465,7 @@ describe('EnhancedTransaction', () => {
       // Mock a retryable error on first attempt, success on second
       let attemptCount = 0;
       const originalCommit = mockTransaction.commit.bind(mockTransaction);
-      mockTransaction.commit = jest.fn().mockImplementation(async () => {
+      mockTransaction.commit = vi.fn().mockImplementation(async () => {
         attemptCount++;
         if (attemptCount === 1) {
           const error = new ConnectionError('Temporary connection error');

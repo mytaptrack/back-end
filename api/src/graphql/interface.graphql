@@ -45,6 +45,7 @@ type Mutation {
 
     updateUser(user: UserUpdateInput!): UserSummary @aws_iam @aws_cognito_user_pools
     acceptUserTerms(accept: Boolean): Boolean @aws_iam @aws_cognito_user_pools
+    deleteMyAccount: Boolean @aws_iam @aws_cognito_user_pools
 
     changeLicense(input: LicenseUpdateInput): LicenseUserDetails @aws_iam @aws_cognito_user_pools
 

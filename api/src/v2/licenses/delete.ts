@@ -1,8 +1,4 @@
-import { WebError, WebUserDetails, WebUtils } from '@mytaptrack/lib';
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, DeleteCommand } from '@aws-sdk/lib-dynamodb';
-
-const dynamodb = DynamoDBDocumentClient.from(new DynamoDB({}));
+import { WebError, WebUserDetails, WebUtils, v2 } from '@mytaptrack/lib';
 
 export const handleEvent = WebUtils.apiWrapperEx(deleteEvent, { processBody: 'Parameters', role: 'admins' });
 
@@ -11,10 +7,7 @@ export async function deleteEvent(request: { license: string }, userDetails: Web
         throw new WebError('Invalid input');
     }
     console.log('Deleting data');
-    await dynamodb.send(new DeleteCommand({
-        TableName: process.env.LicenseTable!,
-        Key: { license: JSON.parse(request.license) }
-    }));
+    await v2.LicenseDal.delete(JSON.parse(request.license));
     console.log('Data deleted');
 
     console.log('Returning success');

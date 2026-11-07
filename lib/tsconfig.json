@@ -23,11 +23,13 @@
       "dom"
     ],
     "types": [
-      "node",
-      "jest"
+      "node"
     ]
   },
+  "include": ["**/*"],
+  "files": ["./node_modules/vitest/globals.d.ts"],
   "exclude": [
+    "vitest.config.mts",
     "dist/**/*",
     "**/dist/**/*",
     "node_modules/**/*",

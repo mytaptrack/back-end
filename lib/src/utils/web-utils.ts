@@ -75,7 +75,7 @@ class WebUtilsClass {
             };
 
             if(context.arguments.license) {
-                if(!context.identity['userArn'] && context.identity.username && 
+                if(!context.identity.userArn && context.identity.username && 
                     !context.identity?.groups?.find(l => l.endsWith(`/${context.arguments.license}`))) {
                     logger.error('License not found', context.arguments.license);
                     throw new WebError('License not found', 400);
@@ -151,13 +151,13 @@ class WebUtilsClass {
         let userId = context.identity.username;
         let studentId = context.arguments?.student?.studentId ?? context.arguments?.studentId ?? studentIdParam;
 
-        if (context.identity['userArn']?.startsWith('arn:aws:') || (process.env['LicenseAdminPermissions'] == "true" && context.identity.groups?.length > 0)) {
+        if (context.identity.userArn?.startsWith('arn:aws:') || (process.env['LicenseAdminPermissions'] == "true" && context.identity.groups?.length > 0)) {
             const student = await StudentDal.getStudentConfig(studentId);
             if(student) {
                 this.setLabels({ studentId: student.studentId, userId });
             }
             const licensePath = `licenses/${student.license}`;
-            if(context.identity['userArn']?.startsWith('arn:aws:') || context.identity.groups.find(l => l == licensePath)) {
+            if(context.identity.userArn?.startsWith('arn:aws:') || context.identity.groups.find(l => l == licensePath)) {
                 if(context.arguments.userId) {
                     userId = context.arguments.userId;
                 } else {

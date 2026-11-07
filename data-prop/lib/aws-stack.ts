@@ -195,7 +195,7 @@ export class DataPropStack extends cdk.Stack {
     const studentRemoveFinal = new MttFunction(context, {
       id: 'studentRemoveFinalV2',
       codePath: 'src/functions/student/removeFinal/studentRemoveFinal.ts',
-      handler: 'handleEvent',
+      handler: 'proc',
       tables: [
         { table: dataTable, access: DynamoDBAccess.readWrite, indexes: ['', 'Student'] },
         { table: primaryTable, access: DynamoDBAccess.readWrite }

@@ -34,6 +34,12 @@ export interface ProcessButtonRequest {
     intensity?: number;
 }
 
+export interface ProcessButtonRequestExtended extends ProcessButtonRequest {
+    attributes?: {
+        [key: string]: string;
+    };
+}
+
 export interface ProcessServiceRequest {
     studentId: string;
     serviceId: string;

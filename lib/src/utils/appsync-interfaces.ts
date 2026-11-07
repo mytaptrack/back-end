@@ -2,13 +2,23 @@ import { UserSummaryRestrictions, UserSummaryRestrictionsApiPermissions } from "
 import { AppSyncIdentity, AppSyncResolverEventHeaders } from "aws-lambda";
 import { DynamoDBStringResult } from '@aws-appsync/utils';
 
+/**
+ * Caller identity. In serverless AppSync sets this from Cognito or IAM; in containers
+ * the GraphQL server builds it from a local JWT. IAM callers have userArn and no username.
+ */
+export interface MttAppSyncIdentity {
+    claims?: any;
+    username?: string;
+    sub?: string;
+    groups?: string[];
+    accountId?: string;
+    userArn?: string;
+    cognitoIdentityAuthProvider?: string | null;
+}
+
 export interface MttAppSyncContext<Params, Prev, Result, Stash> {
     arguments: Params;
-    identity: {
-        claims: any;
-        username: string;
-        groups: string[];
-    };
+    identity: MttAppSyncIdentity;
     stash: Stash & {
         system: DdbAndRequirements;
         permissions: {
@@ -29,8 +39,8 @@ export interface MttAppSyncContext<Params, Prev, Result, Stash> {
         selectionSetList: string[];
         selectionSetGraphQL: string;
         fieldName: string;
-        parentType: string;
-        variables: { [key: string]: string };
+        parentTypeName: string;
+        variables: { [key: string]: any };
     }
     transformedTemplate: string;
 }

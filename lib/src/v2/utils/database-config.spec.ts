@@ -36,8 +36,10 @@ describe('DatabaseConfigLoader', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    // Reset environment variables
+    // Reset environment variables, dropping any the shell sets: the devcontainer
+    // exports DYNAMODB_ENDPOINT, which would otherwise leak into loaded configs.
     process.env = { ...originalEnv };
+    Object.values(DB_CONFIG_ENV_VARS).forEach(name => delete process.env[name]);
   });
 
   afterAll(() => {

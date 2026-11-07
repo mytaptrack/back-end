@@ -9,56 +9,56 @@ import { MigrationData, MigrationOptions, ValidationResult } from '../types/migr
 import { IDataAccessLayer } from '../types/database-abstraction';
 
 // Mock the providers
-jest.mock('../providers/dynamodb-provider');
-jest.mock('../providers/mongodb-provider');
-jest.mock('./dynamodb-exporter');
-jest.mock('./mongodb-exporter');
-jest.mock('./dynamodb-importer');
-jest.mock('./mongodb-importer');
+vi.mock('../providers/dynamodb-provider');
+vi.mock('../providers/mongodb-provider');
+vi.mock('./dynamodb-exporter');
+vi.mock('./mongodb-exporter');
+vi.mock('./dynamodb-importer');
+vi.mock('./mongodb-importer');
 
 describe('MigrationManager', () => {
   let migrationManager: MigrationManager;
-  let mockDynamoDBProvider: jest.Mocked<IDataAccessLayer>;
-  let mockMongoDBProvider: jest.Mocked<IDataAccessLayer>;
+  let mockDynamoDBProvider: vi.Mocked<IDataAccessLayer>;
+  let mockMongoDBProvider: vi.Mocked<IDataAccessLayer>;
 
   beforeEach(() => {
     migrationManager = new MigrationManager();
     
     mockDynamoDBProvider = {
-      getProviderType: jest.fn().mockReturnValue('dynamodb'),
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      isConnected: jest.fn().mockReturnValue(true),
-      get: jest.fn(),
-      put: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      query: jest.fn(),
-      scan: jest.fn(),
-      batchGet: jest.fn(),
-      beginTransaction: jest.fn(),
-      executeTransaction: jest.fn(),
-      healthCheck: jest.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
-      executeNative: jest.fn()
-    } as jest.Mocked<IDataAccessLayer>;
+      getProviderType: vi.fn().mockReturnValue('dynamodb'),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      isConnected: vi.fn().mockReturnValue(true),
+      get: vi.fn(),
+      put: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      query: vi.fn(),
+      scan: vi.fn(),
+      batchGet: vi.fn(),
+      beginTransaction: vi.fn(),
+      executeTransaction: vi.fn(),
+      healthCheck: vi.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
+      executeNative: vi.fn()
+    } as vi.Mocked<IDataAccessLayer>;
 
     mockMongoDBProvider = {
-      getProviderType: jest.fn().mockReturnValue('mongodb'),
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      isConnected: jest.fn().mockReturnValue(true),
-      get: jest.fn(),
-      put: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      query: jest.fn(),
-      scan: jest.fn(),
-      batchGet: jest.fn(),
-      beginTransaction: jest.fn(),
-      executeTransaction: jest.fn(),
-      healthCheck: jest.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
-      executeNative: jest.fn()
-    } as jest.Mocked<IDataAccessLayer>;
+      getProviderType: vi.fn().mockReturnValue('mongodb'),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      isConnected: vi.fn().mockReturnValue(true),
+      get: vi.fn(),
+      put: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      query: vi.fn(),
+      scan: vi.fn(),
+      batchGet: vi.fn(),
+      beginTransaction: vi.fn(),
+      executeTransaction: vi.fn(),
+      healthCheck: vi.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
+      executeNative: vi.fn()
+    } as vi.Mocked<IDataAccessLayer>;
   });
 
   describe('exportData', () => {
@@ -91,10 +91,10 @@ describe('MigrationManager', () => {
 
       // Mock the createExporter method to return a mock exporter
       const mockExporter = {
-        exportAll: jest.fn().mockResolvedValue(mockExportData)
+        exportAll: vi.fn().mockResolvedValue(mockExportData)
       };
       
-      jest.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
+      vi.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
 
       const result = await migrationManager.exportData(mockDynamoDBProvider);
 
@@ -133,10 +133,10 @@ describe('MigrationManager', () => {
       };
 
       const mockExporter = {
-        exportAll: jest.fn().mockResolvedValue(mockExportData)
+        exportAll: vi.fn().mockResolvedValue(mockExportData)
       };
       
-      jest.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
+      vi.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
 
       const result = await migrationManager.exportData(mockMongoDBProvider);
 
@@ -147,10 +147,10 @@ describe('MigrationManager', () => {
 
     it('should handle export errors', async () => {
       const mockExporter = {
-        exportAll: jest.fn().mockRejectedValue(new Error('Export failed'))
+        exportAll: vi.fn().mockRejectedValue(new Error('Export failed'))
       };
       
-      jest.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
+      vi.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
 
       await expect(migrationManager.exportData(mockDynamoDBProvider))
         .rejects.toThrow('Export failed');
@@ -190,13 +190,13 @@ describe('MigrationManager', () => {
 
     it('should import data to MongoDB provider', async () => {
       const mockImporter = {
-        importData: jest.fn().mockResolvedValue(undefined)
+        importData: vi.fn().mockResolvedValue(undefined)
       };
       
-      jest.spyOn(migrationManager as any, 'createImporter').mockReturnValue(mockImporter);
+      vi.spyOn(migrationManager as any, 'createImporter').mockReturnValue(mockImporter);
 
       // Mock checksum calculation to match
-      jest.spyOn(migrationManager as any, 'calculateChecksum')
+      vi.spyOn(migrationManager as any, 'calculateChecksum')
         .mockReturnValue('valid-checksum');
 
       await migrationManager.importData(mockMongoDBProvider, mockMigrationData);
@@ -206,13 +206,13 @@ describe('MigrationManager', () => {
 
     it('should import data to DynamoDB provider', async () => {
       const mockImporter = {
-        importData: jest.fn().mockResolvedValue(undefined)
+        importData: vi.fn().mockResolvedValue(undefined)
       };
       
-      jest.spyOn(migrationManager as any, 'createImporter').mockReturnValue(mockImporter);
+      vi.spyOn(migrationManager as any, 'createImporter').mockReturnValue(mockImporter);
 
       // Mock checksum calculation to match
-      jest.spyOn(migrationManager as any, 'calculateChecksum')
+      vi.spyOn(migrationManager as any, 'calculateChecksum')
         .mockReturnValue('valid-checksum');
 
       await migrationManager.importData(mockDynamoDBProvider, mockMigrationData);
@@ -224,7 +224,7 @@ describe('MigrationManager', () => {
       const invalidData = { ...mockMigrationData };
       invalidData.metadata.checksum = 'invalid-checksum';
 
-      jest.spyOn(migrationManager as any, 'calculateChecksum')
+      vi.spyOn(migrationManager as any, 'calculateChecksum')
         .mockReturnValue('valid-checksum');
 
       await expect(migrationManager.importData(mockMongoDBProvider, invalidData))
@@ -233,13 +233,13 @@ describe('MigrationManager', () => {
 
     it('should handle import errors', async () => {
       const mockImporter = {
-        importData: jest.fn().mockRejectedValue(new Error('Import failed'))
+        importData: vi.fn().mockRejectedValue(new Error('Import failed'))
       };
       
-      jest.spyOn(migrationManager as any, 'createImporter').mockReturnValue(mockImporter);
+      vi.spyOn(migrationManager as any, 'createImporter').mockReturnValue(mockImporter);
 
       // Mock checksum calculation to match so we get past integrity check
-      jest.spyOn(migrationManager as any, 'calculateChecksum')
+      vi.spyOn(migrationManager as any, 'calculateChecksum')
         .mockReturnValue('valid-checksum');
 
       await expect(migrationManager.importData(mockMongoDBProvider, mockMigrationData))
@@ -283,7 +283,7 @@ describe('MigrationManager', () => {
       };
 
       // Mock exportData to return different data for each provider
-      jest.spyOn(migrationManager, 'exportData')
+      vi.spyOn(migrationManager, 'exportData')
         .mockResolvedValueOnce(sourceData)
         .mockResolvedValueOnce(targetData);
 
@@ -341,7 +341,7 @@ describe('MigrationManager', () => {
         }
       };
 
-      jest.spyOn(migrationManager, 'exportData')
+      vi.spyOn(migrationManager, 'exportData')
         .mockResolvedValueOnce(sourceData)
         .mockResolvedValueOnce(targetData);
 
@@ -356,7 +356,7 @@ describe('MigrationManager', () => {
     });
 
     it('should handle validation errors', async () => {
-      jest.spyOn(migrationManager, 'exportData')
+      vi.spyOn(migrationManager, 'exportData')
         .mockRejectedValue(new Error('Export failed during validation'));
 
       await expect(migrationManager.validateMigration(
@@ -382,7 +382,7 @@ describe('MigrationManager', () => {
         }
       };
 
-      jest.spyOn(migrationManager, 'exportData')
+      vi.spyOn(migrationManager, 'exportData')
         .mockResolvedValue(mockExportData);
 
       const rollbackInfo = await migrationManager.createRollbackPoint(
@@ -445,7 +445,7 @@ describe('MigrationManager', () => {
       };
 
       // Mock executeRollbackStep to fail
-      jest.spyOn(migrationManager as any, 'executeRollbackStep')
+      vi.spyOn(migrationManager as any, 'executeRollbackStep')
         .mockRejectedValue(new Error('Rollback step failed'));
 
       await expect(migrationManager.executeRollback(mockDynamoDBProvider, rollbackInfo))
@@ -459,11 +459,11 @@ describe('MigrationManager', () => {
   describe('progress tracking', () => {
     it('should track export progress', async () => {
       const options: MigrationOptions = {
-        progressCallback: jest.fn()
+        progressCallback: vi.fn()
       };
 
       const mockExporter = {
-        exportAll: jest.fn().mockImplementation(async (opts) => {
+        exportAll: vi.fn().mockImplementation(async (opts) => {
           // Simulate progress callback
           if (opts.progressCallback) {
             opts.progressCallback({
@@ -487,7 +487,7 @@ describe('MigrationManager', () => {
         })
       };
 
-      jest.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
+      vi.spyOn(migrationManager as any, 'createExporter').mockReturnValue(mockExporter);
 
       await migrationManager.exportData(mockDynamoDBProvider, options);
 

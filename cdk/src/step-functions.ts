@@ -2,6 +2,7 @@ import { Choice, ChoiceProps, DefinitionBody, IChainable, StateMachine, StateMac
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { EnvironmentEnabled, MttContext, MttFunction, MttFunctionProps } from ".";
 import { CfnResource, Duration } from "aws-cdk-lib";
+import { IGrantable } from "aws-cdk-lib/aws-iam";
 
 export interface MttStepFunctionProps extends StateMachineProps {
     id: string;
@@ -42,6 +43,9 @@ export class MttStepFunction implements EnvironmentEnabled {
     get envVariableValue(): string { return this._sf.stateMachineArn; }
     setEnvironment(env: { [key: string]: string; }): void {
         env[this.envVariable] = this.envVariableValue;
+    }
+    grantStartExecution(grantee: IGrantable) {
+        this._sf.grantStartExecution(grantee);
     }
 
     static lambdaHandler(context: MttContext, props: MttLambdaStep) {

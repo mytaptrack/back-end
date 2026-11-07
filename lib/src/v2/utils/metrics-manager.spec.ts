@@ -265,7 +265,7 @@ describe('MetricsManager', () => {
 
   describe('logMetrics', () => {
     it('should log metrics to console', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       metricsManager.recordOperation('get', 100, true);
       metricsManager.logMetrics();

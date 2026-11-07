@@ -8,26 +8,26 @@ import { MigrationOptions } from '../types/migration';
 
 describe('DynamoDBExporter', () => {
   let exporter: DynamoDBExporter;
-  let mockProvider: jest.Mocked<IDataAccessLayer>;
+  let mockProvider: vi.Mocked<IDataAccessLayer>;
 
   beforeEach(() => {
     mockProvider = {
-      getProviderType: jest.fn().mockReturnValue('dynamodb'),
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      isConnected: jest.fn().mockReturnValue(true),
-      get: jest.fn(),
-      put: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      query: jest.fn(),
-      scan: jest.fn(),
-      batchGet: jest.fn(),
-      beginTransaction: jest.fn(),
-      executeTransaction: jest.fn(),
-      healthCheck: jest.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
-      executeNative: jest.fn()
-    } as jest.Mocked<IDataAccessLayer>;
+      getProviderType: vi.fn().mockReturnValue('dynamodb'),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      isConnected: vi.fn().mockReturnValue(true),
+      get: vi.fn(),
+      put: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      query: vi.fn(),
+      scan: vi.fn(),
+      batchGet: vi.fn(),
+      beginTransaction: vi.fn(),
+      executeTransaction: vi.fn(),
+      healthCheck: vi.fn().mockResolvedValue({ status: 'healthy', timestamp: new Date() }),
+      executeNative: vi.fn()
+    } as vi.Mocked<IDataAccessLayer>;
 
     exporter = new DynamoDBExporter(mockProvider);
   });
@@ -81,7 +81,7 @@ describe('DynamoDBExporter', () => {
     });
 
     it('should call progress callback during export', async () => {
-      const progressCallback = jest.fn();
+      const progressCallback = vi.fn();
       const options: MigrationOptions = { progressCallback };
 
       const mockScanResult = {

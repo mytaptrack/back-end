@@ -22,7 +22,7 @@ export async function onCreateHandler(event) {
     let token: any;
     do {
         console.info('Getting records');
-        const scanResults = await data.scan<AppConfigStorage[]>({
+        const scanResults = await data.scan<AppConfigStorage>({
             filterExpression: 'begins_with(pk, :pkVal) AND begins_with(sk, :skVal)',
             attributeValues: {
                 ':pkVal': 'S#',
@@ -81,6 +81,7 @@ export async function onCreateHandler(event) {
                     const newPii: LicenseAppPiiStorage = {
                         ...key,
                         pksk: `${key.pk}#${key.sk}`,
+                        dsk: key.pk,
                         lpk: `${item.license}#APP`,
                         lsk: `${item.deviceId}`,
                         deviceId: item.deviceId,

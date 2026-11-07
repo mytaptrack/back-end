@@ -1,5 +1,5 @@
 import { Context } from '@aws-appsync/utils';
-import { handleEvent as manageStatsGet } from '../../../v2/manage/license/statsGet';
+import { handleEvent as manageStatsGet } from '../../../../v2/manage/license/statsGet';
 
 export async function handler(event: Context) {
     const { license } = event.arguments;

@@ -19,12 +19,14 @@ export interface DevicesApiStackParams extends StackProps {
 
 export class DevicesApiStack extends Stack {
   environmentName: string;
+  coreStackName: string;
 
   constructor(scope: Construct, id: string, props?: DevicesApiStackParams) {
     super(scope, id, props);
 
     const environment = props.environment;
     this.environmentName = environment;
+    this.coreStackName = props.coreStack;
     const appsync = props.appsync
 
     const CoreStack = props.coreStack;
@@ -310,7 +312,7 @@ export class DevicesApiStack extends Stack {
     api.addLambdaHandler({
       id: 'getAuthConfig',
       codePath: 'src/device/functions/server/getAuthConfig.ts',
-      handler: 'get',
+      handler: 'handler',
       path: 'auth/config',
       method: 'get',
       environmentVariables: {
@@ -533,7 +535,15 @@ export class DevicesApiStack extends Stack {
       sendEmail: true,
       environmentVariables: {
         TemplateKey: 'mytaptrack/templates/notification-email.html',
-        twilioSecret: context.config.env.sms.secret
+        twilioSecret: context.config.env.sms.secret,
+        // Environments without a custom domain use the CloudFront address core publishes.
+        WebsiteDomain: config.env.domain.sub.website?.name ||
+          context.getParameter(`/${this.environmentName}/regional/calc/website/domain/behavior`).stringValue,
+        // Core only creates and exports these when regional.ses is on.
+        ...(config.env.regional.ses ? {
+          EmailConfigSet: Fn.importValue(`${this.coreStackName}-ses-conf-user-tag`),
+          EmailContactList: Fn.importValue(`${this.coreStackName}-ses-contacts`)
+        } : {})
       },
       buckets: [
         { bucket: templateBucket, access: S3Access.read }

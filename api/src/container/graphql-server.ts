@@ -11,6 +11,7 @@ import { buildSchema } from 'graphql';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { AuthManager } from './auth-manager';
+import { createAppSyncContext } from './resolver-wrapper';
 import { LoggingLevel, MttLogger } from '@mytaptrack/lib';
 
 const logger = new MttLogger('GraphQL Server', LoggingLevel.warn);
@@ -45,24 +46,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { AppSyncStack } from '../../lib/app-sync';
-import { Construct, IConstruct, Node } from 'constructs';
 import { LambdaResolverProps } from '@mytaptrack/cdk';
 
 const schema = buildSchema(schemaString);
-
-const scope: Construct = {
-  node: new Node(undefined, undefined, '')
-};
-
-class MockConstruct extends Construct implements IConstruct {
-  constructor(public scope: any, public id: string, public props?: any) {
-    super(scope, 'mock stack');
-  }
-}
-class MockStack extends MockConstruct {
-  public stackName = 'mock-stack';
-  public region = 'us-east-1';
-}
 
 // Load resolver mappings from YAML file
 function loadResolverMappings(): Record<string, string> {
@@ -113,7 +99,7 @@ function loadResolverMappings(): Record<string, string> {
 
 const resolverMap = loadResolverMappings();
 
-function loadResolvers() {
+async function loadResolvers() {
   const resolvers: any = {};
   
   // Add scalar resolvers
@@ -139,7 +125,7 @@ function loadResolvers() {
     const cleanPath = codePath.replace(/^\.\//, '');
     const fullPath = join(__dirname, '../..', cleanPath);
     try {
-      const resolver = require(fullPath);
+      const resolver = await import(fullPath);
       resolvers[fieldName] = wrapResolver(resolver.handler);
       logger.log(`✓ Loaded ${fieldName} from ${codePath}`);
     } catch (e) {
@@ -157,9 +143,6 @@ function wrapResolver(handler: Function) {
     try {
       logger.info(`Calling resolver: ${info?.fieldName}`);
       
-      // Extract selection set from GraphQL info
-      const selectionSetList = info?.fieldNodes?.[0]?.selectionSet?.selections?.map((selection: any) => selection.name.value) || [];
-      
       // When no user identity is present (e.g. internal REST→AppSync calls that use IAM
       // auth in production), provide a system identity so graphQLWrapper does not crash
       // on null identity. In production these calls use IAM auth which bypasses Cognito;
@@ -176,24 +159,7 @@ function wrapResolver(handler: Function) {
         }
       };
 
-      const event = {
-        arguments: args,
-        source: {},
-        identity: effectiveIdentity,
-        request: {
-          headers: context.headers || {}
-        },
-        info: {
-          fieldName: info?.fieldName || '',
-          parentTypeName: info?.parentType?.name || '',
-          variables: info?.variableValues || {},
-          selectionSetList: selectionSetList,
-          selectionSetGraphQL: ''
-        },
-        stash: {
-          permissions: context.permissions || {}
-        }
-      };
+      const event = createAppSyncContext(args, { ...context, identity: effectiveIdentity }, info);
       
       logger.info(`Identity for ${info?.fieldName}:`, context.identity);
       logger.info(`Event for ${info?.fieldName}:`, JSON.stringify(event, null, 2));
@@ -207,22 +173,7 @@ function wrapResolver(handler: Function) {
   };
 }
 
-const root = loadResolvers();
-
-// NoneDataSource stubs — these fields use createResolver() in app-sync.ts and are not
-// captured by addLambdaResolver. Per GQL-03, return null (graceful skip) instead of throwing.
-root['onUserLicenseChange'] = async (_args: any, _context: any, _info: any) => {
-  logger.log('onUserLicenseChange: subscription not supported in local mode, returning null');
-  return null;
-};
-root['onStudentDataChange'] = async (_args: any, _context: any, _info: any) => {
-  logger.log('onStudentDataChange: subscription not supported in local mode, returning null');
-  return null;
-};
-root['studentDataChange'] = async (_args: any, _context: any, _info: any) => {
-  logger.log('studentDataChange: NoneDataSource passthrough — returning null in local mode');
-  return null;
-};
+let root: any = {};
 
 const app = express();
 
@@ -297,12 +248,34 @@ app.use('/graphql', graphqlHTTP((req) => ({
   }
 })));
 
+async function loadRoot() {
+  const resolvers = await loadResolvers();
+
+  // NoneDataSource stubs — these fields use createResolver() in app-sync.ts and are not
+  // captured by addLambdaResolver. Per GQL-03, return null (graceful skip) instead of throwing.
+  resolvers['onUserLicenseChange'] = async (_args: any, _context: any, _info: any) => {
+    logger.log('onUserLicenseChange: subscription not supported in local mode, returning null');
+    return null;
+  };
+  resolvers['onStudentDataChange'] = async (_args: any, _context: any, _info: any) => {
+    logger.log('onStudentDataChange: subscription not supported in local mode, returning null');
+    return null;
+  };
+  resolvers['studentDataChange'] = async (_args: any, _context: any, _info: any) => {
+    logger.log('studentDataChange: NoneDataSource passthrough — returning null in local mode');
+    return null;
+  };
+
+  return resolvers;
+}
+
 async function start() {
   try {
     logger.log('Starting GraphQL container server...');
     logger.log(`DynamoDB endpoint: ${process.env.DYNAMODB_ENDPOINT}`);
     logger.log(`RabbitMQ URL: ${process.env.RABBITMQ_URL}`);
     
+    root = await loadRoot();
     await validateDynamoDB();
     await initRabbitMQ();
     app.listen(PORT, () => {

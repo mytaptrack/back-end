@@ -38,6 +38,8 @@ export class MttDynamoDB implements ITable, EnvironmentEnabled {
     get envVariable() { return this.props.name; }
     get envVariableValue() { return this.tableName; }
     get tableArn(): string { return this.dynamodb.tableArn; }
+    get tableRef() { return this.dynamodb.tableRef; }
+    with(...mixins: Parameters<ITable['with']>) { return this.dynamodb.with(...mixins); }
     get tableName(): string { return this.dynamodb.tableName; }
     get tableStreamArn(): string | undefined { return this.dynamodb.tableStreamArn; }
     get encryptionKey(): IKey | undefined { return this.dynamodb.encryptionKey; }

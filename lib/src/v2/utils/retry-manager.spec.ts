@@ -19,7 +19,7 @@ import {
 
 describe('RetryManager', () => {
   let retryManager: RetryManager;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     retryManager = new RetryManager({
@@ -29,7 +29,7 @@ describe('RetryManager', () => {
       backoffMultiplier: 2,
       jitter: false // Disable jitter for predictable tests
     });
-    consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
   });
 
   afterEach(() => {
@@ -38,7 +38,7 @@ describe('RetryManager', () => {
 
   describe('Successful Operations', () => {
     it.skip('should execute operation successfully on first attempt', async () => {
-      const operation = jest.fn().mockResolvedValue('success');
+      const operation = vi.fn().mockResolvedValue('success');
       
       const result = await retryManager.executeWithRetry(
         operation,
@@ -51,9 +51,9 @@ describe('RetryManager', () => {
     });
 
     it.skip('should log success after retries', async () => {
-      const infoSpy = jest.spyOn(console, 'info').mockImplementation();
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation();
       let attempts = 0;
-      const operation = jest.fn().mockImplementation(() => {
+      const operation = vi.fn().mockImplementation(() => {
         attempts++;
         if (attempts < 3) {
           throw new ConnectionError('Connection failed');
@@ -81,7 +81,7 @@ describe('RetryManager', () => {
 
   describe('Retry Logic', () => {
     it.skip('should retry retryable errors', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new ConnectionError('Connection failed'))
         .mockRejectedValueOnce(new TimeoutError('Timeout'))
         .mockResolvedValue('success');
@@ -97,7 +97,7 @@ describe('RetryManager', () => {
     });
 
     it.skip('should not retry non-retryable errors', async () => {
-      const operation = jest.fn().mockRejectedValue(new ValidationError('Invalid data'));
+      const operation = vi.fn().mockRejectedValue(new ValidationError('Invalid data'));
 
       await expect(
         retryManager.executeWithRetry(operation, 'test_operation', 'dynamodb')
@@ -107,7 +107,7 @@ describe('RetryManager', () => {
     });
 
     it.skip('should respect maximum attempts', async () => {
-      const operation = jest.fn().mockRejectedValue(new ConnectionError('Always fails'));
+      const operation = vi.fn().mockRejectedValue(new ConnectionError('Always fails'));
 
       await expect(
         retryManager.executeWithRetry(operation, 'test_operation', 'dynamodb')
@@ -119,12 +119,12 @@ describe('RetryManager', () => {
     it.skip('should calculate exponential backoff delays', async () => {
       const delays: number[] = [];
       const originalSleep = (RetryManager.prototype as any).sleep;
-      (RetryManager.prototype as any).sleep = jest.fn().mockImplementation((ms: number) => {
+      (RetryManager.prototype as any).sleep = vi.fn().mockImplementation((ms: number) => {
         delays.push(ms);
         return Promise.resolve();
       });
 
-      const operation = jest.fn().mockRejectedValue(new ConnectionError('Always fails'));
+      const operation = vi.fn().mockRejectedValue(new ConnectionError('Always fails'));
 
       await expect(
         retryManager.executeWithRetry(operation, 'test_operation', 'dynamodb')
@@ -146,12 +146,12 @@ describe('RetryManager', () => {
 
       const delays: number[] = [];
       const originalSleep = (RetryManager.prototype as any).sleep;
-      (RetryManager.prototype as any).sleep = jest.fn().mockImplementation((ms: number) => {
+      (RetryManager.prototype as any).sleep = vi.fn().mockImplementation((ms: number) => {
         delays.push(ms);
         return Promise.resolve();
       });
 
-      const operation = jest.fn().mockRejectedValue(new ConnectionError('Always fails'));
+      const operation = vi.fn().mockRejectedValue(new ConnectionError('Always fails'));
 
       await expect(
         retryManagerWithLowMax.executeWithRetry(operation, 'test_operation', 'dynamodb')
@@ -166,10 +166,10 @@ describe('RetryManager', () => {
 
   describe('Error Logging', () => {
     it.skip('should log retry attempts', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      const infoSpy = jest.spyOn(console, 'info').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation();
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation();
       
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new ConnectionError('Connection failed'))
         .mockResolvedValue('success');
 
@@ -187,8 +187,8 @@ describe('RetryManager', () => {
     });
 
     it.skip('should log permanent failures', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-      const operation = jest.fn().mockRejectedValue(new ValidationError('Invalid data'));
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation();
+      const operation = vi.fn().mockRejectedValue(new ValidationError('Invalid data'));
 
       await expect(
         retryManager.executeWithRetry(operation, 'test_operation', 'dynamodb')
@@ -218,7 +218,7 @@ describe('RetryManager', () => {
 
 describe('CircuitBreaker', () => {
   let circuitBreaker: CircuitBreaker;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.MockInstance;
 
   beforeEach(() => {
     circuitBreaker = new CircuitBreaker({
@@ -226,7 +226,7 @@ describe('CircuitBreaker', () => {
       recoveryTimeout: 100, // Short timeout for tests
       halfOpenMaxCalls: 2
     });
-    consoleSpy = jest.spyOn(console, 'info').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'info').mockImplementation();
   });
 
   afterEach(() => {
@@ -239,7 +239,7 @@ describe('CircuitBreaker', () => {
     });
 
     it.skip('should open after failure threshold', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('Always fails'));
+      const operation = vi.fn().mockRejectedValue(new Error('Always fails'));
 
       // Trigger failures to reach threshold
       for (let i = 0; i < 3; i++) {
@@ -252,7 +252,7 @@ describe('CircuitBreaker', () => {
     });
 
     it.skip('should reject calls when OPEN', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('Fail'));
+      const operation = vi.fn().mockRejectedValue(new Error('Fail'));
 
       // Open the circuit
       for (let i = 0; i < 3; i++) {
@@ -271,7 +271,7 @@ describe('CircuitBreaker', () => {
     });
 
     it.skip('should transition to HALF_OPEN after recovery timeout', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('Fail'));
+      const operation = vi.fn().mockRejectedValue(new Error('Fail'));
 
       // Open the circuit
       for (let i = 0; i < 3; i++) {
@@ -293,7 +293,7 @@ describe('CircuitBreaker', () => {
     });
 
     it.skip('should close after successful calls in HALF_OPEN', async () => {
-      const operation = jest.fn();
+      const operation = vi.fn();
 
       // Open the circuit
       operation.mockRejectedValue(new Error('Fail'));
@@ -315,7 +315,7 @@ describe('CircuitBreaker', () => {
     });
 
     it.skip('should reopen if failure occurs in HALF_OPEN', async () => {
-      const operation = jest.fn();
+      const operation = vi.fn();
 
       // Open the circuit
       operation.mockRejectedValue(new Error('Fail'));
@@ -342,7 +342,7 @@ describe('CircuitBreaker', () => {
 
   describe('Manual Reset', () => {
     it.skip('should reset circuit breaker state', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('Fail'));
+      const operation = vi.fn().mockRejectedValue(new Error('Fail'));
 
       // Open the circuit
       for (let i = 0; i < 3; i++) {
@@ -363,10 +363,10 @@ describe('CircuitBreaker', () => {
 
   describe('Logging', () => {
     it.skip('should log state transitions', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation();
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation();
       
-      const operation = jest.fn().mockRejectedValue(new Error('Fail'));
+      const operation = vi.fn().mockRejectedValue(new Error('Fail'));
 
       // Open the circuit
       for (let i = 0; i < 3; i++) {
@@ -396,7 +396,7 @@ describe('ResilienceManager', () => {
   });
 
   it.skip('should combine retry and circuit breaker functionality', async () => {
-    const operation = jest.fn()
+    const operation = vi.fn()
       .mockRejectedValueOnce(new ConnectionError('Fail 1'))
       .mockResolvedValue('success');
 
@@ -411,7 +411,7 @@ describe('ResilienceManager', () => {
   });
 
   it.skip('should open circuit after repeated failures', async () => {
-    const operation = jest.fn().mockRejectedValue(new ConnectionError('Always fails'));
+    const operation = vi.fn().mockRejectedValue(new ConnectionError('Always fails'));
 
     // First set of failures should exhaust retries and fail
     await expect(
@@ -474,8 +474,8 @@ describe('ResilienceManagerFactory', () => {
     const dynamoManager = ResilienceManagerFactory.getManager('dynamodb');
     const mongoManager = ResilienceManagerFactory.getManager('mongodb');
 
-    const resetSpy1 = jest.spyOn(dynamoManager, 'resetCircuitBreaker');
-    const resetSpy2 = jest.spyOn(mongoManager, 'resetCircuitBreaker');
+    const resetSpy1 = vi.spyOn(dynamoManager, 'resetCircuitBreaker');
+    const resetSpy2 = vi.spyOn(mongoManager, 'resetCircuitBreaker');
 
     ResilienceManagerFactory.resetAll();
 

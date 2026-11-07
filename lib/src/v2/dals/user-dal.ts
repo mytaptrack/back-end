@@ -1,5 +1,6 @@
-import { 
+import {
     AdminAddUserToGroupCommand,
+    AdminDeleteUserCommand,
     AdminGetUserCommand,
     AdminRemoveUserFromGroupCommand,
     CognitoIdentityProviderClient, CreateGroupCommand, GetGroupCommand, GetGroupCommandOutput, ListUsersCommand, ListUsersInGroupCommand
@@ -173,6 +174,16 @@ class UserDalClass extends DalBaseClass {
             Username: userId,
             GroupName: groupName,
             UserPoolId
+        }));
+    }
+
+    async deleteUser(userId: string) {
+        if(!this.cognito) {
+            return;
+        }
+        await this.cognito.send(new AdminDeleteUserCommand({
+            UserPoolId,
+            Username: userId
         }));
     }
 

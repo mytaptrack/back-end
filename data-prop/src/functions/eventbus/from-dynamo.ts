@@ -23,7 +23,7 @@ async function eventHandler(event: DynamoDBStreamEvent) {
     if(records.length > 0) {
         console.log('Putting events', records.map(x => x!.type));
         console.debug('Event:', records);
-        for(let i = 0; i < 5; i += 5) {
+        for(let i = 0; i < records.length; i += 5) {
             const segment = records.slice(i, i + 5);
             await eventbus.send(new PutEventsCommand({
                 Entries: segment.map(r => ({

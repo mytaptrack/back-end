@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["**/*"],
+  "files": ["./node_modules/vitest/globals.d.ts"],
+  "exclude": ["vitest.config.mts", "node_modules", "cdk.out", "src/functions/student/removeFinal/studentRemoveFinal.spec.ts"]
+}

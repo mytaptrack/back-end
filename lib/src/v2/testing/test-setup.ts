@@ -3,47 +3,47 @@
  */
 
 // Mock AWS SDK to avoid credential issues in tests
-jest.mock('@aws-sdk/client-dynamodb', () => ({
-  DynamoDBClient: jest.fn().mockImplementation(() => ({
-    destroy: jest.fn()
-  }))
+vi.mock('@aws-sdk/client-dynamodb', () => ({
+  DynamoDBClient: vi.fn(function () {
+    return { destroy: vi.fn() };
+  })
 }));
 
-jest.mock('@aws-sdk/lib-dynamodb', () => ({
+vi.mock('@aws-sdk/lib-dynamodb', () => ({
   DynamoDBDocumentClient: {
-    from: jest.fn().mockReturnValue({
-      send: jest.fn().mockResolvedValue({
+    from: vi.fn().mockReturnValue({
+      send: vi.fn().mockResolvedValue({
         Items: [],
         Item: null,
         LastEvaluatedKey: undefined
       })
     })
   },
-  GetCommand: jest.fn(),
-  PutCommand: jest.fn(),
-  UpdateCommand: jest.fn(),
-  DeleteCommand: jest.fn(),
-  QueryCommand: jest.fn(),
-  ScanCommand: jest.fn(),
-  BatchGetCommand: jest.fn(),
-  TransactWriteCommand: jest.fn(),
-  TransactGetCommand: jest.fn()
+  GetCommand: vi.fn(),
+  PutCommand: vi.fn(),
+  UpdateCommand: vi.fn(),
+  DeleteCommand: vi.fn(),
+  QueryCommand: vi.fn(),
+  ScanCommand: vi.fn(),
+  BatchGetCommand: vi.fn(),
+  TransactWriteCommand: vi.fn(),
+  TransactGetCommand: vi.fn()
 }));
 
 // Mock AWS AppSync client
-jest.mock('aws-sigv4-fetch', () => ({
-  createSignedFetcher: jest.fn().mockReturnValue(
-    jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue({ data: {} })
+vi.mock('aws-sigv4-fetch', () => ({
+  createSignedFetcher: vi.fn().mockReturnValue(
+    vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ data: {} })
     })
   )
 }));
 
 // Mock Cognito client
-jest.mock('@aws-sdk/client-cognito-identity-provider', () => ({
-  CognitoIdentityProviderClient: jest.fn().mockImplementation(() => ({
-    send: jest.fn().mockResolvedValue({})
-  }))
+vi.mock('@aws-sdk/client-cognito-identity-provider', () => ({
+  CognitoIdentityProviderClient: vi.fn(function () {
+    return { send: vi.fn().mockResolvedValue({}) };
+  })
 }));
 
 // Set test environment variables

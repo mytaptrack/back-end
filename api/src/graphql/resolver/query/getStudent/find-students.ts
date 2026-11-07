@@ -1,6 +1,5 @@
 import { 
-    Dal, DalKey, WebUtils,StudentPiiStorage, getStudentPrimaryKey, UserStudentTeam 
-} from '@mytaptrack/lib';
+    Dal, DalKey, WebUtils,StudentPiiStorage, getStudentPrimaryKey, UserStudentTeam, getStudentLicenseIndexQuery, MttIndexes } from '@mytaptrack/lib';
 import { QLStudentSummary } from '@mytaptrack/types';
 import { MttAppSyncContext } from '@mytaptrack/cdk';
 
@@ -21,11 +20,9 @@ export async function handleEvent(event: MttAppSyncContext<QueryParams, never, n
 
     console.info('Query configs');
     const studentConfigs = await dataDal.query<UserStudentTeam>({
-        keyExpression: 'lpk = :pk and begins_with(lsk, :sk)',
-        attributeValues: {
-            ':pk': `${licenseId}#S`,
-            ':sk': 'P#',
-        },
+        keyExpression: 'lpk = :lpk and begins_with(lsk, :lsk)',
+        indexName: MttIndexes.license,
+        attributeValues: { ...getStudentLicenseIndexQuery(licenseId), ':firstName': event.arguments.firstName, ':lastName': event.arguments.lastName },
         filterExpression: 'firstName = :firstName and lastName = :lastName',
         projectionExpression: 'userId, studentId, behaviorTracking, serviceTracking, removed'
     });

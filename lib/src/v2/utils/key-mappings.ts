@@ -76,3 +76,15 @@ export function getStudentTemplateRegistrationKey(license: string, template: str
 export function getAppTemplateRegistrationKey(license: string, template: string, deviceId: string) {
     return { pk: `L#${license}#TMP${template}`, sk: `A#${deviceId}` };
 }
+
+/**
+ * License index (lpk/lsk) keys for a student's config (data table) and profile (primary
+ * table). One format for every reader and writer: GraphQL is how students are viewed.
+ */
+export function getStudentLicenseIndexKey(license: string, studentId: string) {
+    return { lpk: `L#${license}`, lsk: `S#${studentId}` };
+}
+/** Query values matching every student on a license: `lpk = :lpk and begins_with(lsk, :lsk)`. */
+export function getStudentLicenseIndexQuery(license: string) {
+    return { ':lpk': `L#${license}`, ':lsk': 'S#' };
+}

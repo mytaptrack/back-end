@@ -16,10 +16,11 @@ export class LambdaAppsyncQueryClient {
             });
         } else {
             this.client = new GraphQLClient(url, {
-                fetch: createSignedFetcher({ 
-                    service: 'appsync', 
-                    region: process.env.AWS_REGION || 'us-west-2', 
-                    fetch 
+                // aws-sigv4-fetch v5 hands fetch a Request object, which node-fetch 2 rejects
+                // ("Only absolute URLs are supported"), so sign onto the runtime's global fetch.
+                fetch: createSignedFetcher({
+                    service: 'appsync',
+                    region: process.env.AWS_REGION || 'us-west-2'
                 }),
             });
         }

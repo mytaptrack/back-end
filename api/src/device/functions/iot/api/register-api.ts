@@ -1,6 +1,7 @@
 import { LambdaAppsyncQueryClient, WebError, WebUtils, moment } from "@mytaptrack/lib";
 import { APIGatewayEvent } from "aws-lambda";
-import { Dal, DalKey } from "@mytaptrack/lib/dist/v2/dals/dal";
+import { Dal } from "@mytaptrack/lib/dist/v2/dals/dal";
+import { DalKey } from "@mytaptrack/lib/dist/v2/dals/dal-types";
 import { AddThingToThingGroupCommand, AttachPolicyCommand, AttachThingPrincipalCommand, CreateKeysAndCertificateCommand, CreatePolicyCommand, CreateThingCommand, CreateTopicRuleCommand, IoTClient } from '@aws-sdk/client-iot'
 import { IoTRegistration } from "../types/iot-registration";
 

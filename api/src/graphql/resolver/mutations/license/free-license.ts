@@ -11,7 +11,7 @@ import {
 } from '@mytaptrack/types';
 import { uuid } from 'short-uuid';
 import { Dal } from '@mytaptrack/lib/dist/v2/dals/dal';
-import { LicenseDetailsEx } from './license-updated';
+import { LicenseDetailsEx } from './change-license';
 
 export interface AppSyncParams {
 }

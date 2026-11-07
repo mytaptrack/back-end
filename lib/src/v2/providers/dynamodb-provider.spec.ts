@@ -17,8 +17,8 @@ import {
 } from '../types/database-errors';
 
 // Mock AWS SDK
-jest.mock('@aws-sdk/client-dynamodb');
-jest.mock('@aws-sdk/lib-dynamodb');
+vi.mock('@aws-sdk/client-dynamodb');
+vi.mock('@aws-sdk/lib-dynamodb');
 
 describe('DynamoDBProvider', () => {
   let provider: DynamoDBProvider;
@@ -36,7 +36,7 @@ describe('DynamoDBProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Connection Management', () => {
@@ -46,8 +46,8 @@ describe('DynamoDBProvider', () => {
 
     it.skip('should handle connection lifecycle', async () => {
       // Mock successful connection
-      const mockSend = jest.fn().mockResolvedValue({});
-      (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+      const mockSend = vi.fn().mockResolvedValue({});
+      (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
         send: mockSend
       });
 
@@ -60,7 +60,7 @@ describe('DynamoDBProvider', () => {
 
     it.skip('should handle connection errors', async () => {
       const connectionError = new ConnectionError('Connection failed');
-      (provider as any).connectionManager.connect = jest.fn().mockRejectedValue(connectionError);
+      (provider as any).connectionManager.connect = vi.fn().mockRejectedValue(connectionError);
 
       await expect(provider.connect()).rejects.toThrow(ConnectionError);
     });
@@ -69,7 +69,7 @@ describe('DynamoDBProvider', () => {
   describe('CRUD Operations', () => {
     beforeEach(async () => {
       // Mock successful connection
-      const mockSend = jest.fn().mockResolvedValue({});
+      const mockSend = vi.fn().mockResolvedValue({});
       (provider as any).connectionManager = {
         isConnected: () => true,
         getDocumentClient: () => ({ send: mockSend })
@@ -79,9 +79,9 @@ describe('DynamoDBProvider', () => {
     describe('get', () => {
       it.skip('should retrieve an item successfully', async () => {
         const mockItem = { pk: 'test', sk: 'item', data: 'value' };
-        const mockSend = jest.fn().mockResolvedValue({ Item: mockItem });
+        const mockSend = vi.fn().mockResolvedValue({ Item: mockItem });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -96,9 +96,9 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should return null for non-existent item', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -115,9 +115,9 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should handle projection options', async () => {
-        const mockSend = jest.fn().mockResolvedValue({ Item: { pk: 'test' } });
+        const mockSend = vi.fn().mockResolvedValue({ Item: { pk: 'test' } });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -134,9 +134,9 @@ describe('DynamoDBProvider', () => {
 
     describe('put', () => {
       it.skip('should put an item successfully', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -150,9 +150,9 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should handle ensureNotExists option', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -174,9 +174,9 @@ describe('DynamoDBProvider', () => {
 
     describe('update', () => {
       it.skip('should update an item successfully', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -195,9 +195,9 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should handle increment fields', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -215,9 +215,9 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should handle list operations', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -237,9 +237,9 @@ describe('DynamoDBProvider', () => {
 
     describe('delete', () => {
       it.skip('should delete an item successfully', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -256,7 +256,7 @@ describe('DynamoDBProvider', () => {
 
   describe('Query Operations', () => {
     beforeEach(async () => {
-      const mockSend = jest.fn().mockResolvedValue({ Items: [] });
+      const mockSend = vi.fn().mockResolvedValue({ Items: [] });
       (provider as any).connectionManager = {
         isConnected: () => true,
         getDocumentClient: () => ({ send: mockSend })
@@ -269,9 +269,9 @@ describe('DynamoDBProvider', () => {
           { pk: 'test', sk: 'item1', data: 'value1' },
           { pk: 'test', sk: 'item2', data: 'value2' }
         ];
-        const mockSend = jest.fn().mockResolvedValue({ Items: mockItems });
+        const mockSend = vi.fn().mockResolvedValue({ Items: mockItems });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -292,7 +292,7 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should handle pagination', async () => {
-        const mockSend = jest.fn()
+        const mockSend = vi.fn()
           .mockResolvedValueOnce({ 
             Items: [{ pk: 'test', sk: 'item1' }], 
             LastEvaluatedKey: { pk: 'test', sk: 'item1' } 
@@ -301,7 +301,7 @@ describe('DynamoDBProvider', () => {
             Items: [{ pk: 'test', sk: 'item2' }] 
           });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -326,9 +326,9 @@ describe('DynamoDBProvider', () => {
           { pk: 'test1', sk: 'item1', data: 'value1' },
           { pk: 'test2', sk: 'item2', data: 'value2' }
         ];
-        const mockSend = jest.fn().mockResolvedValue({ Items: mockItems });
+        const mockSend = vi.fn().mockResolvedValue({ Items: mockItems });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -352,11 +352,11 @@ describe('DynamoDBProvider', () => {
           { pk: 'test1', sk: 'item1', data: 'value1' },
           { pk: 'test2', sk: 'item2', data: 'value2' }
         ];
-        const mockSend = jest.fn().mockResolvedValue({ 
+        const mockSend = vi.fn().mockResolvedValue({ 
           Responses: { [mockConfig.primaryTable]: mockItems } 
         });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -376,11 +376,11 @@ describe('DynamoDBProvider', () => {
       });
 
       it.skip('should handle large batches', async () => {
-        const mockSend = jest.fn().mockResolvedValue({ 
+        const mockSend = vi.fn().mockResolvedValue({ 
           Responses: { [mockConfig.primaryTable]: [] } 
         });
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -400,7 +400,7 @@ describe('DynamoDBProvider', () => {
 
   describe('Transaction Operations', () => {
     beforeEach(async () => {
-      const mockSend = jest.fn().mockResolvedValue({});
+      const mockSend = vi.fn().mockResolvedValue({});
       (provider as any).connectionManager = {
         isConnected: () => true,
         getDocumentClient: () => ({ send: mockSend })
@@ -418,9 +418,9 @@ describe('DynamoDBProvider', () => {
 
     describe('executeTransaction', () => {
       it.skip('should execute transaction operations successfully', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -470,9 +470,9 @@ describe('DynamoDBProvider', () => {
 
     describe('Transaction lifecycle', () => {
       it.skip('should handle transaction commit', async () => {
-        const mockSend = jest.fn().mockResolvedValue({});
+        const mockSend = vi.fn().mockResolvedValue({});
         
-        (provider as any).connectionManager.getDocumentClient = jest.fn().mockReturnValue({
+        (provider as any).connectionManager.getDocumentClient = vi.fn().mockReturnValue({
           send: mockSend
         });
 
@@ -504,7 +504,7 @@ describe('DynamoDBProvider', () => {
 
   describe('Health Check', () => {
     it.skip('should return healthy status when connected', async () => {
-      const mockSend = jest.fn().mockResolvedValue({});
+      const mockSend = vi.fn().mockResolvedValue({});
       (provider as any).connectionManager = {
         isConnected: () => true,
         healthCheck: async () => ({
@@ -535,7 +535,7 @@ describe('DynamoDBProvider', () => {
         message: 'Table not found'
       };
       
-      const mockSend = jest.fn().mockRejectedValue(dynamoError);
+      const mockSend = vi.fn().mockRejectedValue(dynamoError);
       (provider as any).connectionManager = {
         isConnected: () => true,
         getDocumentClient: () => ({ send: mockSend })
@@ -559,7 +559,7 @@ describe('DynamoDBProvider', () => {
 
   describe('Native Operations', () => {
     it.skip('should execute native DynamoDB operations', async () => {
-      const mockSend = jest.fn().mockResolvedValue({ Item: { pk: 'test' } });
+      const mockSend = vi.fn().mockResolvedValue({ Item: { pk: 'test' } });
       (provider as any).connectionManager = {
         isConnected: () => true,
         getDocumentClient: () => ({ send: mockSend })

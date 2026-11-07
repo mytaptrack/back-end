@@ -132,28 +132,28 @@ describe('USE_LOCAL routing', () => {
     // re-instantiated with the current value of process.env.USE_LOCAL.
 
     beforeEach(() => {
-        jest.resetModules();
+        vi.resetModules();
     });
 
     afterEach(() => {
         delete process.env.USE_LOCAL;
     });
 
-    it('UserDal.cognito is null when USE_LOCAL=true', () => {
+    it('UserDal.cognito is null when USE_LOCAL=true', async () => {
         process.env.USE_LOCAL = 'true';
         // Re-require AFTER setting env var and resetting modules so the
         // module-level `cognito = process.env.USE_LOCAL == 'true' ? null : new Client()`
         // assignment re-evaluates with USE_LOCAL='true'.
-        const { UserDal: freshUserDal } = require('./user-dal');
+        const { UserDal: freshUserDal } = await import('./user-dal');
         expect(freshUserDal.cognito).toBeNull();
     });
 
-    it('UserDal.cognito is a CognitoIdentityProviderClient when USE_LOCAL is not set', () => {
+    it('UserDal.cognito is a CognitoIdentityProviderClient when USE_LOCAL is not set', async () => {
         delete process.env.USE_LOCAL;
         // Re-require AFTER removing USE_LOCAL so the singleton is instantiated
         // without the local override — cognito should be a real client instance.
-        const { UserDal: freshUserDal } = require('./user-dal');
-        // The global test-setup mocks CognitoIdentityProviderClient as jest.fn(),
+        const { UserDal: freshUserDal } = await import('./user-dal');
+        // The global test-setup mocks CognitoIdentityProviderClient as vi.fn(),
         // so the instance is a mock object; check it is truthy (non-null).
         expect(freshUserDal.cognito).not.toBeNull();
         expect(freshUserDal.cognito).toBeDefined();
