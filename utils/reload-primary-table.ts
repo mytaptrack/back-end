@@ -22,12 +22,13 @@ async function deleteAllRecords() {
   let totalDeleted = 0;
   
   do {
-    const scanResult = await dal.scan<[{pk: string, sk: string}]>({projectionExpression: 'pk, sk', token: lastEvaluatedKey});
+    const scanResult = await dal.scan<{pk: string, sk: string}>({projectionExpression: 'pk, sk', token: lastEvaluatedKey});
     
     if (scanResult.items && scanResult.items.length > 0) {
       await Promise.all(scanResult.items.map(item => {
         return dal.delete(item);
       }))
+      totalDeleted += scanResult.items.length;
       console.log(`Deleted ${totalDeleted} records so far...`);
     }
     

@@ -3,14 +3,19 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 16
+      # Matches the Lambda runtime (NODEJS_22_X)
+      nodejs: 22
+    commands:
+      # Pinned to the aws-cdk version in the module package.json files
+      - npm install -g aws-cdk@2.1147.0
 
   pre_build:
     commands:
-      - cp ${BUCKET}/${STAGE}.yml config/${STAGE}.yml
+      - aws s3 cp "s3://${BUCKET}/${CONFIG_KEY}" "config/${STAGE}.yml"
+      - make install-deps
   build:
     commands:
-      - make deploy
+      - make deploy STAGE=${STAGE}
   post_build:
     commands:
       - echo "Build completed successfully."

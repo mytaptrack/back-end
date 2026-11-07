@@ -114,7 +114,7 @@ uninstall:
 
 # Update environment configurations
 update-env:
-	cd utils && npm i && npm run setenv && cd ..
+	cd utils && npm i && npm run set-env $(STAGE) && cd ..
 
 configure: install-deps configure-env
 

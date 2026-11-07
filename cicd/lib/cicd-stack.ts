@@ -45,45 +45,59 @@ export class CicdStack extends cdk.Stack {
       ]
     });
     
-    const buildStage = pipeline.addStage({
+    const buildProject = new cdk.aws_codebuild.PipelineProject(this, 'BuildProject', {
+      projectName: 'mytaptrack-back-end',
+      buildSpec: cdk.aws_codebuild.BuildSpec.fromAsset('buildspec.yml'),
+      environment: {
+        buildImage: cdk.aws_codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
+        privileged: true,
+        environmentVariables: {
+          'AWS_ACCOUNT_ID': {
+            value: this.account
+          },
+          'AWS_REGION': {
+            value: this.region
+          },
+          'CDK_DEFAULT_ACCOUNT': {
+            value: this.account
+          },
+          'CDK_DEFAULT_REGION': {
+            value: this.region
+          },
+          'ENVIRONMENT': {
+            value: environmentParam.valueAsString
+          },
+          'STAGE': {
+            value: environmentParam.valueAsString
+          },
+          'BUCKET': {
+            value: configBucket.valueAsString
+          },
+          'CONFIG_KEY': {
+            value: configKey.valueAsString
+          }
+        }
+      }
+    });
+
+    // buildspec.yml copies the environment config from s3://${BUCKET}/${CONFIG_KEY}
+    buildProject.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['s3:GetObject'],
+      resources: [`arn:${this.partition}:s3:::${configBucket.valueAsString}/${configKey.valueAsString}`]
+    }));
+
+    // `cdk deploy` works by assuming the CDK bootstrap roles (deploy, file/image publishing, lookup)
+    buildProject.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['sts:AssumeRole'],
+      resources: [`arn:${this.partition}:iam::${this.account}:role/cdk-*`]
+    }));
+
+    pipeline.addStage({
       stageName: 'Build',
       actions: [
         new cdk.aws_codepipeline_actions.CodeBuildAction({
           actionName: 'Build',
-          project: new cdk.aws_codebuild.PipelineProject(this, 'BuildProject', {
-            projectName: 'mytaptrack-back-end',
-            buildSpec: cdk.aws_codebuild.BuildSpec.fromAsset('buildspec.yml'),
-            environment: {
-              buildImage: cdk.aws_codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
-              privileged: true,
-              environmentVariables: {
-                'AWS_ACCOUNT_ID': {
-                  value: this.account
-                },
-                'AWS_REGION': {
-                  value: this.region
-                },
-                'CDK_DEFAULT_ACCOUNT': {
-                  value: this.account
-                },
-                'CDK_DEFAULT_REGION': {
-                  value: this.region
-                },
-                'ENVIRONMENT': {
-                  value: environmentParam.valueAsString
-                },
-                'STAGE': {
-                  value: environmentParam.valueAsString
-                },
-                'BUCKET': {
-                  value: configBucket.valueAsString
-                },
-                'CONFIG_KEY': {
-                  value: configKey.valueAsString
-                }
-              }
-            }
-          }),
+          project: buildProject,
           input: sourceArtifact,
           runOrder: 1
         })
